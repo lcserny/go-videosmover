@@ -24,7 +24,7 @@ func init() {
 
 func main() {
 	var response string
-	args := os.Args[1:]
+	args := os.Args[2:]
 	command := newCommandFrom(*commandFlag)
 	switch command {
 	case SEARCH:
@@ -37,6 +37,7 @@ func main() {
 	case UNKNOWN:
 		LogFatal(errors.New("Unknown command given" + *commandFlag))
 	}
+	// TODO: this writes to StdErr why?
 	print(response)
 }
 
