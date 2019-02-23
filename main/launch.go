@@ -5,6 +5,7 @@ import (
 	"flag"
 	"github.com/lcserny/go-videosmover"
 	. "github.com/lcserny/goutils"
+	"os"
 	"strings"
 )
 
@@ -23,11 +24,15 @@ func init() {
 
 func main() {
 	var response string
-	// args := os.Args[1:]
+	args := os.Args[1:]
 	command := newCommandFrom(*commandFlag)
 	switch command {
 	case SEARCH:
-		response = go_videosmover.Search()
+		if len(args) != 1 {
+			response = "ERROR: no args passed"
+			break
+		}
+		response = go_videosmover.Search(args[0])
 		break
 	case UNKNOWN:
 		LogFatal(errors.New("Unknown command given" + *commandFlag))
