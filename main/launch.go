@@ -13,6 +13,7 @@ func init() {
 	flag.Parse()
 }
 
+// TODO: implement file logging as StdOut and StdErr are occupied for cmd responses
 func main() {
 	args := os.Args[1:]
 	argsLength := len(args)
