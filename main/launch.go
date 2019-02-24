@@ -1,50 +1,36 @@
 package main
 
 import (
-	"errors"
 	"flag"
-	"github.com/lcserny/go-videosmover"
-	. "github.com/lcserny/goutils"
+	"fmt"
+	. "github.com/lcserny/go-videosmover"
 	"os"
-	"strings"
 )
 
-type Command int
-
-const (
-	UNKNOWN Command = -1
-	SEARCH  Command = 0
-)
-
-var commandFlag = flag.String("command", "search", "Please provide a `command` flag like: UNUSED")
+var actionFlag = flag.String("action", "search", "Please provide a `action` flag like: SEARCH")
 
 func init() {
 	flag.Parse()
 }
 
 func main() {
-	var response string
-	args := os.Args[2:]
-	command := newCommandFrom(*commandFlag)
-	switch command {
-	case SEARCH:
-		if len(args) != 1 {
-			response = "ERROR: no args passed"
-			break
-		}
-		response = go_videosmover.Search(args[0])
-		break
-	case UNKNOWN:
-		LogFatal(errors.New("Unknown command given" + *commandFlag))
+	args := os.Args[1:]
+	argsLength := len(args)
+	if argsLength < 1 {
+		print("ERROR: No args provided, please provide `jsonPayloadFilePath`")
+		return
 	}
-	// TODO: this writes to StdErr why?
-	print(response)
-}
 
-func newCommandFrom(val string) Command {
-	switch strings.ToUpper(val) {
-	case "SEARCH":
-		return SEARCH
+	jsonFile := args[0]
+	if argsLength == 2 {
+		jsonFile = args[1]
 	}
-	return UNKNOWN
+
+	action := NewActionFrom(*actionFlag)
+	response, err := action.Execute(jsonFile)
+	if err != nil {
+		_, _ = fmt.Fprint(os.Stderr, err)
+		return
+	}
+	_, _ = fmt.Fprint(os.Stdout, response)
 }
