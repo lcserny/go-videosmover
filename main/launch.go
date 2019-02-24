@@ -16,18 +16,13 @@ func init() {
 func main() {
 	args := os.Args[1:]
 	argsLength := len(args)
-	if argsLength < 1 {
-		print("ERROR: No args provided, please provide `jsonPayloadFilePath`")
+	if argsLength < 2 {
+		_, _ = fmt.Fprint(os.Stderr, "ERROR: Please provide `action` flag and `jsonPayloadFilePath` arg")
 		return
 	}
 
-	jsonFile := args[0]
-	if argsLength == 2 {
-		jsonFile = args[1]
-	}
-
 	action := NewActionFrom(*actionFlag)
-	response, err := action.Execute(jsonFile)
+	response, err := action.Execute(args[1])
 	if err != nil {
 		_, _ = fmt.Fprint(os.Stderr, err)
 		return
