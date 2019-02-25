@@ -17,7 +17,7 @@ type UnknownAction struct {
 }
 
 func (a *UnknownAction) Execute(jsonFile string) (string, error) {
-	return "", errors.New("Unknown command given")
+	return "", errors.New("Unknown action given")
 }
 
 // TODO: add action to use from qBittorrent when done downloading to add to a db or something,
