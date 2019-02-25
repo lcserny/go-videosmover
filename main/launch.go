@@ -10,11 +10,23 @@ import (
 	"path/filepath"
 )
 
-var actionFlag = flag.String("action", "search", "Please provide a `action` flag like: SEARCH")
+// TODO: place this better somewhere
+const CONFIG_FILE = "videosmover.properties"
+
+var (
+	actionFlag = flag.String("action", "search", "Please provide a `action` flag like: SEARCH")
+)
 
 func init() {
 	flag.Parse()
+
 	initLogger()
+	initProperties()
+}
+
+// TODO: not really happy with usage like this, how can I redeclare this in other files?
+func initProperties() {
+	AppProperties = ReadPropertiesFile(CONFIG_FILE)
 }
 
 func initLogger() {

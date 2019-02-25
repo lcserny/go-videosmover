@@ -2,11 +2,36 @@ package videosmover
 
 import (
 	"encoding/json"
+	"github.com/h2non/filetype"
 	. "github.com/lcserny/goutils"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
+
+const EXCLUDE_LIST = "video.exclude.paths"
+const MIME_TYPES = "video.mime.types"
+const MIN_VIDEO_SIZE = "minimum.video.size"
+
+var (
+	AppProperties *ConfigProperties
+	excludePaths  []string
+	mimeTypes     []string
+	minFileSize   int64
+)
+
+func init() {
+	if AppProperties.HasProperty(EXCLUDE_LIST) {
+		excludePaths = strings.Split(AppProperties.GetPropertyAsString(EXCLUDE_LIST), ",")
+	}
+	if AppProperties.HasProperty(MIME_TYPES) {
+		mimeTypes = strings.Split(AppProperties.GetPropertyAsString(MIME_TYPES), ",")
+	}
+	if AppProperties.HasProperty(MIN_VIDEO_SIZE) {
+		minFileSize = AppProperties.GetPropertyAsInt64(MIN_VIDEO_SIZE)
+	}
+}
 
 type SearchAction struct {
 }
@@ -38,7 +63,9 @@ func (a *SearchAction) Execute(jsonFile string) (string, error) {
 	err = filepath.Walk(request.Path, func(path string, info os.FileInfo, err error) error {
 		LogError(err)
 		if !info.IsDir() {
-			resultList = append(resultList, ResponseSearchData{path})
+			if isVideo(path, info) {
+				resultList = append(resultList, ResponseSearchData{path})
+			}
 		}
 		return nil
 	})
@@ -54,4 +81,36 @@ func (a *SearchAction) Execute(jsonFile string) (string, error) {
 	}
 
 	return string(resultBytes), nil
+}
+
+func isVideo(path string, info os.FileInfo) bool {
+	// check path
+	// get a list of excluded paths
+	for _, exPath := range excludePaths {
+		if strings.Contains(path, exPath) {
+			return false
+		}
+	}
+
+	// check type
+	// get a list with accepted mime types
+	buf, _ := ioutil.ReadFile(path)
+	kind, _ := filetype.Match(buf)
+	acceptedMime := false
+	for _, mType := range mimeTypes {
+		if kind.MIME.Value == mType {
+			acceptedMime = true
+			break
+		}
+	}
+	if !acceptedMime && !strings.Contains(strings.ToLower(kind.MIME.Value), "video") {
+		return false
+	}
+
+	// check size
+	if info.Size() < minFileSize {
+		return false
+	}
+
+	return true
 }
