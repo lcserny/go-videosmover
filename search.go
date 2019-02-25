@@ -15,10 +15,9 @@ const MIME_TYPES = "video.mime.types"
 const MIN_VIDEO_SIZE = "minimum.video.size"
 
 var (
-	AppProperties *ConfigProperties
-	excludePaths  []string
-	mimeTypes     []string
-	minFileSize   int64
+	excludePaths []string
+	mimeTypes    []string
+	minFileSize  int64
 )
 
 func init() {
@@ -85,7 +84,6 @@ func (a *SearchAction) Execute(jsonFile string) (string, error) {
 
 func isVideo(path string, info os.FileInfo) bool {
 	// check path
-	// get a list of excluded paths
 	for _, exPath := range excludePaths {
 		if strings.Contains(path, exPath) {
 			return false
@@ -93,7 +91,6 @@ func isVideo(path string, info os.FileInfo) bool {
 	}
 
 	// check type
-	// get a list with accepted mime types
 	buf, _ := ioutil.ReadFile(path)
 	kind, _ := filetype.Match(buf)
 	acceptedMime := false
@@ -103,7 +100,7 @@ func isVideo(path string, info os.FileInfo) bool {
 			break
 		}
 	}
-	if !acceptedMime && !strings.Contains(strings.ToLower(kind.MIME.Value), "video") {
+	if !acceptedMime && kind.MIME.Type != "video" {
 		return false
 	}
 
