@@ -10,9 +10,12 @@ import (
 	"strings"
 )
 
-const EXCLUDE_LIST = "video.exclude.paths"
-const MIME_TYPES = "video.mime.types"
-const MIN_VIDEO_SIZE = "minimum.video.size"
+const (
+	EXCLUDE_LIST   = "video.exclude.paths"
+	MIME_TYPES     = "video.mime.types"
+	MIN_VIDEO_SIZE = "minimum.video.size"
+	MAX_WALK_DEPTH = 3
+)
 
 var (
 	excludePaths []string
@@ -61,7 +64,7 @@ func (a *SearchAction) Execute(jsonFile string) (string, error) {
 	var resultList []ResponseSearchData
 	err = filepath.Walk(request.Path, func(path string, info os.FileInfo, err error) error {
 		LogError(err)
-		if !info.IsDir() {
+		if !info.IsDir() && walkDepthIsAcceptable(request.Path, path, MAX_WALK_DEPTH) {
 			if isVideo(path, info) {
 				resultList = append(resultList, ResponseSearchData{path})
 			}
@@ -80,6 +83,17 @@ func (a *SearchAction) Execute(jsonFile string) (string, error) {
 	}
 
 	return string(resultBytes), nil
+}
+
+func walkDepthIsAcceptable(rootPath string, path string, maxWalkDepth int) bool {
+	trimmed := path[len(rootPath):]
+	separatorCount := 0
+	for _, char := range trimmed {
+		if char == os.PathSeparator {
+			separatorCount++
+		}
+	}
+	return separatorCount < maxWalkDepth
 }
 
 func isVideo(path string, info os.FileInfo) bool {
