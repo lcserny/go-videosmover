@@ -91,6 +91,7 @@ func isVideo(path string, info os.FileInfo) bool {
 	}
 
 	// check type
+	// FIXME: this doesn't work fast enough / crashes, either read only beginning of file or use another library
 	buf, _ := ioutil.ReadFile(path)
 	kind, _ := filetype.Match(buf)
 	acceptedMime := false
