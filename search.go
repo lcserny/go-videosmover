@@ -14,7 +14,7 @@ const (
 	EXCLUDE_LIST   = "video.exclude.paths"
 	MIME_TYPES     = "video.mime.types"
 	MIN_VIDEO_SIZE = "minimum.video.size"
-	MAX_WALK_DEPTH = 3
+	MAX_WALK_DEPTH = 4
 )
 
 var (
@@ -64,6 +64,11 @@ func (a *SearchAction) Execute(jsonFile string) (string, error) {
 	var resultList []ResponseSearchData
 	err = filepath.Walk(request.Path, func(path string, info os.FileInfo, err error) error {
 		LogError(err)
+		if info == nil {
+			// TODO: enteres here for paths with invalid chars in it like : and such
+			LogInfo(path)
+		}
+
 		if !info.IsDir() && walkDepthIsAcceptable(request.Path, path, MAX_WALK_DEPTH) {
 			if isVideo(path, info) {
 				resultList = append(resultList, ResponseSearchData{path})
@@ -105,9 +110,11 @@ func isVideo(path string, info os.FileInfo) bool {
 	}
 
 	// check type
-	file, _ := os.Open(path)
+	file, err := os.Open(path)
+	LogError(err)
+	defer CloseFile(file)
 	head := make([]byte, 261)
-	_, err := file.Read(head)
+	_, err = file.Read(head)
 	LogError(err)
 	acceptedMime := false
 	for _, mType := range mimeTypes {
