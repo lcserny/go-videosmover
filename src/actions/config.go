@@ -16,7 +16,7 @@ const (
 var AppProperties *ConfigProperties
 
 func init() {
-	content, err := packr.NewBox("../config").FindString(fmt.Sprintf("videosmover_%s.properties", runtime.GOOS))
+	content, err := packr.NewBox("../../config").FindString(fmt.Sprintf("videosmover_%s.properties", runtime.GOOS))
 	LogFatal(err)
 
 	AppProperties = ReadProperties(content)
