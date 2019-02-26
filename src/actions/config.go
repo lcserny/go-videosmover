@@ -1,21 +1,23 @@
 package actions
 
 import (
+	"fmt"
 	. "github.com/lcserny/goutils"
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 )
 
 const (
-	CONFIG_FILE  = "videosmover.properties"
-	LOG_PATH_KEY = "log.path"
+	PROPERTIES_FILE = "videosmover_%s.properties"
+	LOG_PATH_KEY    = "log.path"
 )
 
 var AppProperties *ConfigProperties
 
-func InitConfig(configDir string) {
-	AppProperties = ReadPropertiesFile(filepath.Join(configDir, CONFIG_FILE))
+func init() {
+	AppProperties = ReadPropertiesFile(filepath.Join("config", fmt.Sprintf(PROPERTIES_FILE, runtime.GOOS)))
 	if AppProperties.HasProperty(LOG_PATH_KEY) {
 		initLogger(AppProperties.GetPropertyAsString(LOG_PATH_KEY))
 	}

@@ -2,6 +2,8 @@
 .idea
 *.iml
 *.log
+*windows*
+*linux*
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Windows template

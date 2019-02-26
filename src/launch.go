@@ -14,19 +14,16 @@ func init() {
 	flag.Parse()
 }
 
-// TODO: use packr to pack config file into binary or?
 func main() {
 	args := os.Args[1:]
-	if len(args) < 3 {
-		_, err := fmt.Fprint(os.Stderr, "ERROR: Please provide `action` flag, `configPath` and `jsonPayloadFilePath` args")
+	if len(args) < 2 {
+		_, err := fmt.Fprint(os.Stderr, "ERROR: Please provide `action` flag and `jsonPayloadFilePath` args")
 		LogError(err)
 		return
 	}
 
-	actions.InitConfig(args[1])
-
 	action := actions.NewActionFrom(*actionFlag)
-	response, err := action.Execute(args[2])
+	response, err := action.Execute(args[1])
 	if err != nil {
 		_, err := fmt.Fprint(os.Stderr, err)
 		LogError(err)
