@@ -1,9 +1,9 @@
-package main
+package src
 
 import (
 	"flag"
 	"fmt"
-	"github.com/lcserny/go-videosmover/actions"
+	"github.com/lcserny/go-videosmover/src/actions"
 	. "github.com/lcserny/goutils"
 	"os"
 )
