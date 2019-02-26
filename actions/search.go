@@ -1,4 +1,4 @@
-package videosmover
+package actions
 
 import (
 	"encoding/json"
@@ -65,7 +65,7 @@ func (a *SearchAction) Execute(jsonFile string) (string, error) {
 	err = filepath.Walk(request.Path, func(path string, info os.FileInfo, err error) error {
 		LogError(err)
 		if info == nil {
-			// TODO: enteres here for paths with invalid chars in it like : and such
+			// TODO: enters here for paths with invalid chars in it like : and such
 			LogInfo(path)
 		}
 

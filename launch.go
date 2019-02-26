@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	. "github.com/lcserny/go-videosmover"
+	"github.com/lcserny/go-videosmover/actions"
 	. "github.com/lcserny/goutils"
 	"os"
 )
@@ -23,7 +23,7 @@ func main() {
 		return
 	}
 
-	action := NewActionFrom(*actionFlag)
+	action := actions.NewActionFrom(*actionFlag)
 	response, err := action.Execute(args[1])
 	if err != nil {
 		_, err := fmt.Fprint(os.Stderr, err)

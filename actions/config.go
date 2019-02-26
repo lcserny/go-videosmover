@@ -1,4 +1,4 @@
-package videosmover
+package actions
 
 import (
 	. "github.com/lcserny/goutils"
