@@ -2,10 +2,10 @@ package actions
 
 import (
 	"fmt"
+	"github.com/gobuffalo/packr"
 	. "github.com/lcserny/goutils"
 	"log"
 	"os"
-	"path/filepath"
 	"runtime"
 )
 
@@ -16,7 +16,10 @@ const (
 var AppProperties *ConfigProperties
 
 func init() {
-	AppProperties = ReadPropertiesFile(filepath.Join("config", fmt.Sprintf("videosmover_%s.properties", runtime.GOOS)))
+	content, err := packr.NewBox("../config").FindString(fmt.Sprintf("videosmover_%s.properties", runtime.GOOS))
+	LogFatal(err)
+
+	AppProperties = ReadProperties(content)
 	if AppProperties.HasProperty(LOG_PATH_KEY) {
 		initLogger(AppProperties.GetPropertyAsString(LOG_PATH_KEY))
 	}
