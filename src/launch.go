@@ -14,6 +14,7 @@ func init() {
 	flag.Parse()
 }
 
+// TODO: use packr to pack config file into binary or?
 func main() {
 	args := os.Args[1:]
 	if len(args) < 3 {
