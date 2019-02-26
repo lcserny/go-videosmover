@@ -10,14 +10,13 @@ import (
 )
 
 const (
-	PROPERTIES_FILE = "videosmover_%s.properties"
-	LOG_PATH_KEY    = "log.path"
+	LOG_PATH_KEY = "log.path"
 )
 
 var AppProperties *ConfigProperties
 
 func init() {
-	AppProperties = ReadPropertiesFile(filepath.Join("config", fmt.Sprintf(PROPERTIES_FILE, runtime.GOOS)))
+	AppProperties = ReadPropertiesFile(filepath.Join("config", fmt.Sprintf("videosmover_%s.properties", runtime.GOOS)))
 	if AppProperties.HasProperty(LOG_PATH_KEY) {
 		initLogger(AppProperties.GetPropertyAsString(LOG_PATH_KEY))
 	}
