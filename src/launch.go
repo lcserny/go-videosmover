@@ -1,4 +1,4 @@
-package src
+package main
 
 import (
 	"flag"
@@ -16,15 +16,16 @@ func init() {
 
 func main() {
 	args := os.Args[1:]
-	argsLength := len(args)
-	if argsLength < 2 {
-		_, err := fmt.Fprint(os.Stderr, "ERROR: Please provide `action` flag and `jsonPayloadFilePath` arg")
+	if len(args) < 3 {
+		_, err := fmt.Fprint(os.Stderr, "ERROR: Please provide `action` flag, `configPath` and `jsonPayloadFilePath` args")
 		LogError(err)
 		return
 	}
 
+	actions.InitConfig(args[1])
+
 	action := actions.NewActionFrom(*actionFlag)
-	response, err := action.Execute(args[1])
+	response, err := action.Execute(args[2])
 	if err != nil {
 		_, err := fmt.Fprint(os.Stderr, err)
 		LogError(err)

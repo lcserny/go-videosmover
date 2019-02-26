@@ -8,27 +8,21 @@ import (
 )
 
 const (
-	LOG_FILE    = "videosmover.log"
-	CONFIG_FILE = "videosmover.properties" // TODO: embed these properties?
+	CONFIG_FILE  = "videosmover.properties"
+	LOG_PATH_KEY = "log.path"
 )
 
 var AppProperties *ConfigProperties
 
-func init() {
-	initLogger()
-	initProperties()
+func InitConfig(configDir string) {
+	AppProperties = ReadPropertiesFile(filepath.Join(configDir, CONFIG_FILE))
+	if AppProperties.HasProperty(LOG_PATH_KEY) {
+		initLogger(AppProperties.GetPropertyAsString(LOG_PATH_KEY))
+	}
 }
 
-func initProperties() {
-	AppProperties = ReadPropertiesFile(CONFIG_FILE)
-}
-
-func initLogger() {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+func initLogger(logPath string) {
+	openFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	LogFatal(err)
-
-	openFile, err := os.OpenFile(filepath.Join(dir, LOG_FILE), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	LogFatal(err)
-
 	log.SetOutput(openFile)
 }
