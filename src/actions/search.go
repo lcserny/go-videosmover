@@ -11,11 +11,11 @@ import (
 )
 
 const (
-	EXCLUDE_LIST      = "video.exclude.paths"
-	MIME_TYPES        = "video.mime.types"
-	MIN_VIDEO_SIZE    = "minimum.video.size"
-	MAX_WALK_DEPTH    = 4
-	HEADER_BYTES_SIZE = 261
+	EXCLUDE_LIST_FILE  = "exclude_paths"
+	MIME_TYPES_FILE    = "mime_types"
+	MIN_VIDEO_SIZE_KEY = "minimum.video.size"
+	MAX_WALK_DEPTH     = 4
+	HEADER_BYTES_SIZE  = 261
 )
 
 var (
@@ -25,14 +25,16 @@ var (
 )
 
 func init() {
-	if AppProperties.HasProperty(EXCLUDE_LIST) {
-		excludePaths = strings.Split(AppProperties.GetPropertyAsString(EXCLUDE_LIST), ",")
-	}
-	if AppProperties.HasProperty(MIME_TYPES) {
-		mimeTypes = strings.Split(AppProperties.GetPropertyAsString(MIME_TYPES), ",")
-	}
-	if AppProperties.HasProperty(MIN_VIDEO_SIZE) {
-		minFileSize = AppProperties.GetPropertyAsInt64(MIN_VIDEO_SIZE)
+	excludePathsContent, err := configFolder.FindString(EXCLUDE_LIST_FILE)
+	LogError(err)
+	excludePaths = strings.Split(excludePathsContent, "\n")
+
+	mimeTypesContent, err := configFolder.FindString(MIME_TYPES_FILE)
+	LogError(err)
+	mimeTypes = strings.Split(mimeTypesContent, "\n")
+
+	if appProperties.HasProperty(MIN_VIDEO_SIZE_KEY) {
+		minFileSize = appProperties.GetPropertyAsInt64(MIN_VIDEO_SIZE_KEY)
 	}
 }
 

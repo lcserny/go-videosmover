@@ -1,32 +1,35 @@
 package actions
 
 import (
-	"fmt"
 	"github.com/gobuffalo/packr"
 	. "github.com/lcserny/goutils"
 	"log"
 	"os"
-	"runtime"
 )
 
 const (
-	LOG_PATH_KEY = "log.path"
+	BASE_CONF_FILE = "videosmover.properties"
+	LOG_FILE       = "videosmover.log"
 )
 
-var AppProperties *ConfigProperties
+// if these need to be accessible in other packages, put this in a `shared` package and export vars
+var (
+	appProperties *ConfigProperties
+	configFolder  packr.Box
+)
 
 func init() {
-	content, err := packr.NewBox("../../config").FindString(fmt.Sprintf("videosmover_%s.properties", runtime.GOOS))
+	initLogger()
+
+	configFolder = packr.NewBox("../../config")
+	content, err := configFolder.FindString(BASE_CONF_FILE)
 	LogFatal(err)
 
-	AppProperties = ReadProperties(content)
-	if AppProperties.HasProperty(LOG_PATH_KEY) {
-		initLogger(AppProperties.GetPropertyAsString(LOG_PATH_KEY))
-	}
+	appProperties = ReadProperties(content)
 }
 
-func initLogger(logPath string) {
-	openFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+func initLogger() {
+	openFile, err := os.OpenFile(LOG_FILE, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	LogFatal(err)
 	log.SetOutput(openFile)
 }
