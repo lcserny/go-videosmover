@@ -67,7 +67,7 @@ func (a *SearchAction) Execute(jsonFile string) (string, error) {
 	realWalkRootPath, _ := GetRealPath(request.Path)
 	var resultList []ResponseSearchData
 	err = filepath.Walk(realWalkRootPath, func(path string, info os.FileInfo, err error) error {
-		if info == nil {
+		if err != nil {
 			LogError(err)
 			return nil
 		}
