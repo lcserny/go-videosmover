@@ -78,6 +78,10 @@ func (a *SearchAction) Execute(jsonFile string) (string, error) {
 		return "", err
 	}
 
+	if len(resultList) < 1 {
+		return "", nil
+	}
+
 	resultBytes, err := json.Marshal(resultList)
 	LogError(err)
 	if err != nil {
