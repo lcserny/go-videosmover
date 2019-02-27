@@ -61,15 +61,11 @@ func (a *SearchAction) Execute(jsonFile string) (string, error) {
 		return "", err
 	}
 
+	realWalkRootPath, _ := GetRealPath(request.Path)
 	var resultList []ResponseSearchData
-	err = filepath.Walk(request.Path, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(realWalkRootPath, func(path string, info os.FileInfo, err error) error {
 		LogError(err)
-		if info == nil {
-			// TODO: enters here for paths with invalid chars in it like : and such
-			LogInfo(path)
-		}
-
-		if !info.IsDir() && walkDepthIsAcceptable(request.Path, path, MAX_WALK_DEPTH) {
+		if info != nil && !info.IsDir() && walkDepthIsAcceptable(realWalkRootPath, path, MAX_WALK_DEPTH) {
 			if isVideo(path, info) {
 				resultList = append(resultList, ResponseSearchData{path})
 			}
