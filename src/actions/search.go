@@ -67,8 +67,12 @@ func (a *SearchAction) Execute(jsonFile string) (string, error) {
 	realWalkRootPath, _ := GetRealPath(request.Path)
 	var resultList []ResponseSearchData
 	err = filepath.Walk(realWalkRootPath, func(path string, info os.FileInfo, err error) error {
-		LogError(err)
-		if info != nil && !info.IsDir() && walkDepthIsAcceptable(realWalkRootPath, path, MAX_WALK_DEPTH) {
+		if info == nil {
+			LogError(err)
+			return nil
+		}
+
+		if !info.IsDir() && walkDepthIsAcceptable(realWalkRootPath, path, MAX_WALK_DEPTH) {
 			if isVideo(path, info) {
 				resultList = append(resultList, ResponseSearchData{path})
 			}
