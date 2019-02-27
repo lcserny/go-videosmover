@@ -11,10 +11,11 @@ import (
 )
 
 const (
-	EXCLUDE_LIST   = "video.exclude.paths"
-	MIME_TYPES     = "video.mime.types"
-	MIN_VIDEO_SIZE = "minimum.video.size"
-	MAX_WALK_DEPTH = 4
+	EXCLUDE_LIST      = "video.exclude.paths"
+	MIME_TYPES        = "video.mime.types"
+	MIN_VIDEO_SIZE    = "minimum.video.size"
+	MAX_WALK_DEPTH    = 4
+	HEADER_BYTES_SIZE = 261
 )
 
 var (
@@ -98,6 +99,18 @@ func walkDepthIsAcceptable(rootPath string, path string, maxWalkDepth int) bool 
 }
 
 func isVideo(path string, info os.FileInfo) bool {
+	file, err := os.Open(path)
+	if err != nil {
+		LogError(err)
+		return false
+	}
+	defer CloseFile(file)
+	head := make([]byte, HEADER_BYTES_SIZE)
+	n, _ := file.Read(head)
+	if n < HEADER_BYTES_SIZE {
+		return false
+	}
+
 	// check path
 	for _, exPath := range excludePaths {
 		if strings.Contains(path, exPath) {
@@ -106,12 +119,6 @@ func isVideo(path string, info os.FileInfo) bool {
 	}
 
 	// check type
-	file, err := os.Open(path)
-	LogError(err)
-	defer CloseFile(file)
-	head := make([]byte, 261)
-	_, err = file.Read(head)
-	LogError(err)
 	acceptedMime := false
 	for _, mType := range mimeTypes {
 		if filetype.IsMIME(head, mType) {
