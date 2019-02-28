@@ -28,6 +28,10 @@ var (
 type SearchAction struct {
 }
 
+type SearchRequestData struct {
+	Path string `json:"path"`
+}
+
 type SearchResponseData struct {
 	Path      string   `json:"path"`
 	Subtitles []string `json:"subtitles"`
@@ -52,7 +56,7 @@ func init() {
 }
 
 func (a *SearchAction) Execute(jsonPayload []byte) (string, error) {
-	var request RequestSearchData
+	var request SearchRequestData
 	err := json.Unmarshal(jsonPayload, &request)
 	LogError(err)
 	if err != nil {

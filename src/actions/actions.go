@@ -10,10 +10,6 @@ const (
 	OUTPUT = "OUTPUT"
 )
 
-type RequestSearchData struct {
-	Path string `json:"path"`
-}
-
 type Action interface {
 	Execute(jsonPayload []byte) (string, error)
 }
