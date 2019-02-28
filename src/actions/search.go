@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	EXCLUDE_LIST_FILE  = "exclude_paths"
-	MIME_TYPES_FILE    = "mime_types"
+	EXCLUDE_LIST_FILE  = "search_exclude_paths"
+	MIME_TYPES_FILE    = "allowed_mime_types"
 	MIN_VIDEO_SIZE_KEY = "minimum.video.size"
 	MAX_WALK_DEPTH     = 4
 	HEADER_BYTES_SIZE  = 261
