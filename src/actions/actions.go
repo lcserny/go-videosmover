@@ -1,22 +1,27 @@
 package actions
 
 import (
-	"github.com/juju/errors"
+	"github.com/pkg/errors"
 	"strings"
 )
 
 const (
 	SEARCH = "SEARCH"
+	OUTPUT = "OUTPUT"
 )
 
+type RequestSearchData struct {
+	Path string `json:"path"`
+}
+
 type Action interface {
-	Execute(jsonFile string) (string, error)
+	Execute(jsonPayload []byte) (string, error)
 }
 
 type UnknownAction struct {
 }
 
-func (a *UnknownAction) Execute(jsonFile string) (string, error) {
+func (a *UnknownAction) Execute(jsonPayload []byte) (string, error) {
 	return "", errors.New("Unknown action given")
 }
 
@@ -26,6 +31,8 @@ func NewActionFrom(val string) Action {
 	switch strings.ToUpper(val) {
 	case SEARCH:
 		return new(SearchAction)
+	case OUTPUT:
+		return new(OutputAction)
 	}
 	return new(UnknownAction)
 }

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/h2non/filetype"
 	. "github.com/lcserny/goutils"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -26,6 +25,14 @@ var (
 	minFileSize         int64
 )
 
+type SearchAction struct {
+}
+
+type SearchResponseData struct {
+	Path      string   `json:"path"`
+	Subtitles []string `json:"subtitles"`
+}
+
 func init() {
 	excludePathsContent, err := configFolder.FindString(EXCLUDE_LIST_FILE)
 	LogError(err)
@@ -44,35 +51,16 @@ func init() {
 	}
 }
 
-type SearchAction struct {
-}
-
-// TODO: put these in a shared go project `go-videosmover-shared`
-type RequestSearchData struct {
-	Path string `json:"path"`
-}
-
-type ResponseSearchData struct {
-	Path      string   `json:"path"`
-	Subtitles []string `json:"subtitles"`
-}
-
-func (a *SearchAction) Execute(jsonFile string) (string, error) {
-	jsonRequestBytes, err := ioutil.ReadFile(jsonFile)
-	LogError(err)
-	if err != nil {
-		return "", err
-	}
-
+func (a *SearchAction) Execute(jsonPayload []byte) (string, error) {
 	var request RequestSearchData
-	err = json.Unmarshal(jsonRequestBytes, &request)
+	err := json.Unmarshal(jsonPayload, &request)
 	LogError(err)
 	if err != nil {
 		return "", err
 	}
 
 	realWalkRootPath, _ := GetRealPath(request.Path)
-	var resultList []ResponseSearchData
+	var resultList []SearchResponseData
 	err = filepath.Walk(realWalkRootPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			LogError(err)
@@ -81,7 +69,7 @@ func (a *SearchAction) Execute(jsonFile string) (string, error) {
 
 		if !info.IsDir() && walkDepthIsAcceptable(realWalkRootPath, path, MAX_WALK_DEPTH) {
 			if isVideo(path, info) {
-				resultList = append(resultList, ResponseSearchData{path, findSubtitles(realWalkRootPath, path, info)})
+				resultList = append(resultList, SearchResponseData{path, findSubtitles(realWalkRootPath, path, info)})
 			}
 		}
 		return nil

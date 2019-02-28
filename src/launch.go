@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/lcserny/go-videosmover/src/actions"
 	. "github.com/lcserny/goutils"
+	"io/ioutil"
 	"os"
 )
 
@@ -23,12 +24,20 @@ func main() {
 	}
 
 	action := actions.NewActionFrom(*actionFlag)
-	response, err := action.Execute(args[1])
-	if err != nil {
-		_, err := fmt.Fprint(os.Stderr, err)
-		LogError(err)
-		return
-	}
+
+	jsonBytes, err := ioutil.ReadFile(args[1])
+	stopOnError(err)
+
+	response, err := action.Execute(jsonBytes)
+	stopOnError(err)
+
 	_, err = fmt.Fprint(os.Stdout, response)
 	LogError(err)
+}
+
+func stopOnError(err error) {
+	if err != nil {
+		_, err := fmt.Fprint(os.Stderr, err)
+		LogFatal(err)
+	}
 }
