@@ -10,14 +10,9 @@ const (
 	OUTPUT = "OUTPUT"
 )
 
-type Action interface {
-	Execute(jsonPayload []byte) (string, error)
-}
+type Action func(jsonPayload []byte) (string, error)
 
-type UnknownAction struct {
-}
-
-func (a *UnknownAction) Execute(jsonPayload []byte) (string, error) {
+func UnknownAction(jsonPayload []byte) (string, error) {
 	return "", errors.New("Unknown action given")
 }
 
@@ -26,9 +21,9 @@ func (a *UnknownAction) Execute(jsonPayload []byte) (string, error) {
 func NewActionFrom(val string) Action {
 	switch strings.ToUpper(val) {
 	case SEARCH:
-		return new(SearchAction)
+		return SearchAction
 	case OUTPUT:
-		return new(OutputAction)
+		return OutputAction
 	}
-	return new(UnknownAction)
+	return UnknownAction
 }

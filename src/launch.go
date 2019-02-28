@@ -28,7 +28,7 @@ func main() {
 	jsonBytes, err := ioutil.ReadFile(args[1])
 	stopOnError(err)
 
-	response, err := action.Execute(jsonBytes)
+	response, err := action(jsonBytes)
 	stopOnError(err)
 
 	_, err = fmt.Fprint(os.Stdout, response)

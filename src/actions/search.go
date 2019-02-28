@@ -25,9 +25,6 @@ var (
 	minFileSize         int64
 )
 
-type SearchAction struct {
-}
-
 type SearchRequestData struct {
 	Path string `json:"path"`
 }
@@ -55,7 +52,7 @@ func init() {
 	}
 }
 
-func (a *SearchAction) Execute(jsonPayload []byte) (string, error) {
+func SearchAction(jsonPayload []byte) (string, error) {
 	var request SearchRequestData
 	err := json.Unmarshal(jsonPayload, &request)
 	LogError(err)
