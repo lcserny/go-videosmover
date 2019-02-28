@@ -11,27 +11,33 @@ import (
 )
 
 const (
-	EXCLUDE_LIST_FILE  = "search_exclude_paths"
-	MIME_TYPES_FILE    = "allowed_mime_types"
-	MIN_VIDEO_SIZE_KEY = "minimum.video.size"
-	MAX_WALK_DEPTH     = 4
-	HEADER_BYTES_SIZE  = 261
+	EXCLUDE_LIST_FILE      = "search_exclude_paths"
+	MIME_TYPES_FILE        = "allowed_mime_types"
+	ALLOWED_SUBTITLES_FILE = "allowed_subtitle_exts"
+	MIN_VIDEO_SIZE_KEY     = "minimum.video.size"
+	MAX_WALK_DEPTH         = 4
+	HEADER_BYTES_SIZE      = 261
 )
 
 var (
-	excludePaths []string
-	mimeTypes    []string
-	minFileSize  int64
+	excludePaths        []string
+	mimeTypes           []string
+	allowedSubtitleExts []string
+	minFileSize         int64
 )
 
 func init() {
 	excludePathsContent, err := configFolder.FindString(EXCLUDE_LIST_FILE)
 	LogError(err)
-	excludePaths = strings.Split(excludePathsContent, "\n")
+	excludePaths = GetLinesFromString(excludePathsContent)
 
 	mimeTypesContent, err := configFolder.FindString(MIME_TYPES_FILE)
 	LogError(err)
-	mimeTypes = strings.Split(mimeTypesContent, "\n")
+	mimeTypes = GetLinesFromString(mimeTypesContent)
+
+	allowedSubtitleExtsContent, err := configFolder.FindString(ALLOWED_SUBTITLES_FILE)
+	LogError(err)
+	allowedSubtitleExts = GetLinesFromString(allowedSubtitleExtsContent)
 
 	if appProperties.HasProperty(MIN_VIDEO_SIZE_KEY) {
 		minFileSize = appProperties.GetPropertyAsInt64(MIN_VIDEO_SIZE_KEY)
@@ -47,7 +53,8 @@ type RequestSearchData struct {
 }
 
 type ResponseSearchData struct {
-	Path string `json:"path"`
+	Path      string   `json:"path"`
+	Subtitles []string `json:"subtitles"`
 }
 
 func (a *SearchAction) Execute(jsonFile string) (string, error) {
@@ -74,7 +81,7 @@ func (a *SearchAction) Execute(jsonFile string) (string, error) {
 
 		if !info.IsDir() && walkDepthIsAcceptable(realWalkRootPath, path, MAX_WALK_DEPTH) {
 			if isVideo(path, info) {
-				resultList = append(resultList, ResponseSearchData{path})
+				resultList = append(resultList, ResponseSearchData{path, findSubtitles(realWalkRootPath, path, info)})
 			}
 		}
 		return nil
@@ -146,4 +153,38 @@ func isVideo(path string, info os.FileInfo) bool {
 	}
 
 	return true
+}
+
+func findSubtitles(rootPath, path string, info os.FileInfo) []string {
+	subs := make([]string, 0)
+	pathDir := filepath.Dir(path)
+	if rootPath == pathDir {
+		return subs
+	}
+
+	err := filepath.Walk(pathDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			LogError(err)
+			return nil
+		}
+
+		if !info.IsDir() && isSubtitle(path, info) {
+			subs = append(subs, path)
+		}
+
+		return nil
+	})
+	LogError(err)
+
+	return subs
+}
+
+func isSubtitle(path string, info os.FileInfo) bool {
+	ext := filepath.Ext(path)
+	for _, allowedExt := range allowedSubtitleExts {
+		if ext == allowedExt {
+			return true
+		}
+	}
+	return false
 }
