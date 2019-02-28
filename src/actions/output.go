@@ -11,6 +11,7 @@ type OutputResponseData struct {
 	Name string `json:"name"`
 }
 
+// use tmdbApiKey global var
 func OutputAction(jsonPayload []byte) (string, error) {
 	// TODO: based on data provided
 	//  trim name and such, make it decent and find it on disk

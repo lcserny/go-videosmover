@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	TMDB_API_KEY   = "TMDB_API_KEY"
 	BASE_CONF_FILE = "videosmover.properties"
 	LOG_FILE       = "videosmover.log"
 )
@@ -16,6 +17,7 @@ const (
 var (
 	appProperties *ConfigProperties
 	configFolder  packr.Box
+	tmdbApiKey    string
 )
 
 func init() {
@@ -26,6 +28,15 @@ func init() {
 	LogFatal(err)
 
 	appProperties = ReadProperties(content)
+
+	initTMDBApiKey()
+}
+
+func initTMDBApiKey() {
+	key, exists := os.LookupEnv(TMDB_API_KEY)
+	if exists {
+		tmdbApiKey = key
+	}
 }
 
 func initLogger() {
