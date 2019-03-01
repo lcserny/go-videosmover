@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/gobuffalo/packr"
+	"github.com/lcserny/go-videosmover/src/server/handlers"
 	. "github.com/lcserny/goutils"
-	"github.com/lcserny/videosmover-server/src/handlers"
 	"io"
 	"log"
 	"net/http"

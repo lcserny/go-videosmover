@@ -10,10 +10,9 @@ type SearchResponseData struct {
 }
 
 type OutputRequestData struct {
-	Name       string `json:"name"`
-	Type       string `json:"type"`
-	MoviesPath string `json:"moviesPath"`
-	TvPath     string `json:"tvPath"`
+	Name     string `json:"name"`
+	Type     string `json:"type"`
+	DiskPath string `json:"diskPath"`
 }
 
 type OutputResponseData struct {

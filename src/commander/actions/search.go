@@ -76,13 +76,7 @@ func SearchAction(jsonPayload []byte) (string, error) {
 		return "", nil
 	}
 
-	resultBytes, err := json.Marshal(resultList)
-	LogError(err)
-	if err != nil {
-		return "", err
-	}
-
-	return string(resultBytes), nil
+	return getJSONEncodedString(resultList), nil
 }
 
 func walkDepthIsAcceptable(rootPath string, path string, maxWalkDepth int) bool {
