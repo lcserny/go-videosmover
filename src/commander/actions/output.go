@@ -176,10 +176,12 @@ func findOnDisk(normalizedWithYear, diskPath string) (results []string, found bo
 	return results, true
 }
 
+// TODO: check https://github.com/ryanbradynd05/go-tmdb/
 func movieTMDBSearch(normalizedName string, year int) ([]string, bool) {
 	return nil, false
 }
 
+// TODO: check https://github.com/ryanbradynd05/go-tmdb/
 func tvSeriesTMDBSearch(normalizedName string, year int) ([]string, bool) {
 	return nil, false
 }
