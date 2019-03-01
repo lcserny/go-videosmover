@@ -6,8 +6,11 @@ import (
 	. "github.com/lcserny/go-videosmover/src/shared"
 	. "github.com/lcserny/goutils"
 	"github.com/pkg/errors"
+	"regexp"
 	"strings"
 )
+
+const NAME_TRIM_REGX_FILE = "name_trim_regx"
 
 type normalizeFunc func(name string) (string, int)
 type searchTMDBFunc func(normalizedName string, year int) ([]string, bool)
@@ -17,9 +20,18 @@ type OutputConfig struct {
 	SearchTMDB searchTMDBFunc
 }
 
-var configsMap = map[string]*OutputConfig{
-	"movie": {movieNormalize, movieTMDBSearch},
-	"tv":    {tvSeriesNormalize, tvSeriesTMDBSearch},
+var (
+	configsMap = map[string]*OutputConfig{
+		"movie": {movieNormalize, movieTMDBSearch},
+		"tv":    {tvSeriesNormalize, tvSeriesTMDBSearch},
+	}
+	nameTrimPartsRegxs []*regexp.Regexp
+)
+
+func init() {
+	nameTrimPartsContent, err := configFolder.FindString(NAME_TRIM_REGX_FILE)
+	LogError(err)
+	nameTrimPartsRegxs = getRegexList(GetLinesFromString(nameTrimPartsContent))
 }
 
 func OutputAction(jsonPayload []byte) (string, error) {
@@ -52,6 +64,13 @@ func OutputAction(jsonPayload []byte) (string, error) {
 	return getJSONEncodedString([]string{normalizedWithYear}), nil
 }
 
+func getRegexList(patterns []string) (regxs []*regexp.Regexp) {
+	for _, pat := range patterns {
+		regxs = append(regxs, regexp.MustCompile(fmt.Sprintf("(?i)(-?%s)", pat)))
+	}
+	return regxs
+}
+
 func normalizeWithYear(normalizedName string, year int) string {
 	if year > 0 {
 		return fmt.Sprintf("%s (%d)", normalizedName, year)
@@ -67,21 +86,21 @@ func getConfig(itemType string) (*OutputConfig, error) {
 }
 
 func movieNormalize(name string) (string, int) {
-
+	return "", 0
 }
 
 func tvSeriesNormalize(name string) (string, int) {
-
+	return "", 0
 }
 
 func findOnDisk(normalizedWithYear, diskPath string) ([]string, bool) {
-
+	return nil, false
 }
 
 func movieTMDBSearch(normalizedName string, year int) ([]string, bool) {
-
+	return nil, false
 }
 
 func tvSeriesTMDBSearch(normalizedName string, year int) ([]string, bool) {
-
+	return nil, false
 }
