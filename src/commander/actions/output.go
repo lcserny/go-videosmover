@@ -170,6 +170,7 @@ func findOnDisk(normalizedWithYear, diskPath string) (results []string, found bo
 	return results, true
 }
 
+// TODO: merge these into one, just pass the differences?
 func movieTMDBSearch(normalizedName string, year int) (searchedList []string, found bool) {
 	options := map[string]string{"page": "1", "language": "en"}
 	if year > 0 {
