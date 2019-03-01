@@ -1,5 +1,10 @@
 package shared
 
+const (
+	MOVIE = "movie"
+	TV    = "tv"
+)
+
 type SearchRequestData struct {
 	Path string `json:"path"`
 }

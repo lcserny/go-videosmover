@@ -39,8 +39,8 @@ var (
 	specialCharsRegex = regexp.MustCompile(`([\[._\]])`)
 	yearPatternRegex  = regexp.MustCompile(`\s\d{4}$`)
 	configsMap        = map[string]*OutputConfig{
-		"movie": {movieNormalize, movieTMDBSearch},
-		"tv":    {tvSeriesNormalize, tvSeriesTMDBSearch},
+		MOVIE: {movieNormalize, movieTMDBSearch},
+		TV:    {tvSeriesNormalize, tvSeriesTMDBSearch},
 	}
 	nameTrimPartsRegxs []*regexp.Regexp
 	acceptedSimPercent int
