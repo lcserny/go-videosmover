@@ -42,6 +42,7 @@ func (h *BinJsonExecuteHandler) serveGET(w http.ResponseWriter, r *http.Request)
 	LogInfo("Exited GET request")
 }
 
+// TODO: implement caching, for a given requestData cache a given responseData
 func (h *BinJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
