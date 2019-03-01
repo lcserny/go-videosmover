@@ -15,7 +15,7 @@ const (
 	MIME_TYPES_FILE        = "allowed_mime_types"
 	ALLOWED_SUBTITLES_FILE = "allowed_subtitle_exts"
 	MIN_VIDEO_SIZE_KEY     = "minimum.video.size"
-	MAX_WALK_DEPTH         = 4
+	MAX_SEARCH_WALK_DEPTH  = 4
 	HEADER_BYTES_SIZE      = 261
 )
 
@@ -60,7 +60,7 @@ func SearchAction(jsonPayload []byte) (string, error) {
 			return nil
 		}
 
-		if !info.IsDir() && walkDepthIsAcceptable(realWalkRootPath, path, MAX_WALK_DEPTH) {
+		if !info.IsDir() && walkDepthIsAcceptable(realWalkRootPath, path, MAX_SEARCH_WALK_DEPTH) {
 			if isVideo(path, info) {
 				resultList = append(resultList, SearchResponseData{path, findSubtitles(realWalkRootPath, path, info)})
 			}
@@ -77,17 +77,6 @@ func SearchAction(jsonPayload []byte) (string, error) {
 	}
 
 	return getJSONEncodedString(resultList), nil
-}
-
-func walkDepthIsAcceptable(rootPath string, path string, maxWalkDepth int) bool {
-	trimmed := path[len(rootPath):]
-	separatorCount := 0
-	for _, char := range trimmed {
-		if char == os.PathSeparator {
-			separatorCount++
-		}
-	}
-	return separatorCount < maxWalkDepth
 }
 
 func isVideo(path string, info os.FileInfo) bool {
