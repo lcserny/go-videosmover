@@ -6,6 +6,7 @@ import (
 	. "github.com/lcserny/go-videosmover/src/shared"
 	. "github.com/lcserny/goutils"
 	"github.com/pkg/errors"
+	"github.com/ryanbradynd05/go-tmdb"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -16,6 +17,7 @@ import (
 
 const (
 	MAX_OUTPUT_WALK_DEPTH = 2
+	MAX_TMDB_RES_COUNT    = 10
 	NAME_TRIM_REGX_FILE   = "name_trim_regx"
 	SIM_PERCENT_KEY       = "similarity.percent"
 )
@@ -42,6 +44,7 @@ var (
 	}
 	nameTrimPartsRegxs []*regexp.Regexp
 	acceptedSimPercent int
+	tmdbAPI            *tmdb.TMDb
 )
 
 func init() {
@@ -51,6 +54,10 @@ func init() {
 
 	if appProperties.HasProperty(SIM_PERCENT_KEY) {
 		acceptedSimPercent = appProperties.GetPropertyAsInt(SIM_PERCENT_KEY)
+	}
+
+	if tmdbApiKey != "" {
+		tmdbAPI = tmdb.Init(tmdb.Config{tmdbApiKey, false, nil})
 	}
 }
 
@@ -74,8 +81,7 @@ func OutputAction(jsonPayload []byte) (string, error) {
 		return getJSONEncodedString(onDisk), nil
 	}
 
-	if tmdbApiKey != "" {
-		// TODO: get a list of 10? API resolved output names from that decent name
+	if tmdbAPI != nil {
 		if tmdbNames, found := config.SearchTMDB(normalized, year); found {
 			return getJSONEncodedString(tmdbNames), nil
 		}
@@ -176,12 +182,32 @@ func findOnDisk(normalizedWithYear, diskPath string) (results []string, found bo
 	return results, true
 }
 
-// TODO: check https://github.com/ryanbradynd05/go-tmdb/
-func movieTMDBSearch(normalizedName string, year int) ([]string, bool) {
-	return nil, false
+func movieTMDBSearch(normalizedName string, year int) (searchedList []string, found bool) {
+	results, err := tmdbAPI.SearchMovie(normalizedName, map[string]string{"year": string(year), "page": "1", "language": "en"})
+	if err != nil {
+		LogError(err)
+		return searchedList, false
+	}
+
+	for i := 0; i < MAX_TMDB_RES_COUNT; i++ {
+		movie := results.Results[i]
+		searchedList = append(searchedList, fmt.Sprintf("%s (%s)", movie.Title, movie.ReleaseDate))
+	}
+
+	return searchedList, true
 }
 
-// TODO: check https://github.com/ryanbradynd05/go-tmdb/
-func tvSeriesTMDBSearch(normalizedName string, year int) ([]string, bool) {
-	return nil, false
+func tvSeriesTMDBSearch(normalizedName string, year int) (searchedList []string, found bool) {
+	results, err := tmdbAPI.SearchTv(normalizedName, map[string]string{"first_air_date_year": string(year), "page": "1", "language": "en"})
+	if err != nil {
+		LogError(err)
+		return searchedList, false
+	}
+
+	for i := 0; i < MAX_TMDB_RES_COUNT; i++ {
+		tvShow := results.Results[i]
+		searchedList = append(searchedList, fmt.Sprintf("%s (%s)", tvShow.Name, tvShow.FirstAirDate[0:4]))
+	}
+
+	return searchedList, true
 }
