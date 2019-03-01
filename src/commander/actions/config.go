@@ -9,8 +9,8 @@ import (
 
 const (
 	TMDB_API_KEY   = "TMDB_API_KEY"
-	BASE_CONF_FILE = "videosmover.properties"
-	LOG_FILE       = "videosmover.log"
+	BASE_CONF_FILE = "commander.properties"
+	LOG_FILE       = "videosmover-commander.log"
 )
 
 // if these need to be accessible in other packages, put this in a `shared` package and export vars
@@ -23,7 +23,7 @@ var (
 func init() {
 	initLogger()
 
-	configFolder = packr.NewBox("../../config")
+	configFolder = packr.NewBox("../../../config")
 	content, err := configFolder.FindString(BASE_CONF_FILE)
 	LogFatal(err)
 

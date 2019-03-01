@@ -5,17 +5,6 @@ import (
 	. "github.com/lcserny/goutils"
 )
 
-type OutputRequestData struct {
-	Name       string `json:"name"`
-	Type       string `json:"type"`
-	MoviesPath string `json:"moviesPath"`
-	TvPath     string `json:"tvPath"`
-}
-
-type OutputResponseData struct {
-	Name string `json:"name"`
-}
-
 // use tmdbApiKey global var
 func OutputAction(jsonPayload []byte) (string, error) {
 	// TODO: based on data provided

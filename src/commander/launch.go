@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/lcserny/go-videosmover/src/actions"
+	"github.com/lcserny/go-videosmover/src/commander/actions"
 	. "github.com/lcserny/goutils"
 	"io/ioutil"
 	"os"

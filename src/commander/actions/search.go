@@ -3,6 +3,7 @@ package actions
 import (
 	"encoding/json"
 	"github.com/h2non/filetype"
+	. "github.com/lcserny/go-videosmover/src/shared"
 	. "github.com/lcserny/goutils"
 	"os"
 	"path/filepath"
@@ -24,15 +25,6 @@ var (
 	allowedSubtitleExts []string
 	minFileSize         int64
 )
-
-type SearchRequestData struct {
-	Path string `json:"path"`
-}
-
-type SearchResponseData struct {
-	Path      string   `json:"path"`
-	Subtitles []string `json:"subtitles"`
-}
 
 func init() {
 	excludePathsContent, err := configFolder.FindString(EXCLUDE_LIST_FILE)
