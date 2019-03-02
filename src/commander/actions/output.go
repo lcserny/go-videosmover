@@ -20,6 +20,7 @@ const (
 	MAX_TMDB_RES_COUNT    = 10
 	NAME_TRIM_REGX_FILE   = "name_trim_regx"
 	SIM_PERCENT_KEY       = "similarity.percent"
+	TMDB_API_KEY          = "TMDB_API_KEY"
 )
 
 type searchTMDBFunc func(normalizedName string, year int) ([]string, bool)
@@ -50,8 +51,8 @@ func init() {
 		acceptedSimPercent = appProperties.GetPropertyAsInt(SIM_PERCENT_KEY)
 	}
 
-	if tmdbApiKey != "" {
-		tmdbAPI = tmdb.Init(tmdb.Config{tmdbApiKey, false, nil})
+	if key, exists := os.LookupEnv(TMDB_API_KEY); exists {
+		tmdbAPI = tmdb.Init(tmdb.Config{key, false, nil})
 	}
 }
 
