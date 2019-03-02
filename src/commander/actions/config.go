@@ -23,6 +23,7 @@ var (
 	actionsMap = map[string]Action{
 		"SEARCH": SearchAction,
 		"OUTPUT": OutputAction,
+		"MOVE":   MoveAction,
 	}
 )
 

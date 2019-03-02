@@ -23,3 +23,14 @@ type OutputRequestData struct {
 type OutputResponseData struct {
 	Name string `json:"name"`
 }
+
+type MoveRequestData struct {
+	Video    string   `json:"video"`
+	Subs     []string `json:"subs"`
+	DiskPath string   `json:"diskPath"`
+	OutName  string   `json:"outName"`
+}
+
+type MoveResponseData struct {
+	UnmovedVideo string `json:"unmovedVideo"`
+}
