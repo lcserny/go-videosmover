@@ -84,7 +84,7 @@ func (me *moveExecutor) moveSubs() bool {
 func (me *moveExecutor) cleanIfPossible() {
 	restricted := false
 	for _, restrictedFolder := range restrictedRemovePaths {
-		if strings.Index(me.folder, restrictedFolder) != -1 {
+		if strings.HasSuffix(me.folder, restrictedFolder) {
 			restricted = true
 			*me.resultList = append(*me.resultList, MoveResponseData{me.folder,
 				[]string{fmt.Sprintf(RESTRICTED_PATH_REASON, me.folder)}})
