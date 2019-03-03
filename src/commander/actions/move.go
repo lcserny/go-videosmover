@@ -11,12 +11,12 @@ import (
 )
 
 const (
-	MOVIE_EXISTS_REASON          = "Movie %s already exists in %s"
-	COULDNT_CREATE_FOLDER_REASON = "Couldn't create folder %s"
-	INPUT_VIDEO_PROBLEM_REASON   = "Video %s has problems"
-	MOVING_PROBLEM_REASON        = "Problem occurred trying to move %s"
-	RESTRICTED_PATH_REASON       = "Video dir %s is in restricted path"
-	COULDNT_REMOVE_FOLDER_REASON = "Couldn't remove video dir %s"
+	MOVIE_EXISTS_REASON          = "Movie '%s' already exists in '%s'"
+	COULDNT_CREATE_FOLDER_REASON = "Couldn't create folder '%s'"
+	INPUT_VIDEO_PROBLEM_REASON   = "Video '%s' has problems"
+	MOVING_PROBLEM_REASON        = "Problem occurred trying to move '%s'"
+	RESTRICTED_PATH_REASON       = "Video dir '%s' is in restricted path"
+	COULDNT_REMOVE_FOLDER_REASON = "Couldn't remove video dir '%s'"
 
 	RESTRICTED_REMOVE_PATHS_FILE_KEY = "restricted_remove_paths"
 )
@@ -49,7 +49,7 @@ func (me *moveExecutor) prepareMove() bool {
 	} else {
 		if me.request.Type == MOVIE {
 			*me.resultList = append(*me.resultList, MoveResponseData{me.folder,
-				[]string{fmt.Sprintf(MOVIE_EXISTS_REASON, me.dest, me.request.DiskPath)}})
+				[]string{fmt.Sprintf(MOVIE_EXISTS_REASON, me.request.OutName, me.request.DiskPath)}})
 			return false
 		}
 	}
