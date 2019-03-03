@@ -56,6 +56,7 @@ func init() {
 	}
 }
 
+// TODO: implement local persisted caching
 func OutputAction(jsonPayload []byte) (string, error) {
 	var request OutputRequestData
 	err := json.Unmarshal(jsonPayload, &request)
@@ -67,7 +68,7 @@ func OutputAction(jsonPayload []byte) (string, error) {
 	normalized, year := normalize(request.Name)
 	normalizedWithYear := appendYear(normalized, year)
 	if onDisk, found := findOnDisk(normalizedWithYear, request.DiskPath); found {
-		return getJSONEncodedString(onDisk), nil
+		return getJSONEncodedString(OutputResponseData{onDisk, ORIGIN_DISK}), nil
 	}
 
 	if tmdbAPI != nil {
@@ -78,11 +79,11 @@ func OutputAction(jsonPayload []byte) (string, error) {
 		}
 
 		if tmdbNames, found := tmdbFunc(normalized, year); found {
-			return getJSONEncodedString(tmdbNames), nil
+			return getJSONEncodedString(OutputResponseData{tmdbNames, ORIGIN_TMDB}), nil
 		}
 	}
 
-	return getJSONEncodedString([]string{normalizedWithYear}), nil
+	return getJSONEncodedString(OutputResponseData{[]string{normalizedWithYear}, ORIGIN_NAME}), nil
 }
 
 func getRegexList(patterns []string) (regxs []*regexp.Regexp) {

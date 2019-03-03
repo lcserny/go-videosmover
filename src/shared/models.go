@@ -3,6 +3,10 @@ package shared
 const (
 	MOVIE = "movie"
 	TV    = "tv"
+
+	ORIGIN_NAME = "NAME"
+	ORIGIN_DISK = "DISK"
+	ORIGIN_TMDB = "TMDB"
 )
 
 type SearchRequestData struct {
@@ -21,16 +25,19 @@ type OutputRequestData struct {
 }
 
 type OutputResponseData struct {
-	Name string `json:"name"`
+	Names  []string `json:"name"`
+	Origin string   `json:"origin"`
 }
 
 type MoveRequestData struct {
 	Video    string   `json:"video"`
 	Subs     []string `json:"subs"`
+	Type     string   `json:"type"`
 	DiskPath string   `json:"diskPath"`
 	OutName  string   `json:"outName"`
 }
 
 type MoveResponseData struct {
-	UnmovedVideo string `json:"unmovedVideo"`
+	UnmovedFolder string `json:"unmovedFolder"`
+	Reason        string `json:"reason"`
 }
