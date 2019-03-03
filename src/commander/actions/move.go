@@ -109,15 +109,15 @@ func init() {
 
 // TODO: test
 func MoveAction(jsonPayload []byte) (string, error) {
-	var request []MoveRequestData
-	err := json.Unmarshal(jsonPayload, &request)
+	var requests []MoveRequestData
+	err := json.Unmarshal(jsonPayload, &requests)
 	LogError(err)
 	if err != nil {
 		return "", err
 	}
 
 	var resultList []MoveResponseData
-	for _, req := range request {
+	for _, req := range requests {
 		moveExecutor := moveExecutor{
 			&resultList,
 			&req,
