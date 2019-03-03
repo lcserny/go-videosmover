@@ -20,6 +20,9 @@ JSON response should be like:
 "body" : some JSON body response or empty if error  
 }  
 
+##### TODO:
+- implement tests  
+
 v1: 
  - no UI needed, (Ui will be done on requester side), only possibility to listen for requests and execute jar
  (this might come from an Android app, initially)
@@ -34,4 +37,7 @@ How to run:
 - get https://github.com/gobuffalo/packr    
 - from root of project `packr build src/commander/launch.go`  
 - for the TMDB online API search to work you need to set `TMDB_API_KEY` environment variable  
-- execute actions on built app
+- execute actions on built app  
+
+##### TODO:
+- implement tests  

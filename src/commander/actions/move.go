@@ -104,7 +104,6 @@ func init() {
 	restrictedRemovePaths = GetLinesFromString(restrictedRemovePathsContent)
 }
 
-// TODO: test
 func MoveAction(jsonPayload []byte) (string, error) {
 	var requests []MoveRequestData
 	err := json.Unmarshal(jsonPayload, &requests)
