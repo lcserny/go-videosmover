@@ -29,7 +29,7 @@ type moveExecutor struct {
 	folder, dest string
 }
 
-func (me *moveExecutor) canProceedWithError(err error, reason string) bool {
+func (me *moveExecutor) canProceed(err error, reason string) bool {
 	if err != nil {
 		LogError(err)
 		*me.resultList = append(*me.resultList, MoveResponseData{me.folder, []string{reason}})
@@ -132,13 +132,13 @@ func MoveAction(jsonPayload []byte) (string, error) {
 
 		// get info
 		info, err := os.Stat(req.Video)
-		if proceed := moveExecutor.canProceedWithError(err, fmt.Sprintf(INPUT_VIDEO_PROBLEM_REASON, req.Video)); !proceed {
+		if proceed := moveExecutor.canProceed(err, fmt.Sprintf(INPUT_VIDEO_PROBLEM_REASON, req.Video)); !proceed {
 			continue
 		}
 
 		// move video
 		err = os.Rename(req.Video, filepath.Join(moveExecutor.dest, info.Name()))
-		if proceed := moveExecutor.canProceedWithError(err, fmt.Sprintf(MOVING_PROBLEM_REASON, req.Video)); !proceed {
+		if proceed := moveExecutor.canProceed(err, fmt.Sprintf(MOVING_PROBLEM_REASON, req.Video)); !proceed {
 			continue
 		}
 
