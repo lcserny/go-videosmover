@@ -38,6 +38,6 @@ type MoveRequestData struct {
 }
 
 type MoveResponseData struct {
-	UnmovedFolder string `json:"unmovedFolder"`
-	Reason        string `json:"reason"`
+	UnmovedFolder string   `json:"unmovedFolder"`
+	Reasons       []string `json:"reasons"`
 }
