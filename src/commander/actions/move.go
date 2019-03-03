@@ -1,10 +1,22 @@
 package actions
 
-import "github.com/pkg/errors"
+import (
+	"encoding/json"
+	. "github.com/lcserny/go-videosmover/src/shared"
+	. "github.com/lcserny/goutils"
+)
 
 func MoveAction(jsonPayload []byte) (string, error) {
-	// TODO: receives listOf -> MoveRequestData
-	// TODO: returns listOf -> notMovedVideos (you should check logs why)
+	var request []MoveRequestData
+	err := json.Unmarshal(jsonPayload, &request)
+	LogError(err)
+	if err != nil {
+		return "", err
+	}
 
-	return "", errors.New("Not implemented action")
+	var resultList []MoveResponseData
+
+	
+
+	return getJSONEncodedString(resultList), nil
 }
