@@ -172,7 +172,7 @@ func findOnDisk(normalizedWithYear, diskPath string) (results []string, found bo
 	return results, true
 }
 
-// TODO: merge these into one, just pass the differences?
+// TODO: merge these into one struct with functions and refactor
 func movieTMDBSearch(normalizedName string, year int) (searchedList []string, found bool) {
 	options := map[string]string{"page": "1", "language": "en"}
 	if year > 0 {
@@ -182,6 +182,10 @@ func movieTMDBSearch(normalizedName string, year int) (searchedList []string, fo
 	results, err := tmdbAPI.SearchMovie(normalizedName, options)
 	if err != nil {
 		LogError(err)
+		return searchedList, false
+	}
+
+	if len(results.Results) < 1 {
 		return searchedList, false
 	}
 
@@ -202,6 +206,10 @@ func tvSeriesTMDBSearch(normalizedName string, year int) (searchedList []string,
 	results, err := tmdbAPI.SearchTv(normalizedName, options)
 	if err != nil {
 		LogError(err)
+		return searchedList, false
+	}
+
+	if len(results.Results) < 1 {
 		return searchedList, false
 	}
 

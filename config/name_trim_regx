@@ -1,7 +1,8 @@
-.[sS](\\d{1,2})([-]?[eE](\\d{1,2}))?
-[\\.\\s][sS][0-9]{1,2}[\\.\\s]?
+.[sS](\d{1,2})([-]?[eE](\d{1,2}))?
+[\.\s][sS][0-9]{1,2}[\.\s]?
 1080p
 720p
+\.OAR\.
 BluRay
 HDTV
 x264
@@ -20,18 +21,18 @@ DVDRip
 .?ViP3R
 .?ETRG.?
 .?MVGroup.org
-(\\d|\\.){1,5}(GB|MB)
-\\.EXTENDED\\.
+(\d|\.){1,5}(GB|MB)
+\.EXTENDED\.
 .?anoXmous
 (?-i).?UnKnOwN
 .?Team Nanban.?
 WEB-DL
-.?ShAaNiG(\\.com)?
+.?ShAaNiG(\.com)?
 DVDScr
 -?Hive-CM8
 HQ
 WEBRip
-AAC2(\\.\\d)?
+AAC2(\.\d)?
 -?STUTTERSHIT
 -?FGT
 .?Studio.Ghibli.?
@@ -45,7 +46,7 @@ BDRip
 -?HORiZON
 -?GAZ
 -?VLiS
-(DD)?5\\.1
+(DD)?5\.1
 MIRCrew
 DTS
 -?ACAB
@@ -57,9 +58,9 @@ sujaidr
 .?juggs
 .?MkvCage
 -?KILLERS
-\\[eztv\\]
+\[eztv\]
 -?SVA
-\\[ettv\\]
+\[ettv\]
 -?BATV
-\\.web
+\.web
 tbs
