@@ -25,7 +25,7 @@ type OutputRequestData struct {
 }
 
 type OutputResponseData struct {
-	Names  []string `json:"name"`
+	Names  []string `json:"names"`
 	Origin string   `json:"origin"`
 }
 
