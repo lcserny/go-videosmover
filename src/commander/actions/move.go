@@ -82,22 +82,19 @@ func (me *moveExecutor) moveSubs() bool {
 }
 
 func (me *moveExecutor) cleanIfPossible() {
-	restricted := false
 	for _, restrictedFolder := range restrictedRemovePaths {
 		if strings.HasSuffix(me.folder, restrictedFolder) {
-			restricted = true
 			*me.resultList = append(*me.resultList, MoveResponseData{me.folder,
 				[]string{fmt.Sprintf(RESTRICTED_PATH_REASON, me.folder)}})
-			break
+			return
 		}
 	}
-	if !restricted {
-		err := os.RemoveAll(me.folder)
-		if err != nil {
-			LogError(err)
-			*me.resultList = append(*me.resultList, MoveResponseData{me.folder,
-				[]string{fmt.Sprintf(COULDNT_REMOVE_FOLDER_REASON, me.folder)}})
-		}
+
+	err := os.RemoveAll(me.folder)
+	if err != nil {
+		LogError(err)
+		*me.resultList = append(*me.resultList, MoveResponseData{me.folder,
+			[]string{fmt.Sprintf(COULDNT_REMOVE_FOLDER_REASON, me.folder)}})
 	}
 }
 
@@ -116,7 +113,7 @@ func MoveAction(jsonPayload []byte) (string, error) {
 		return "", err
 	}
 
-	var resultList []MoveResponseData
+	resultList := make([]MoveResponseData, 0)
 	for _, req := range requests {
 		moveExecutor := moveExecutor{
 			&resultList,
