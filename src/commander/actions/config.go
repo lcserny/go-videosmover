@@ -14,7 +14,6 @@ const (
 	LOG_FILE       = "videosmover-commander.log"
 )
 
-// if these need to be accessible in other packages, put this in a `shared` package and export vars
 var (
 	appProperties *ConfigProperties
 	configFolder  packr.Box
