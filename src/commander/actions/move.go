@@ -3,6 +3,7 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Bios-Marcel/wastebasket"
 	. "github.com/lcserny/go-videosmover/src/shared"
 	. "github.com/lcserny/goutils"
 	"os"
@@ -107,7 +108,7 @@ func (me *moveExecutor) cleanIfPossible() {
 		return
 	}
 
-	err := os.RemoveAll(me.folder)
+	err := wastebasket.Trash(me.folder)
 	if err != nil {
 		LogError(err)
 		me.appendToUnmovedReasons(fmt.Sprintf(COULDNT_REMOVE_FOLDER_REASON, me.folder))
