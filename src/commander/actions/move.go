@@ -29,6 +29,12 @@ type moveExecutor struct {
 	folder, dest string
 }
 
+func newMoveExecutor(resultList *[]MoveResponseData, request *MoveRequestData) *moveExecutor {
+	videoDir := filepath.Dir(request.Video)
+	destination := filepath.Join(request.DiskPath, request.OutName)
+	return &moveExecutor{resultList, request, videoDir, destination}
+}
+
 func (me *moveExecutor) canProceed(err error, reason string) bool {
 	if err != nil {
 		LogError(err)
@@ -53,6 +59,20 @@ func (me *moveExecutor) prepareMove() bool {
 			return false
 		}
 	}
+	return true
+}
+
+func (me *moveExecutor) moveVideo() bool {
+	info, err := os.Stat(me.request.Video)
+	if proceed := me.canProceed(err, fmt.Sprintf(INPUT_VIDEO_PROBLEM_REASON, me.request.Video)); !proceed {
+		return false
+	}
+
+	err = os.Rename(me.request.Video, filepath.Join(me.dest, info.Name()))
+	if proceed := me.canProceed(err, fmt.Sprintf(MOVING_PROBLEM_REASON, me.request.Video)); !proceed {
+		return false
+	}
+
 	return true
 }
 
@@ -114,36 +134,16 @@ func MoveAction(jsonPayload []byte) (string, error) {
 
 	resultList := make([]MoveResponseData, 0)
 	for _, req := range requests {
-		moveExecutor := moveExecutor{
-			&resultList,
-			&req,
-			filepath.Dir(req.Video),
-			filepath.Join(req.DiskPath, req.OutName),
-		}
-
-		// prepare
+		moveExecutor := newMoveExecutor(&resultList, &req)
 		if proceed := moveExecutor.prepareMove(); !proceed {
 			continue
 		}
-
-		// get info
-		info, err := os.Stat(req.Video)
-		if proceed := moveExecutor.canProceed(err, fmt.Sprintf(INPUT_VIDEO_PROBLEM_REASON, req.Video)); !proceed {
+		if proceed := moveExecutor.moveVideo(); !proceed {
 			continue
 		}
-
-		// move video
-		err = os.Rename(req.Video, filepath.Join(moveExecutor.dest, info.Name()))
-		if proceed := moveExecutor.canProceed(err, fmt.Sprintf(MOVING_PROBLEM_REASON, req.Video)); !proceed {
-			continue
-		}
-
-		// move subs
 		if proceed := moveExecutor.moveSubs(); !proceed {
 			continue
 		}
-
-		// clean
 		moveExecutor.cleanIfPossible()
 	}
 
