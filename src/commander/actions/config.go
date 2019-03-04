@@ -21,12 +21,11 @@ var (
 
 	// TODO: add action to use from qBittorrent when done downloading to add to a db or something,
 	//  then in Android app on startup it can maybe show you last finished downloading torrents
-
-	// TODO: add delete action that moves to `recycle bin` or so, not delete permanently
 	actionsMap = map[string]Action{
 		"SEARCH": SearchAction,
 		"OUTPUT": OutputAction,
 		"MOVE":   MoveAction,
+		"DELETE": DeleteAction,
 	}
 )
 

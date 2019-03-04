@@ -3,6 +3,7 @@ module github.com/lcserny/go-videosmover
 go 1.12
 
 require (
+	github.com/Bios-Marcel/wastebasket v0.0.0-20190214165430-ecc8c287f8eb
 	github.com/gobuffalo/packr v1.22.0
 	github.com/h2non/filetype v1.0.8
 	github.com/lcserny/goutils v1.0.0

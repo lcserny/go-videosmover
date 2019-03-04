@@ -41,3 +41,12 @@ type MoveResponseData struct {
 	UnmovedFolder string   `json:"unmovedFolder"`
 	Reasons       []string `json:"reasons"`
 }
+
+type DeleteRequestData struct {
+	Folder string `json:"folder"`
+}
+
+type DeleteResponseData struct {
+	UnRemovedFolder string   `json:"unRemovedFolder"`
+	Reasons         []string `json:"reasons"`
+}

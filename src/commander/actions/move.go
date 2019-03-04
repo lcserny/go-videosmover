@@ -15,13 +15,8 @@ const (
 	COULDNT_CREATE_FOLDER_REASON = "Couldn't create folder '%s'"
 	INPUT_VIDEO_PROBLEM_REASON   = "Video '%s' has problems"
 	MOVING_PROBLEM_REASON        = "Problem occurred trying to move '%s'"
-	RESTRICTED_PATH_REASON       = "Video dir '%s' is a restricted path"
 	COULDNT_REMOVE_FOLDER_REASON = "Couldn't remove video dir '%s'"
-
-	RESTRICTED_REMOVE_PATHS_FILE_KEY = "restricted_remove_paths"
 )
-
-var restrictedRemovePaths []string
 
 type moveExecutor struct {
 	resultList   *[]MoveResponseData
@@ -35,10 +30,17 @@ func newMoveExecutor(resultList *[]MoveResponseData, request *MoveRequestData) *
 	return &moveExecutor{resultList, request, videoDir, destination}
 }
 
+func (me *moveExecutor) appendToUnmovedReasons(reason ...string) {
+	*me.resultList = append(*me.resultList, MoveResponseData{
+		me.folder,
+		reason,
+	})
+}
+
 func (me *moveExecutor) canProceed(err error, reason string) bool {
 	if err != nil {
 		LogError(err)
-		*me.resultList = append(*me.resultList, MoveResponseData{me.folder, []string{reason}})
+		me.appendToUnmovedReasons(reason)
 		return false
 	}
 	return true
@@ -48,14 +50,12 @@ func (me *moveExecutor) prepareMove() bool {
 	if _, err := os.Stat(me.dest); os.IsNotExist(err) {
 		err := os.MkdirAll(me.dest, os.ModePerm)
 		if err != nil {
-			*me.resultList = append(*me.resultList, MoveResponseData{me.folder,
-				[]string{fmt.Sprintf(COULDNT_CREATE_FOLDER_REASON, me.dest)}})
+			me.appendToUnmovedReasons(fmt.Sprintf(COULDNT_CREATE_FOLDER_REASON, me.dest))
 			return false
 		}
 	} else {
 		if me.request.Type == MOVIE {
-			*me.resultList = append(*me.resultList, MoveResponseData{me.folder,
-				[]string{fmt.Sprintf(MOVIE_EXISTS_REASON, me.request.OutName, me.request.DiskPath)}})
+			me.appendToUnmovedReasons(fmt.Sprintf(MOVIE_EXISTS_REASON, me.request.OutName, me.request.DiskPath))
 			return false
 		}
 	}
@@ -94,7 +94,7 @@ func (me *moveExecutor) moveSubs() bool {
 	}
 
 	if unmovedSubs {
-		*me.resultList = append(*me.resultList, MoveResponseData{me.folder, unmovedSubsReasons})
+		me.appendToUnmovedReasons(unmovedSubsReasons...)
 		return false
 	}
 
@@ -102,26 +102,16 @@ func (me *moveExecutor) moveSubs() bool {
 }
 
 func (me *moveExecutor) cleanIfPossible() {
-	for _, restrictedFolder := range restrictedRemovePaths {
-		if strings.HasSuffix(me.folder, restrictedFolder) {
-			*me.resultList = append(*me.resultList, MoveResponseData{me.folder,
-				[]string{fmt.Sprintf(RESTRICTED_PATH_REASON, me.folder)}})
-			return
-		}
+	if restricted := pathRemovalIsRestricted(me.folder); restricted {
+		me.appendToUnmovedReasons(fmt.Sprintf(RESTRICTED_PATH_REASON, me.folder))
+		return
 	}
 
 	err := os.RemoveAll(me.folder)
 	if err != nil {
 		LogError(err)
-		*me.resultList = append(*me.resultList, MoveResponseData{me.folder,
-			[]string{fmt.Sprintf(COULDNT_REMOVE_FOLDER_REASON, me.folder)}})
+		me.appendToUnmovedReasons(fmt.Sprintf(COULDNT_REMOVE_FOLDER_REASON, me.folder))
 	}
-}
-
-func init() {
-	restrictedRemovePathsContent, err := configFolder.FindString(RESTRICTED_REMOVE_PATHS_FILE_KEY)
-	LogError(err)
-	restrictedRemovePaths = GetLinesFromString(restrictedRemovePathsContent)
 }
 
 func MoveAction(jsonPayload []byte) (string, error) {

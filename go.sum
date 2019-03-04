@@ -1,3 +1,5 @@
+github.com/Bios-Marcel/wastebasket v0.0.0-20190214165430-ecc8c287f8eb h1:WsUChjIyp9sKlnl4FkhcE9JeNLqfnQNaAMcoddSpu8A=
+github.com/Bios-Marcel/wastebasket v0.0.0-20190214165430-ecc8c287f8eb/go.mod h1:C9joOaYXk4dxd98yWfxg8imfNq5Zyyc2CnH8eExIEro=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/Masterminds/semver v1.4.2/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
 github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f/go.mod h1:uL1WgH+h2mgNtvBq0339dVnzXdBETtL2LeUXaIv25UY=
