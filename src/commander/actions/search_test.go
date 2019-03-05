@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-// TODO: inMemory FS?
+// TODO: inMemory FS? or use testing/iotest somehow?
 func TestSearchAction(t *testing.T) {
 	searches := []struct {
 		request       SearchRequestData
