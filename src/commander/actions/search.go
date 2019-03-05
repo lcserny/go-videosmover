@@ -52,6 +52,11 @@ func SearchAction(jsonPayload []byte) (string, error) {
 		return "", err
 	}
 
+	if _, err := os.Stat(request.Path); os.IsNotExist(err) {
+		LogError(err)
+		return "", err
+	}
+
 	realWalkRootPath, _ := GetRealPath(request.Path)
 	var resultList []SearchResponseData
 	err = filepath.Walk(realWalkRootPath, func(path string, info os.FileInfo, err error) error {
