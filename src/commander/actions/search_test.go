@@ -44,7 +44,7 @@ func TestSearchAction(t *testing.T) {
 		}
 
 		if result != resString {
-			t.Errorf("Result mismatch, wanted %s, got: %s", resString, result)
+			t.Errorf("Result mismatch:\nwanted %s\ngot: %s", resString, result)
 		}
 	}
 }
