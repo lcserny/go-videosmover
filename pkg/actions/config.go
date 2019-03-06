@@ -48,6 +48,7 @@ type ActionConfig struct {
 
 type Action func(jsonPayload []byte, config *ActionConfig) (string, error)
 
+// TODO: don't use constants for util files like RESTRICTED_REMOVE_PATHS_FILE, get the file name from properties
 func GenerateActionConfig(propertiesFile string) *ActionConfig {
 	configFolder := packr.NewBox("../../config")
 	content, err := configFolder.FindString(propertiesFile)
