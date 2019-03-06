@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"encoding/json"
 	. "github.com/lcserny/go-videosmover/src/shared"
 	"path/filepath"
 	"testing"
@@ -35,23 +34,17 @@ func TestSearchAction(t *testing.T) {
 		},
 	}
 
-	// TODO: abstract this?
 	for _, search := range searches {
-		reqBytes, err := json.Marshal(search.request)
-		if err != nil {
-			t.Fatalf("Couldn't decode request: %+v", err)
-		}
-		resBytes, err := json.Marshal(search.response)
-		if err != nil {
-			t.Fatalf("Couldn't decode response: %+v", err)
-		}
+		reqBytes := getJSONBytes(t, search.request)
+		resString := getJSONString(t, search.response)
 
 		result, err := SearchAction(reqBytes)
 		if err != nil {
 			t.Fatalf("Error occurred: %+v", err)
 		}
-		if result != string(resBytes) {
-			t.Errorf("Result mismatch, wanted %s, got: %s", string(resBytes), result)
+
+		if result != resString {
+			t.Errorf("Result mismatch, wanted %s, got: %s", resString, result)
 		}
 	}
 }

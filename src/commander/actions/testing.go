@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"encoding/json"
 	"fmt"
 	. "github.com/lcserny/goutils"
 	"io/ioutil"
@@ -74,4 +75,20 @@ func getVideoContent() []byte {
 		fmt.Println("Loaded video header content from", headerContentPath)
 	}
 	return cachedMP4VideoHeader
+}
+
+func getJSONBytes(t *testing.T, data interface{}) []byte {
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		t.Fatalf("Couldn't decode request: %+v", err)
+	}
+	return bytes
+}
+
+func getJSONString(t *testing.T, data interface{}) string {
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		t.Fatalf("Couldn't decode response: %+v", err)
+	}
+	return string(bytes)
 }
