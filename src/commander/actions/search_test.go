@@ -8,16 +8,18 @@ import (
 )
 
 func TestSearchAction(t *testing.T) {
+	minFileSize = 256
+
 	var (
 		prefix         = "videosmover_search_test-"
 		videoName1     = "video.mp4"
 		video1SubNames = []string{filepath.Join("Sub", "subtitle.srt")}
 	)
 
-	path := setupTmpDir(t, prefix)
+	path, cleanup := setupTmpDir(t, prefix)
+	defer cleanup()
 	video1 := addVideo(t, path, videoName1)
 	video1Subs := addSubtitles(t, path, video1SubNames)
-	defer cleanupTmpDir(t, path)
 
 	searches := []struct {
 		request       SearchRequestData
