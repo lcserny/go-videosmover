@@ -21,16 +21,14 @@ func TestSearchAction(t *testing.T) {
 	video1Subs := addSubtitles(t, video1, video1SubNames)
 
 	searches := []struct {
-		request       SearchRequestData
-		response      []SearchResponseData
-		expectedError error
+		request  SearchRequestData
+		response []SearchResponseData
 	}{
 		{
 			request: SearchRequestData{path},
 			response: []SearchResponseData{
 				{video1, video1Subs},
 			},
-			expectedError: nil,
 		},
 	}
 
