@@ -48,7 +48,8 @@ type ActionConfig struct {
 
 type Action func(jsonPayload []byte, config *ActionConfig) (string, error)
 
-// TODO: don't use constants for util files like RESTRICTED_REMOVE_PATHS_FILE, get the file name from properties
+// TODO: don't use constants for util files like RESTRICTED_REMOVE_PATHS_FILE, get the file name from properties,
+//  move all constants to properties, maybe don't use properties, use something faster for configs?
 func GenerateActionConfig(propertiesFile string) *ActionConfig {
 	configFolder := packr.NewBox("../../config")
 	content, err := configFolder.FindString(propertiesFile)
