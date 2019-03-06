@@ -44,9 +44,10 @@ func addVideo(t *testing.T, path, video string) string {
 	return videoPath
 }
 
-func addSubtitles(t *testing.T, path string, subs []string) (subtitles []string) {
+func addSubtitles(t *testing.T, videoPath string, subs []string) (subtitles []string) {
+	subsDir := filepath.Dir(videoPath)
 	for _, sub := range subs {
-		subPath := filepath.Join(path, sub)
+		subPath := filepath.Join(subsDir, sub)
 
 		err := os.MkdirAll(filepath.Dir(subPath), os.ModePerm)
 		if err != nil {
