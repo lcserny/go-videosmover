@@ -67,7 +67,7 @@ func SearchAction(jsonPayload []byte) (string, error) {
 
 		if !info.IsDir() && walkDepthIsAcceptable(realWalkRootPath, path, MAX_SEARCH_WALK_DEPTH) {
 			if isVideo(path, info) {
-				resultList = append(resultList, SearchResponseData{path, findSubtitles(realWalkRootPath, path, info)})
+				resultList = append(resultList, SearchResponseData{path, findSubtitles(realWalkRootPath, path)})
 			}
 		}
 		return nil
@@ -124,7 +124,7 @@ func isVideo(path string, info os.FileInfo) bool {
 	return true
 }
 
-func findSubtitles(rootPath, path string, info os.FileInfo) []string {
+func findSubtitles(rootPath, path string) []string {
 	subs := make([]string, 0)
 	pathDir := filepath.Dir(path)
 	if rootPath == pathDir {
@@ -137,7 +137,7 @@ func findSubtitles(rootPath, path string, info os.FileInfo) []string {
 			return nil
 		}
 
-		if !info.IsDir() && isSubtitle(path, info) {
+		if !info.IsDir() && isSubtitle(path) {
 			subs = append(subs, path)
 		}
 
@@ -148,7 +148,7 @@ func findSubtitles(rootPath, path string, info os.FileInfo) []string {
 	return subs
 }
 
-func isSubtitle(path string, info os.FileInfo) bool {
+func isSubtitle(path string) bool {
 	ext := filepath.Ext(path)
 	for _, allowedExt := range allowedSubtitleExts {
 		if ext == allowedExt {
