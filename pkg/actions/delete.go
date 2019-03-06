@@ -10,7 +10,7 @@ import (
 
 const COULDNT_MOVE_TO_TRASH = "Couldn't move folder '%s' to trash"
 
-func DeleteAction(jsonPayload []byte) (string, error) {
+func DeleteAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 	var requests []DeleteRequestData
 	err := json.Unmarshal(jsonPayload, &requests)
 	LogError(err)
@@ -20,7 +20,7 @@ func DeleteAction(jsonPayload []byte) (string, error) {
 
 	resultList := make([]DeleteResponseData, 0)
 	for _, req := range requests {
-		if restricted := pathRemovalIsRestricted(req.Folder); restricted {
+		if restricted := pathRemovalIsRestricted(req.Folder, config.restrictedRemovePaths); restricted {
 			resultList = append(resultList, DeleteResponseData{
 				req.Folder,
 				[]string{fmt.Sprintf(RESTRICTED_PATH_REASON, req.Folder)},

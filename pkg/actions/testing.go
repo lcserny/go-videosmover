@@ -69,7 +69,7 @@ func addSubtitles(t *testing.T, videoPath string, subs []string) (subtitles []st
 
 func getVideoContent() []byte {
 	if cachedMP4VideoHeader == nil {
-		headerContentPath := "../../../files/mpeg4.mp4"
+		headerContentPath := "../../testdata/mpeg4.mp4"
 		bytes, _ := ioutil.ReadFile(headerContentPath)
 		cachedMP4VideoHeader = bytes
 		fmt.Println("Loaded video header content from", headerContentPath)
@@ -77,7 +77,7 @@ func getVideoContent() []byte {
 	return cachedMP4VideoHeader
 }
 
-func getJSONBytes(t *testing.T, data interface{}) []byte {
+func getJSONBytesForTest(t *testing.T, data interface{}) []byte {
 	bytes, err := json.Marshal(data)
 	if err != nil {
 		t.Fatalf("Couldn't decode request: %+v", err)
@@ -85,7 +85,7 @@ func getJSONBytes(t *testing.T, data interface{}) []byte {
 	return bytes
 }
 
-func getJSONString(t *testing.T, data interface{}) string {
+func getJSONStringForTest(t *testing.T, data interface{}) string {
 	bytes, err := json.Marshal(data)
 	if err != nil {
 		t.Fatalf("Couldn't decode response: %+v", err)

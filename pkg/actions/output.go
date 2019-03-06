@@ -15,15 +15,7 @@ import (
 	"strings"
 )
 
-const (
-	MAX_OUTPUT_WALK_DEPTH = 2
-	MAX_TMDB_RES_COUNT    = 10
-	NAME_TRIM_REGX_FILE   = "name_trim_regx"
-	SIM_PERCENT_KEY       = "similarity.percent"
-	TMDB_API_KEY          = "TMDB_API_KEY"
-)
-
-type searchTMDBFunc func(normalizedName string, year int) ([]string, bool)
+type searchTMDBFunc func(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMDBResultCount int) ([]string, bool)
 
 type diskResult struct {
 	name        string
@@ -37,27 +29,10 @@ var (
 		MOVIE: movieTMDBSearch,
 		TV:    tvSeriesTMDBSearch,
 	}
-	nameTrimPartsRegxs []*regexp.Regexp
-	acceptedSimPercent int
-	tmdbAPI            *tmdb.TMDb
 )
 
-func init() {
-	nameTrimPartsContent, err := configFolder.FindString(NAME_TRIM_REGX_FILE)
-	LogError(err)
-	nameTrimPartsRegxs = getRegexList(GetLinesFromString(nameTrimPartsContent))
-
-	if appProperties.HasProperty(SIM_PERCENT_KEY) {
-		acceptedSimPercent = appProperties.GetPropertyAsInt(SIM_PERCENT_KEY)
-	}
-
-	if key, exists := os.LookupEnv(TMDB_API_KEY); exists {
-		tmdbAPI = tmdb.Init(tmdb.Config{key, false, nil})
-	}
-}
-
 // TODO: implement local persisted caching
-func OutputAction(jsonPayload []byte) (string, error) {
+func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 	var request OutputRequestData
 	err := json.Unmarshal(jsonPayload, &request)
 	LogError(err)
@@ -65,20 +40,20 @@ func OutputAction(jsonPayload []byte) (string, error) {
 		return "", err
 	}
 
-	normalized, year := normalize(request.Name)
+	normalized, year := normalize(request.Name, config.nameTrimPartRegexs)
 	normalizedWithYear := appendYear(normalized, year)
-	if onDisk, found := findOnDisk(normalizedWithYear, request.DiskPath); found {
+	if onDisk, found := findOnDisk(normalizedWithYear, request.DiskPath, config.maxOutputWalkDepth, config.similarityPercent); found {
 		return getJSONEncodedString(OutputResponseData{onDisk, ORIGIN_DISK}), nil
 	}
 
-	if tmdbAPI != nil {
+	if config.tmdbAPI != nil {
 		tmdbFunc, err := getTMDBFunc(request.Type)
 		if err != nil {
 			LogError(err)
 			return "", err
 		}
 
-		if tmdbNames, found := tmdbFunc(normalized, year); found {
+		if tmdbNames, found := tmdbFunc(normalized, year, config.tmdbAPI, config.maxTMDBResultCount); found {
 			return getJSONEncodedString(OutputResponseData{tmdbNames, ORIGIN_TMDB}), nil
 		}
 	}
@@ -107,7 +82,7 @@ func getTMDBFunc(itemType string) (searchTMDBFunc, error) {
 	return nil, errors.New("No TMDB function found for type:" + itemType)
 }
 
-func normalize(name string) (string, int) {
+func normalize(name string, nameTrimPartsRegxs []*regexp.Regexp) (string, int) {
 	// trim
 	for _, pat := range nameTrimPartsRegxs {
 		if loc := pat.FindStringIndex(name); loc != nil {
@@ -133,7 +108,7 @@ func normalize(name string) (string, int) {
 	return name, 0
 }
 
-func findOnDisk(normalizedWithYear, diskPath string) (results []string, found bool) {
+func findOnDisk(normalizedWithYear, diskPath string, maxOutputWalkDepth, acceptedSimPercent int) (results []string, found bool) {
 	var tmpList []diskResult
 	err := filepath.Walk(diskPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -141,7 +116,7 @@ func findOnDisk(normalizedWithYear, diskPath string) (results []string, found bo
 			return nil
 		}
 
-		if info.IsDir() && diskPath != path && walkDepthIsAcceptable(diskPath, path, MAX_OUTPUT_WALK_DEPTH) {
+		if info.IsDir() && diskPath != path && walkDepthIsAcceptable(diskPath, path, maxOutputWalkDepth) {
 			distance := LevenshteinDistance(info.Name(), normalizedWithYear)
 			bigger := MaxInt(len(normalizedWithYear), len(info.Name()))
 			simPercent := int(float32(bigger-distance) / float32(bigger) * 100)
@@ -173,7 +148,7 @@ func findOnDisk(normalizedWithYear, diskPath string) (results []string, found bo
 }
 
 // TODO: merge these into one struct with functions and refactor
-func movieTMDBSearch(normalizedName string, year int) (searchedList []string, found bool) {
+func movieTMDBSearch(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMDBResultCount int) (searchedList []string, found bool) {
 	options := map[string]string{"page": "1", "language": "en"}
 	if year > 0 {
 		options["year"] = string(year)
@@ -189,7 +164,7 @@ func movieTMDBSearch(normalizedName string, year int) (searchedList []string, fo
 		return searchedList, false
 	}
 
-	for i := 0; i < MinInt(MAX_TMDB_RES_COUNT, len(results.Results)); i++ {
+	for i := 0; i < MinInt(maxTMDBResultCount, len(results.Results)); i++ {
 		movie := results.Results[i]
 		searchedList = append(searchedList, fmt.Sprintf("%s (%s)", movie.Title, movie.ReleaseDate))
 	}
@@ -197,7 +172,7 @@ func movieTMDBSearch(normalizedName string, year int) (searchedList []string, fo
 	return searchedList, true
 }
 
-func tvSeriesTMDBSearch(normalizedName string, year int) (searchedList []string, found bool) {
+func tvSeriesTMDBSearch(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMDBResultCount int) (searchedList []string, found bool) {
 	options := map[string]string{"page": "1", "language": "en"}
 	if year > 0 {
 		options["first_air_date_year"] = string(year)
@@ -213,7 +188,7 @@ func tvSeriesTMDBSearch(normalizedName string, year int) (searchedList []string,
 		return searchedList, false
 	}
 
-	for i := 0; i < MinInt(MAX_TMDB_RES_COUNT, len(results.Results)); i++ {
+	for i := 0; i < MinInt(maxTMDBResultCount, len(results.Results)); i++ {
 		tvShow := results.Results[i]
 		searchedList = append(searchedList, fmt.Sprintf("%s (%s)", tvShow.Name, tvShow.FirstAirDate[0:4]))
 	}

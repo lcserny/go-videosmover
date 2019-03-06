@@ -26,11 +26,11 @@ func init() {
 
 	serverProperties = ReadProperties(content)
 	if serverProperties.HasProperty(LOG_PATH_KEY) {
-		initLogger(serverProperties.GetPropertyAsString(LOG_PATH_KEY))
+		initServerLogger(serverProperties.GetPropertyAsString(LOG_PATH_KEY))
 	}
 }
 
-func initLogger(logPath string) {
+func initServerLogger(logPath string) {
 	openFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	LogFatal(err)
 	writer := io.MultiWriter(os.Stdout, openFile)

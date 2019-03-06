@@ -6,9 +6,7 @@ import (
 	"testing"
 )
 
-func init() {
-	minFileSize = 256
-}
+var testSearchActionConfig *ActionConfig
 
 func TestSearchAction(t *testing.T) {
 	path, cleanup := setupTmpDir(t, "videosmover_search_test-")
@@ -31,11 +29,13 @@ func TestSearchAction(t *testing.T) {
 		},
 	}
 
-	for _, search := range searches {
-		reqBytes := getJSONBytes(t, search.request)
-		resString := getJSONString(t, search.response)
+	config := getTestActionConfig()
 
-		result, err := SearchAction(reqBytes)
+	for _, search := range searches {
+		reqBytes := getJSONBytesForTest(t, search.request)
+		resString := getJSONStringForTest(t, search.response)
+
+		result, err := SearchAction(reqBytes, config)
 		if err != nil {
 			t.Fatalf("Error occurred: %+v", err)
 		}
@@ -44,4 +44,11 @@ func TestSearchAction(t *testing.T) {
 			t.Errorf("Result mismatch:\nwanted %s\ngot: %s", resString, result)
 		}
 	}
+}
+
+func getTestActionConfig() *ActionConfig {
+	if testSearchActionConfig == nil {
+		testSearchActionConfig = GenerateActionConfig("commander_test.properties")
+	}
+	return testSearchActionConfig
 }

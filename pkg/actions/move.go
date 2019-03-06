@@ -20,15 +20,22 @@ const (
 )
 
 type moveExecutor struct {
+	actionConfig *ActionConfig
 	resultList   *[]MoveResponseData
 	request      *MoveRequestData
 	folder, dest string
 }
 
-func newMoveExecutor(resultList *[]MoveResponseData, request *MoveRequestData) *moveExecutor {
+func newMoveExecutor(resultList *[]MoveResponseData, request *MoveRequestData, config *ActionConfig) *moveExecutor {
 	videoDir := filepath.Dir(request.Video)
 	destination := filepath.Join(request.DiskPath, request.OutName)
-	return &moveExecutor{resultList, request, videoDir, destination}
+	return &moveExecutor{
+		actionConfig: config,
+		resultList:   resultList,
+		request:      request,
+		folder:       videoDir,
+		dest:         destination,
+	}
 }
 
 func (me *moveExecutor) appendToUnmovedReasons(reason ...string) {
@@ -103,7 +110,7 @@ func (me *moveExecutor) moveSubs() bool {
 }
 
 func (me *moveExecutor) cleanIfPossible() {
-	if restricted := pathRemovalIsRestricted(me.folder); restricted {
+	if restricted := pathRemovalIsRestricted(me.folder, me.actionConfig.restrictedRemovePaths); restricted {
 		me.appendToUnmovedReasons(fmt.Sprintf(RESTRICTED_PATH_REASON, me.folder))
 		return
 	}
@@ -115,7 +122,7 @@ func (me *moveExecutor) cleanIfPossible() {
 	}
 }
 
-func MoveAction(jsonPayload []byte) (string, error) {
+func MoveAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 	var requests []MoveRequestData
 	err := json.Unmarshal(jsonPayload, &requests)
 	LogError(err)
@@ -125,7 +132,7 @@ func MoveAction(jsonPayload []byte) (string, error) {
 
 	resultList := make([]MoveResponseData, 0)
 	for _, req := range requests {
-		moveExecutor := newMoveExecutor(&resultList, &req)
+		moveExecutor := newMoveExecutor(&resultList, &req, config)
 		if proceed := moveExecutor.prepareMove(); !proceed {
 			continue
 		}

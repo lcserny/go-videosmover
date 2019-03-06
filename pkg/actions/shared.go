@@ -8,19 +8,10 @@ import (
 )
 
 const (
-	RESTRICTED_REMOVE_PATHS_FILE_KEY = "restricted_remove_paths"
-	RESTRICTED_PATH_REASON           = "Dir '%s' is a restricted path"
+	RESTRICTED_PATH_REASON = "Dir '%s' is a restricted path"
 )
 
-var restrictedRemovePaths []string
-
-func init() {
-	restrictedRemovePathsContent, err := configFolder.FindString(RESTRICTED_REMOVE_PATHS_FILE_KEY)
-	LogError(err)
-	restrictedRemovePaths = GetLinesFromString(restrictedRemovePathsContent)
-}
-
-func pathRemovalIsRestricted(folder string) bool {
+func pathRemovalIsRestricted(folder string, restrictedRemovePaths []string) bool {
 	for _, restrictedFolder := range restrictedRemovePaths {
 		if strings.HasSuffix(folder, restrictedFolder) {
 			return true
