@@ -1,13 +1,4 @@
-package shared
-
-const (
-	MOVIE = "movie"
-	TV    = "tv"
-
-	ORIGIN_NAME = "NAME"
-	ORIGIN_DISK = "DISK"
-	ORIGIN_TMDB = "TMDB"
-)
+package models
 
 type SearchRequestData struct {
 	Path string `json:"path"`

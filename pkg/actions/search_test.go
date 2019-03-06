@@ -1,7 +1,7 @@
 package actions
 
 import (
-	. "github.com/lcserny/go-videosmover/src/shared"
+	. "github.com/lcserny/go-videosmover/pkg/models"
 	"path/filepath"
 	"testing"
 )

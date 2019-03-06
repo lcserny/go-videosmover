@@ -3,7 +3,7 @@ package actions
 import (
 	"encoding/json"
 	"github.com/h2non/filetype"
-	. "github.com/lcserny/go-videosmover/src/shared"
+	. "github.com/lcserny/go-videosmover/pkg/models"
 	. "github.com/lcserny/goutils"
 	"os"
 	"path/filepath"

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Bios-Marcel/wastebasket"
-	. "github.com/lcserny/go-videosmover/src/shared"
+	. "github.com/lcserny/go-videosmover/pkg/models"
 	. "github.com/lcserny/goutils"
 )
 

@@ -3,7 +3,7 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
-	. "github.com/lcserny/go-videosmover/src/shared"
+	. "github.com/lcserny/go-videosmover/pkg/models"
 	. "github.com/lcserny/goutils"
 	"github.com/pkg/errors"
 	"github.com/ryanbradynd05/go-tmdb"
