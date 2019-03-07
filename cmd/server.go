@@ -21,7 +21,7 @@ const (
 var serverProperties *ConfigProperties
 
 func init() {
-	content, err := packr.NewBox("../../cfg").FindString(fmt.Sprintf("server_%s.properties", runtime.GOOS))
+	content, err := packr.NewBox("../cfg").FindString(fmt.Sprintf("server_%s.properties", runtime.GOOS))
 	LogFatal(err)
 
 	serverProperties = ReadProperties(content)

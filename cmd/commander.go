@@ -27,7 +27,7 @@ func main() {
 	}
 
 	action := actions.NewActionFrom(*actionFlag)
-	config := actions.GenerateActionConfig("../../cfg", "commander-actions.json")
+	config := actions.GenerateActionConfig("../cfg", "commander-actions.json")
 
 	jsonBytes, err := ioutil.ReadFile(args[1])
 	stopOnError(err)
