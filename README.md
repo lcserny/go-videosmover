@@ -2,14 +2,14 @@
 #### Description
 How to run Server:  
 - get https://github.com/gobuffalo/packr  
-- make a config from example one for your OS and put it in config  
-- from root of project `packr build src/server/launch.go`  
+- make a config from example one for your OS and put it in `cfg` folder  
+- from root of project `packr build cmd/server.go`  
 - launch server
 
 JSON requests should be like (regardless of GET or POST usage):  
 {  
 "action": action to give the executable (like `search`)  
-"payload" : json data that will be serialized to tmp file, the path will be sent to jar (file will be deleted after request is done)    
+"payload" : json data that will be serialized to tmp file, the path will be sent to jar/bin (file will be deleted after request is done)    
 } 
 
 JSON response should be like:  
@@ -35,7 +35,7 @@ v2:
 #### Description
 How to run:  
 - get https://github.com/gobuffalo/packr    
-- from root of project `packr build src/commander/launch.go`  
+- from root of project `packr build cmd/commander.go`  
 - for the TMDB online API search to work you need to set `TMDB_API_KEY` environment variable  
 - execute actions on built app  
 
