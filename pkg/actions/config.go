@@ -11,15 +11,18 @@ import (
 )
 
 const (
-	RESTRICTED_REMOVE_PATHS_FILE = "restricted_remove_paths"
-	NAME_TRIM_REGX_FILE          = "name_trim_regx"
-	SEARCH_EXCLUDE_PATHS_FILE    = "search_exclude_paths"
-	ALLOWED_MIME_TYPES_FILE      = "allowed_mime_types"
-	ALLOWED_SUBTITLE_EXTS_FILE   = "allowed_subtitle_exts"
-
-	SIM_PERCENT_KEY    = "similarity.percent"
-	MIN_VIDEO_SIZE_KEY = "minimum.video.size"
-	TMDB_API_KEY       = "TMDB_API_KEY"
+	MAX_OUTPUT_WALK_DEPTH_KEY   = "max.output.walk.depth"
+	MAX_SEARCH_WALK_DEPTH_KEY   = "max.search.walk.depth"
+	MAX_TMDB_RESULT_COUNT_KEY   = "max.tmdb.result.count"
+	HEADER_BYTES_SIZE_KEY       = "header.bytes.size"
+	RESTRICTED_REMOVE_PATHS_KEY = "restricted.remove.paths.file"
+	NAME_TRIM_REGX_KEY          = "name.trim.regx.file"
+	SEARCH_EXCLUDE_PATHS_KEY    = "search.exclude.paths.file"
+	ALLOWED_MIME_TYPES_KEY      = "allowed.mime.types.file"
+	ALLOWED_SUBTITLE_EXTS_KEY   = "allowed.subtitle.exts.file"
+	SIM_PERCENT_KEY             = "similarity.percent"
+	MIN_VIDEO_SIZE_KEY          = "minimum.video.size"
+	TMDB_API_KEY                = "TMDB_API_KEY"
 )
 
 // TODO: add action to use from qBittorrent when done downloading to add to a db or something,
@@ -48,58 +51,45 @@ type ActionConfig struct {
 
 type Action func(jsonPayload []byte, config *ActionConfig) (string, error)
 
-// TODO: don't use constants for util files like RESTRICTED_REMOVE_PATHS_FILE, get the file name from properties,
-//  move all constants to properties, maybe don't use properties, use something faster for configs?
 func GenerateActionConfig(propertiesFile string) *ActionConfig {
-	configFolder := packr.NewBox("../../config")
+	configFolder := packr.NewBox("../../cfg")
 	content, err := configFolder.FindString(propertiesFile)
 	LogFatal(err)
 
 	appProperties := ReadProperties(content)
 
-	restrictedRemovePathsContent, err := configFolder.FindString(RESTRICTED_REMOVE_PATHS_FILE)
-	LogError(err)
-	restrictedRemovePaths := GetLinesFromString(restrictedRemovePathsContent)
-
-	nameTrimPartsContent, err := configFolder.FindString(NAME_TRIM_REGX_FILE)
-	LogError(err)
-	nameTrimPartsRegxs := getRegexList(GetLinesFromString(nameTrimPartsContent))
-
-	excludePathsContent, err := configFolder.FindString(SEARCH_EXCLUDE_PATHS_FILE)
-	LogError(err)
-	excludePaths := GetLinesFromString(excludePathsContent)
-
-	mimeTypesContent, err := configFolder.FindString(ALLOWED_MIME_TYPES_FILE)
-	LogError(err)
-	mimeTypes := GetLinesFromString(mimeTypesContent)
-
-	allowedSubtitleExtsContent, err := configFolder.FindString(ALLOWED_SUBTITLE_EXTS_FILE)
-	LogError(err)
-	allowedSubtitleExts := GetLinesFromString(allowedSubtitleExtsContent)
-
 	config := ActionConfig{
-		restrictedRemovePaths: restrictedRemovePaths,
-		searchExcludePaths:    excludePaths,
-		allowedMimeTypes:      mimeTypes,
-		allowedSubtitleExts:   allowedSubtitleExts,
-		maxOutputWalkDepth:    2,
-		maxSearchWalkDepth:    4,
-		maxTMDBResultCount:    10,
-		headerBytesSize:       261,
-		nameTrimPartRegexs:    nameTrimPartsRegxs,
-	}
-
-	if appProperties.HasProperty(SIM_PERCENT_KEY) {
-		config.similarityPercent = appProperties.GetPropertyAsInt(SIM_PERCENT_KEY)
+		maxOutputWalkDepth: appProperties.GetPropertyAsInt(MAX_OUTPUT_WALK_DEPTH_KEY),
+		maxSearchWalkDepth: appProperties.GetPropertyAsInt(MAX_SEARCH_WALK_DEPTH_KEY),
+		similarityPercent:  appProperties.GetPropertyAsInt(SIM_PERCENT_KEY),
+		minVideoFileSize:   appProperties.GetPropertyAsInt64(MIN_VIDEO_SIZE_KEY),
+		maxTMDBResultCount: appProperties.GetPropertyAsInt(MAX_TMDB_RESULT_COUNT_KEY),
+		headerBytesSize:    appProperties.GetPropertyAsInt(HEADER_BYTES_SIZE_KEY),
 	}
 
 	if key, exists := os.LookupEnv(TMDB_API_KEY); exists {
 		config.tmdbAPI = tmdb.Init(tmdb.Config{key, false, nil})
 	}
 
-	if appProperties.HasProperty(MIN_VIDEO_SIZE_KEY) {
-		config.minVideoFileSize = appProperties.GetPropertyAsInt64(MIN_VIDEO_SIZE_KEY)
-	}
+	restrictedRemovePathsContent, err := configFolder.FindString(appProperties.GetPropertyAsString(RESTRICTED_REMOVE_PATHS_KEY))
+	LogError(err)
+	config.restrictedRemovePaths = GetLinesFromString(restrictedRemovePathsContent)
+
+	nameTrimPartsContent, err := configFolder.FindString(appProperties.GetPropertyAsString(NAME_TRIM_REGX_KEY))
+	LogError(err)
+	config.nameTrimPartRegexs = getRegexList(GetLinesFromString(nameTrimPartsContent))
+
+	excludePathsContent, err := configFolder.FindString(appProperties.GetPropertyAsString(SEARCH_EXCLUDE_PATHS_KEY))
+	LogError(err)
+	config.searchExcludePaths = GetLinesFromString(excludePathsContent)
+
+	mimeTypesContent, err := configFolder.FindString(appProperties.GetPropertyAsString(ALLOWED_MIME_TYPES_KEY))
+	LogError(err)
+	config.allowedMimeTypes = GetLinesFromString(mimeTypesContent)
+
+	allowedSubtitleExtsContent, err := configFolder.FindString(appProperties.GetPropertyAsString(ALLOWED_SUBTITLE_EXTS_KEY))
+	LogError(err)
+	config.allowedSubtitleExts = GetLinesFromString(allowedSubtitleExtsContent)
 
 	return &config
 }

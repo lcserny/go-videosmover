@@ -2,8 +2,8 @@
 .idea
 *.iml
 *.log
-config/*windows*properties
-config/*linux*properties
+cfg/*windows*properties
+cfg/*linux*properties
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Windows template
