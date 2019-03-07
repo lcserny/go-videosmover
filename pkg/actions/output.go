@@ -40,9 +40,9 @@ func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 		return "", err
 	}
 
-	normalized, year := normalize(request.Name, config.nameTrimPartRegexs)
+	normalized, year := normalize(request.Name, config.compiledNameTrimRegexes)
 	normalizedWithYear := appendYear(normalized, year)
-	if onDisk, found := findOnDisk(normalizedWithYear, request.DiskPath, config.maxOutputWalkDepth, config.similarityPercent); found {
+	if onDisk, found := findOnDisk(normalizedWithYear, request.DiskPath, config.MaxOutputWalkDepth, config.SimilarityPercent); found {
 		return getJSONEncodedString(OutputResponseData{onDisk, ORIGIN_DISK}), nil
 	}
 
@@ -53,7 +53,7 @@ func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 			return "", err
 		}
 
-		if tmdbNames, found := tmdbFunc(normalized, year, config.tmdbAPI, config.maxTMDBResultCount); found {
+		if tmdbNames, found := tmdbFunc(normalized, year, config.tmdbAPI, config.MaxTMDBResultCount); found {
 			return getJSONEncodedString(OutputResponseData{tmdbNames, ORIGIN_TMDB}), nil
 		}
 	}

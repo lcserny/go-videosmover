@@ -31,7 +31,7 @@ func SearchAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 			return nil
 		}
 
-		if !info.IsDir() && walkDepthIsAcceptable(realWalkRootPath, path, config.maxSearchWalkDepth) {
+		if !info.IsDir() && walkDepthIsAcceptable(realWalkRootPath, path, config.MaxSearchWalkDepth) {
 			if isVideo(path, info, config) {
 				resultList = append(resultList, SearchResponseData{path, findSubtitles(realWalkRootPath, path, config)})
 			}
@@ -57,14 +57,14 @@ func isVideo(path string, info os.FileInfo, config *ActionConfig) bool {
 		return false
 	}
 	defer CloseFile(file)
-	head := make([]byte, config.headerBytesSize)
+	head := make([]byte, config.HeaderBytesSize)
 	n, _ := file.Read(head)
-	if n < config.headerBytesSize {
+	if n < config.HeaderBytesSize {
 		return false
 	}
 
 	// check path
-	for _, exPath := range config.searchExcludePaths {
+	for _, exPath := range config.SearchExcludePaths {
 		if strings.Contains(path, exPath) {
 			return false
 		}
@@ -72,7 +72,7 @@ func isVideo(path string, info os.FileInfo, config *ActionConfig) bool {
 
 	// check type
 	acceptedMime := false
-	for _, mType := range config.allowedMimeTypes {
+	for _, mType := range config.AllowedMIMETypes {
 		if filetype.IsMIME(head, mType) {
 			acceptedMime = true
 			break
@@ -83,7 +83,7 @@ func isVideo(path string, info os.FileInfo, config *ActionConfig) bool {
 	}
 
 	// check size
-	if info.Size() < config.minVideoFileSize {
+	if info.Size() < config.MinimumVideoSize {
 		return false
 	}
 
@@ -103,7 +103,7 @@ func findSubtitles(rootPath, path string, config *ActionConfig) []string {
 			return nil
 		}
 
-		if !info.IsDir() && isSubtitle(path, config.allowedSubtitleExts) {
+		if !info.IsDir() && isSubtitle(path, config.AllowedSubtitleExtensions) {
 			subs = append(subs, path)
 		}
 

@@ -110,7 +110,7 @@ func (me *moveExecutor) moveSubs() bool {
 }
 
 func (me *moveExecutor) cleanIfPossible() {
-	if restricted := pathRemovalIsRestricted(me.folder, me.actionConfig.restrictedRemovePaths); restricted {
+	if restricted := pathRemovalIsRestricted(me.folder, me.actionConfig.RestrictedRemovePaths); restricted {
 		me.appendToUnmovedReasons(fmt.Sprintf(RESTRICTED_PATH_REASON, me.folder))
 		return
 	}

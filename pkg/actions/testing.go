@@ -17,7 +17,7 @@ var (
 
 func getTestActionConfig() *ActionConfig {
 	if testSearchActionConfig == nil {
-		testSearchActionConfig = GenerateActionConfig("commander_test.properties")
+		testSearchActionConfig = GenerateActionConfig("../../cfg", "commander-actions.test.json")
 	}
 	return testSearchActionConfig
 }

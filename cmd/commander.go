@@ -10,16 +10,11 @@ import (
 	"os"
 )
 
-const (
-	COMMANDER_PROPERTIES_FILE = "commander.properties"
-	COMMANDER_LOG_FILE        = "vm-commander.log"
-)
-
 var actionFlag = flag.String("action", "search", "Please provide a `action` flag like: SEARCH")
 
 // TODO: will it enter the server init function also?
 func init() {
-	initCommanderLogger(COMMANDER_LOG_FILE)
+	initCommanderLogger("vm-commander.log")
 	flag.Parse()
 }
 
@@ -32,7 +27,7 @@ func main() {
 	}
 
 	action := actions.NewActionFrom(*actionFlag)
-	config := actions.GenerateActionConfig(COMMANDER_PROPERTIES_FILE)
+	config := actions.GenerateActionConfig("../../cfg", "commander-actions.json")
 
 	jsonBytes, err := ioutil.ReadFile(args[1])
 	stopOnError(err)

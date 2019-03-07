@@ -20,7 +20,7 @@ func DeleteAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 
 	resultList := make([]DeleteResponseData, 0)
 	for _, req := range requests {
-		if restricted := pathRemovalIsRestricted(req.Folder, config.restrictedRemovePaths); restricted {
+		if restricted := pathRemovalIsRestricted(req.Folder, config.RestrictedRemovePaths); restricted {
 			resultList = append(resultList, DeleteResponseData{
 				req.Folder,
 				[]string{fmt.Sprintf(RESTRICTED_PATH_REASON, req.Folder)},
