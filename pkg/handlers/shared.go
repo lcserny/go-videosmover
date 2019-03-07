@@ -3,18 +3,16 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gobuffalo/packr"
 	. "github.com/lcserny/goutils"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"os"
 	"strings"
 	"time"
 )
 
-const (
-	TIME_FORMAT          = "2006-01-02 15:04:05"
-	VIDEOS_MOVER_JAR_KEY = "jar-path.videos-mover"
-	VIDEOS_MOVER_BIN_KEY = "bin-path.videos-mover"
-)
+const TIME_FORMAT = "2006-01-02 15:04:05"
 
 type RequestJsonData struct {
 	Action  string      `json:"action"`
@@ -26,6 +24,29 @@ type ResponseJsonData struct {
 	Error string `json:"error"`
 	Date  string `json:"date"`
 	Body  string `json:"body"`
+}
+
+type ServerConfig struct {
+	Host                string `json:"host"`
+	Port                string `json:"port"`
+	PathVideosMoverJava string `json:"path.videosMover.java"`
+	PathVideosMoverBin  string `json:"path.videosMover.bin"`
+}
+
+func GenerateServerConfig(path, file string) *ServerConfig {
+	configFolder := packr.NewBox(path)
+	configBytes, err := configFolder.Find(file)
+	LogFatal(err)
+
+	var serverConfig ServerConfig
+	err = json.Unmarshal(configBytes, &serverConfig)
+	LogFatal(err)
+
+	if serverConfig.Host == "" || serverConfig.Port == "" {
+		LogFatal(errors.New("No `host` and/or `port` configured"))
+	}
+
+	return &serverConfig
 }
 
 func removeTmpStoredJsonPayload(tempJsonFile *os.File) {

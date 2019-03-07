@@ -14,9 +14,9 @@ type BinJsonExecuteHandler struct {
 	videosMoverPath string
 }
 
-func NewBinJsonExecuteHandler(properties *ConfigProperties) *BinJsonExecuteHandler {
+func NewBinJsonExecuteHandler(serverConfig *ServerConfig) *BinJsonExecuteHandler {
 	return &BinJsonExecuteHandler{
-		videosMoverPath: properties.GetPropertyAsString(VIDEOS_MOVER_BIN_KEY),
+		videosMoverPath: serverConfig.PathVideosMoverBin,
 	}
 }
 

@@ -14,9 +14,9 @@ type JavaJsonExecuteHandler struct {
 	videosMoverPath string
 }
 
-func NewJavaJsonExecuteHandler(properties *ConfigProperties) *JavaJsonExecuteHandler {
+func NewJavaJsonExecuteHandler(serverConfig *ServerConfig) *JavaJsonExecuteHandler {
 	return &JavaJsonExecuteHandler{
-		videosMoverPath: properties.GetPropertyAsString(VIDEOS_MOVER_JAR_KEY),
+		videosMoverPath: serverConfig.PathVideosMoverJava,
 	}
 }
 

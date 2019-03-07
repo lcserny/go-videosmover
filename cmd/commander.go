@@ -10,15 +10,11 @@ import (
 	"os"
 )
 
-var actionFlag = flag.String("action", "search", "Please provide a `action` flag like: SEARCH")
-
-// TODO: will it enter the server init function also?
-func init() {
-	initCommanderLogger("vm-commander.log")
-	flag.Parse()
-}
+var commanderActionFlag = flag.String("action", "search", "Please provide a `action` flag like: SEARCH")
 
 func main() {
+	initCommanderLogger("vm-commander.log")
+
 	args := os.Args[1:]
 	if len(args) < 2 {
 		_, err := fmt.Fprint(os.Stderr, "ERROR: Please provide `action` flag and `jsonPayloadFilePath` args")
@@ -26,7 +22,8 @@ func main() {
 		return
 	}
 
-	action := actions.NewActionFrom(*actionFlag)
+	flag.Parse()
+	action := actions.NewActionFrom(*commanderActionFlag)
 	config := actions.GenerateActionConfig("../cfg", "commander-actions.json")
 
 	jsonBytes, err := ioutil.ReadFile(args[1])
@@ -36,7 +33,7 @@ func main() {
 	stopOnError(err)
 
 	_, err = fmt.Fprint(os.Stdout, response)
-	LogError(err)
+	stopOnError(err)
 }
 
 func initCommanderLogger(logFile string) {
