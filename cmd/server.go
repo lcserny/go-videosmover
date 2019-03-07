@@ -20,6 +20,7 @@ const (
 
 var serverProperties *ConfigProperties
 
+// TODO: make this use json also instead of properties
 func init() {
 	content, err := packr.NewBox("../cfg").FindString(fmt.Sprintf("server_%s.properties", runtime.GOOS))
 	LogFatal(err)
