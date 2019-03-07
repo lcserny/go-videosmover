@@ -6,8 +6,6 @@ import (
 	"testing"
 )
 
-var testSearchActionConfig *ActionConfig
-
 func TestSearchAction(t *testing.T) {
 	path, cleanup := setupTmpDir(t, "videosmover_search_test-")
 	defer cleanup()
@@ -44,11 +42,4 @@ func TestSearchAction(t *testing.T) {
 			t.Errorf("Result mismatch:\nwanted %s\ngot: %s", resString, result)
 		}
 	}
-}
-
-func getTestActionConfig() *ActionConfig {
-	if testSearchActionConfig == nil {
-		testSearchActionConfig = GenerateActionConfig("commander_test.properties")
-	}
-	return testSearchActionConfig
 }

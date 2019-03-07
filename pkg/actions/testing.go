@@ -10,7 +10,17 @@ import (
 	"testing"
 )
 
-var cachedMP4VideoHeader []byte
+var (
+	cachedMP4VideoHeader   []byte
+	testSearchActionConfig *ActionConfig
+)
+
+func getTestActionConfig() *ActionConfig {
+	if testSearchActionConfig == nil {
+		testSearchActionConfig = GenerateActionConfig("commander_test.properties")
+	}
+	return testSearchActionConfig
+}
 
 func setupTmpDir(t *testing.T, prefix string) (string, func()) {
 	dir, err := ioutil.TempDir("", prefix)
