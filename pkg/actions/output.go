@@ -147,7 +147,6 @@ func findOnDisk(normalizedWithYear, diskPath string, maxOutputWalkDepth, accepte
 	return results, true
 }
 
-// TODO: merge these into one struct with functions and refactor
 func movieTMDBSearch(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMDBResultCount int) (searchedList []string, found bool) {
 	options := map[string]string{"page": "1", "language": "en"}
 	if year > 0 {
