@@ -31,7 +31,6 @@ var (
 	}
 )
 
-// TODO: implement local persisted caching
 func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 	var request OutputRequestData
 	err := json.Unmarshal(jsonPayload, &request)
@@ -53,7 +52,18 @@ func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 			return "", err
 		}
 
+		// TODO: implement local persisted simple file caching
+		// get from cache if available (if cacheFile exists)
+		// generate cache key (using normalized, year, type)
+		// open cache file
+		// go through line by line, if starts with cacheKey, get tmdbNames
+
 		if tmdbNames, found := tmdbFunc(normalized, year, config.tmdbAPI, config.MaxTMDBResultCount); found {
+			// save in cache (create cacheFile if necessary)
+			// generate cache key (using normalized, year, type)
+			// save in cache file to line 0 always as <cacheKey>###<commaSeparatedNames>
+			// if nr. of lines is > X, trim those lines from file
+
 			return getJSONEncodedString(OutputResponseData{tmdbNames, ORIGIN_TMDB}), nil
 		}
 	}
