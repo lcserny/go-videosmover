@@ -52,7 +52,7 @@ func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 			return "", err
 		}
 
-		// TODO: implement local persisted simple file caching
+		// TODO: implement local persisted simple file caching (benchmark IO, goroutine load cache?)
 		// get from cache if available (if cacheFile exists)
 		// generate cache key (using normalized, year, type)
 		// open cache file
