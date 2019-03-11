@@ -83,7 +83,7 @@ func saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string
 	defer CloseFile(oldFile)
 
 	tmpName := cacheFile + "_tmp"
-	newFile, err := os.OpenFile(tmpName, os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	newFile, err := os.OpenFile(tmpName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		LogError(err)
 		return
