@@ -56,17 +56,21 @@ func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 			return "", err
 		}
 
+		startGet := MakeTimestamp()
 		cacheKey := generateTMDBOutputCacheKey(request.Type, normalizedWithYear, outputTMDBCacheSeparator)
 		if !request.SkipCache {
 			if _, err := os.Stat(outputTMDBCacheFile); !os.IsNotExist(err) {
 				if cachedTMDBNames, exist := getFromTMDBOutputCache(cacheKey, outputTMDBCacheFile); exist {
+					fmt.Printf("Get from cache took: %d ms", MakeTimestamp()-startGet)
 					return getJSONEncodedString(OutputResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE}), nil
 				}
 			}
 		}
 
 		if tmdbNames, found := tmdbFunc(normalized, year, config.tmdbAPI, config.MaxTMDBResultCount); found {
+			startSet := MakeTimestamp()
 			saveInTMDBOutputCache(cacheKey, tmdbNames, outputTMDBCacheFile, config.OutTMDBCacheLimit)
+			fmt.Printf("Save in cache took: %d ms", MakeTimestamp()-startSet)
 			return getJSONEncodedString(OutputResponseData{tmdbNames, ORIGIN_TMDB}), nil
 		}
 	}
@@ -80,7 +84,6 @@ func saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string
 		LogError(err)
 		return
 	}
-	defer CloseFile(oldFile)
 
 	tmpName := cacheFile + "_tmp"
 	newFile, err := os.OpenFile(tmpName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
@@ -88,7 +91,13 @@ func saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string
 		LogError(err)
 		return
 	}
-	defer CloseFile(newFile)
+
+	defer func() {
+		CloseFile(oldFile)
+		CloseFile(newFile)
+		err = os.Rename(tmpName, cacheFile)
+		LogError(err)
+	}()
 
 	lineCounter := 0
 	firstLine := cacheKey + strings.Join(tmdbNames, outputTMDBCacheFileNamesSeparator)
@@ -111,9 +120,6 @@ func saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string
 
 		lineCounter++
 	}
-
-	err = os.Rename(tmpName, cacheFile)
-	LogError(err)
 }
 
 func getFromTMDBOutputCache(cacheKey, cacheFile string) ([]string, bool) {
