@@ -97,7 +97,7 @@ func saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string
 	}
 	scanner := bufio.NewScanner(oldFile)
 	for scanner.Scan() {
-		if lineCounter > cacheLimit {
+		if lineCounter >= cacheLimit {
 			break
 		}
 
