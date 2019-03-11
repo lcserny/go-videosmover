@@ -4,6 +4,7 @@
   "maxOutputWalkDepth": 2,
   "maxSearchWalkDepth": 4,
   "maxTMDBResultCount": 10,
+  "outTMDBCacheLimit": 100,
   "headerBytesSize": 261,
   "restrictedRemovePaths": [
     "Documents",

@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	. "github.com/lcserny/go-videosmover/pkg/models"
@@ -23,9 +24,12 @@ type diskResult struct {
 }
 
 var (
-	specialCharsRegex = regexp.MustCompile(`([\[._\]])`)
-	yearPatternRegex  = regexp.MustCompile(`\s\d{4}$`)
-	tmdbFuncMap       = map[string]searchTMDBFunc{
+	outputTMDBCacheFile               = "tmdbOutput.cache"
+	outputTMDBCacheSeparator          = "###"
+	outputTMDBCacheFileNamesSeparator = ";"
+	specialCharsRegex                 = regexp.MustCompile(`[\\/:*?"<>|\[\]._]`)
+	yearPatternRegex                  = regexp.MustCompile(`\s\d{4}$`)
+	tmdbFuncMap                       = map[string]searchTMDBFunc{
 		MOVIE: movieTMDBSearch,
 		TV:    tvSeriesTMDBSearch,
 	}
@@ -52,23 +56,84 @@ func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 			return "", err
 		}
 
-		// TODO: implement local persisted simple file caching (benchmark IO, goroutine load cache?)
-		// get from cache if available (if cacheFile exists)
-		// generate cache key (using normalized, year, type)
-		// open cache file
-		// go through line by line, if starts with cacheKey, get tmdbNames
+		cacheKey := generateTMDBOutputCacheKey(request.Type, normalizedWithYear, outputTMDBCacheSeparator)
+		if _, err := os.Stat(outputTMDBCacheFile); !os.IsNotExist(err) {
+			if cachedTMDBNames, exist := getFromTMDBOutputCache(cacheKey, outputTMDBCacheFile); exist {
+				return getJSONEncodedString(OutputResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE}), nil
+			}
+		}
 
 		if tmdbNames, found := tmdbFunc(normalized, year, config.tmdbAPI, config.MaxTMDBResultCount); found {
-			// save in cache (create cacheFile if necessary)
-			// generate cache key (using normalized, year, type)
-			// save in cache file to line 0 always as <cacheKey>###<commaSeparatedNames>
-			// if nr. of lines is > X, trim those lines from file
-
+			saveInTMDBOutputCache(cacheKey, tmdbNames, outputTMDBCacheFile, config.OutTMDBCacheLimit)
 			return getJSONEncodedString(OutputResponseData{tmdbNames, ORIGIN_TMDB}), nil
 		}
 	}
 
 	return getJSONEncodedString(OutputResponseData{[]string{normalizedWithYear}, ORIGIN_NAME}), nil
+}
+
+func saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string, cacheLimit int) {
+	oldFile, err := os.OpenFile(cacheFile, os.O_RDONLY|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		LogError(err)
+		return
+	}
+	defer CloseFile(oldFile)
+
+	tmpName := cacheFile + "_tmp"
+	newFile, err := os.OpenFile(tmpName, os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		LogError(err)
+		return
+	}
+	defer CloseFile(newFile)
+
+	lineCounter := 0
+	firstLine := cacheKey + strings.Join(tmdbNames, outputTMDBCacheFileNamesSeparator)
+	_, err = fmt.Fprintln(newFile, firstLine)
+	if err != nil {
+		LogError(err)
+		return
+	}
+	scanner := bufio.NewScanner(oldFile)
+	for scanner.Scan() {
+		if lineCounter > cacheLimit {
+			break
+		}
+
+		_, err = fmt.Fprintln(newFile, scanner.Text())
+		if err != nil {
+			LogError(err)
+			return
+		}
+
+		lineCounter++
+	}
+
+	err = os.Rename(tmpName, cacheFile)
+	LogError(err)
+}
+
+func getFromTMDBOutputCache(cacheKey, cacheFile string) ([]string, bool) {
+	openFile, err := os.OpenFile(cacheFile, os.O_RDONLY, os.ModePerm)
+	if err != nil {
+		LogError(err)
+		return nil, false
+	}
+	defer CloseFile(openFile)
+
+	scanner := bufio.NewScanner(openFile)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, cacheKey) {
+			return strings.Split(line[len(cacheKey):], outputTMDBCacheFileNamesSeparator), true
+		}
+	}
+	return nil, false
+}
+
+func generateTMDBOutputCacheKey(videoType, normalizedWithYear, separator string) string {
+	return fmt.Sprintf("%s__%s%s", strings.ToUpper(videoType), normalizedWithYear, separator)
 }
 
 func getRegexList(patterns []string) (regxs []*regexp.Regexp) {
@@ -175,7 +240,11 @@ func movieTMDBSearch(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMD
 
 	for i := 0; i < MinInt(maxTMDBResultCount, len(results.Results)); i++ {
 		movie := results.Results[i]
-		searchedList = append(searchedList, fmt.Sprintf("%s (%s)", movie.Title, movie.ReleaseDate))
+		outName := specialCharsRegex.ReplaceAllString(movie.Title, "")
+		if movie.ReleaseDate != "" {
+			outName += " (" + movie.ReleaseDate[0:4] + ")"
+		}
+		searchedList = append(searchedList, outName)
 	}
 
 	return searchedList, true
@@ -199,7 +268,11 @@ func tvSeriesTMDBSearch(normalizedName string, year int, tmdbAPI *tmdb.TMDb, max
 
 	for i := 0; i < MinInt(maxTMDBResultCount, len(results.Results)); i++ {
 		tvShow := results.Results[i]
-		searchedList = append(searchedList, fmt.Sprintf("%s (%s)", tvShow.Name, tvShow.FirstAirDate[0:4]))
+		outName := specialCharsRegex.ReplaceAllString(tvShow.Name, "")
+		if tvShow.FirstAirDate != "" {
+			outName += " (" + tvShow.FirstAirDate[0:4] + ")"
+		}
+		searchedList = append(searchedList, outName)
 	}
 
 	return searchedList, true

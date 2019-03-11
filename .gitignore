@@ -4,6 +4,8 @@
 *.log
 cfg/*windows*
 cfg/*linux*
+*.cache
+!testdata/*.cache
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Windows template
