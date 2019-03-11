@@ -57,9 +57,11 @@ func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 		}
 
 		cacheKey := generateTMDBOutputCacheKey(request.Type, normalizedWithYear, outputTMDBCacheSeparator)
-		if _, err := os.Stat(outputTMDBCacheFile); !os.IsNotExist(err) {
-			if cachedTMDBNames, exist := getFromTMDBOutputCache(cacheKey, outputTMDBCacheFile); exist {
-				return getJSONEncodedString(OutputResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE}), nil
+		if !request.SkipCache {
+			if _, err := os.Stat(outputTMDBCacheFile); !os.IsNotExist(err) {
+				if cachedTMDBNames, exist := getFromTMDBOutputCache(cacheKey, outputTMDBCacheFile); exist {
+					return getJSONEncodedString(OutputResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE}), nil
+				}
 			}
 		}
 
