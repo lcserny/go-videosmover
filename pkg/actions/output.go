@@ -56,21 +56,17 @@ func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 			return "", err
 		}
 
-		startGet := MakeTimestamp()
 		cacheKey := generateTMDBOutputCacheKey(request.Type, normalizedWithYear, outputTMDBCacheSeparator)
 		if !request.SkipCache {
 			if _, err := os.Stat(outputTMDBCacheFile); !os.IsNotExist(err) {
 				if cachedTMDBNames, exist := getFromTMDBOutputCache(cacheKey, outputTMDBCacheFile); exist {
-					fmt.Printf("Get from cache took: %d ms", MakeTimestamp()-startGet)
 					return getJSONEncodedString(OutputResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE}), nil
 				}
 			}
 		}
 
 		if tmdbNames, found := tmdbFunc(normalized, year, config.tmdbAPI, config.MaxTMDBResultCount); found {
-			startSet := MakeTimestamp()
 			saveInTMDBOutputCache(cacheKey, tmdbNames, outputTMDBCacheFile, config.OutTMDBCacheLimit)
-			fmt.Printf("Save in cache took: %d ms", MakeTimestamp()-startSet)
 			return getJSONEncodedString(OutputResponseData{tmdbNames, ORIGIN_TMDB}), nil
 		}
 	}
@@ -92,34 +88,42 @@ func saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string
 		return
 	}
 
-	defer func() {
+	cleanupAndFail := func(err error) {
+		LogError(err)
+		CloseFile(oldFile)
+		CloseFile(newFile)
+		err = os.Remove(tmpName)
+		LogError(err)
+	}
+	moveAndSucceed := func() {
 		CloseFile(oldFile)
 		CloseFile(newFile)
 		err = os.Rename(tmpName, cacheFile)
 		LogError(err)
-	}()
+	}
 
-	lineCounter := 0
 	firstLine := cacheKey + strings.Join(tmdbNames, outputTMDBCacheFileNamesSeparator)
-	_, err = fmt.Fprintln(newFile, firstLine)
-	if err != nil {
-		LogError(err)
+	if _, err = fmt.Fprintln(newFile, firstLine); err != nil {
+		cleanupAndFail(err)
 		return
 	}
+
+	lineCounter := 1
 	scanner := bufio.NewScanner(oldFile)
 	for scanner.Scan() {
 		if lineCounter >= cacheLimit {
 			break
 		}
 
-		_, err = fmt.Fprintln(newFile, scanner.Text())
-		if err != nil {
-			LogError(err)
+		if _, err = fmt.Fprintln(newFile, scanner.Text()); err != nil {
+			cleanupAndFail(err)
 			return
 		}
 
 		lineCounter++
 	}
+
+	moveAndSucceed()
 }
 
 func getFromTMDBOutputCache(cacheKey, cacheFile string) ([]string, bool) {
