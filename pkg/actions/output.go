@@ -27,7 +27,7 @@ var (
 	outputTMDBCacheFile               = "tmdbOutput.cache"
 	outputTMDBCacheSeparator          = "###"
 	outputTMDBCacheFileNamesSeparator = ";"
-	specialCharsRegex                 = regexp.MustCompile(`[\\/:*?"<>|\[\]._]`)
+	specialCharsRegex                 = regexp.MustCompile(`[^a-zA-Z0-9]`)
 	yearPatternRegex                  = regexp.MustCompile(`\s\d{4}$`)
 	tmdbFuncMap                       = map[string]searchTMDBFunc{
 		MOVIE: movieTMDBSearch,
