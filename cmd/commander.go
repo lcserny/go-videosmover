@@ -24,7 +24,7 @@ func main() {
 
 	flag.Parse()
 	action := actions.NewActionFrom(*commanderActionFlag)
-	config := actions.GenerateActionConfig("../../cfg", "commander-actions.json") // TODO: path not ok?
+	config := actions.GenerateActionConfig("../../cfg", "commander-actions.json")
 
 	jsonBytes, err := ioutil.ReadFile(args[1])
 	stopOnError(err)
