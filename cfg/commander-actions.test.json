@@ -3,7 +3,7 @@
   "similarityPercent": 80,
   "maxOutputWalkDepth": 2,
   "maxSearchWalkDepth": 4,
-  "maxTMDBResultCount": 10,
+  "maxTMDBResultCount": 2,
   "outTMDBCacheLimit": 100,
   "headerBytesSize": 261,
   "restrictedRemovePaths": [

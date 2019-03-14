@@ -106,16 +106,19 @@ func TestOutputAction(t *testing.T) {
 				SkipCache: true,
 			},
 			response: models.OutputResponseData{[]string{
-				"Fight Club (1999)",
-				"Female Fight Club (2017)",
-				"Fight Club Members Only (2006)",
-				"Clubbed (2008)",
-				"Zombie Fight Club (2014)",
-				"Superhero Fight Club (2015)",
-				"Jurassic Fight Club (2008)",
-				"Lure Teen Fight Club (2010)",
-				"Fight club camp kusse (2005)",
-				"Florence Fight Club (2015)",
+				"Fight Club (1999-10-15)",
+				"Female Fight Club (2017-03-16)",
+			}, models.ORIGIN_TMDB},
+		},
+		{
+			request: models.OutputRequestData{
+				Name:      "Game of Thrones",
+				Type:      "tv",
+				SkipCache: true,
+			},
+			response: models.OutputResponseData{[]string{
+				"Game of Thrones (2011)",
+				"Untitled Game of Thrones Prequel (2021)",
 			}, models.ORIGIN_TMDB},
 		},
 	}
