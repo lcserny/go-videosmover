@@ -2,8 +2,9 @@
 .idea
 *.iml
 *.log
-cfg/*windows*
-cfg/*linux*
+*/windows*
+*linux*
+*darwin*
 *.cache
 !testdata/*.cache
 
