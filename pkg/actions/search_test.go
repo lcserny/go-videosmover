@@ -14,7 +14,7 @@ func TestSearchAction(t *testing.T) {
 	video2 := addVideo(t, path, "video2.mp4")
 	_ = addSubtitles(t, video2, []string{"subtitle.srt"})
 
-	searches := []testActionData{
+	testData := []testActionData{
 		{
 			request: SearchRequestData{path},
 			response: []SearchResponseData{
@@ -24,5 +24,5 @@ func TestSearchAction(t *testing.T) {
 		},
 	}
 
-	runActionTest(t, searches, SearchAction)
+	runActionTest(t, testData, SearchAction)
 }

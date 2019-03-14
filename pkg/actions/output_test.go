@@ -6,12 +6,12 @@ import (
 )
 
 func TestOutputAction(t *testing.T) {
-	outputs := []testActionData{
+	testData := []testActionData{
 		{
 			request:  OutputRequestData{Name: "", Type: "", SkipOnlineSearch: true},
 			response: OutputResponseData{[]string{"", ""}, ORIGIN_TMDB},
 		},
 	}
 
-	runActionTest(t, outputs, OutputAction)
+	runActionTest(t, testData, OutputAction)
 }
