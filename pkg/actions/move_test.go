@@ -17,6 +17,10 @@ func TestMoveAction(t *testing.T) {
 	video1 := addVideo(t, fromPath, filepath.Join("Some Movie1", "someMovie.mp4"))
 	video2 := addVideo(t, fromPath, filepath.Join("Some Show2", "someShow.mp4"))
 
+	videoSeries1 := addVideo(t, fromPath, filepath.Join("six.feet.under.720p", "six.feet.under.s01e01.720p.mp4"))
+	videoSeries2 := addVideo(t, fromPath, filepath.Join("six.feet.under.720p", "six.feet.under.s01e02.720p.mp4"))
+	videoSeries3 := addVideo(t, fromPath, filepath.Join("six.feet.under.720p", "six.feet.under.s01e03.720p.mp4"))
+
 	testData := []testActionData{
 		{
 			request: []models.MoveRequestData{
@@ -36,6 +40,29 @@ func TestMoveAction(t *testing.T) {
 					Type:     "tv",
 					DiskPath: tvToPath,
 					OutName:  "Some Show2",
+				},
+			},
+			response: []interface{}{},
+		},
+		{
+			request: []models.MoveRequestData{
+				{
+					Video:    videoSeries1,
+					Type:     "tv",
+					DiskPath: tvToPath,
+					OutName:  "Six Feet Under",
+				},
+				{
+					Video:    videoSeries2,
+					Type:     "tv",
+					DiskPath: tvToPath,
+					OutName:  "Six Feet Under",
+				},
+				{
+					Video:    videoSeries3,
+					Type:     "tv",
+					DiskPath: tvToPath,
+					OutName:  "Six Feet Under",
 				},
 			},
 			response: []interface{}{},
