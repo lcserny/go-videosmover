@@ -77,6 +77,29 @@ func addVideo(t *testing.T, path, video string) string {
 	return videoPath
 }
 
+func addFile(t *testing.T, path, file string, size int64) string {
+	filePath := filepath.Join(path, file)
+
+	err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm)
+	if err != nil {
+		t.Fatalf("Couldn't create folders of file %s, %+v", filePath, err)
+	}
+
+	newFile, err := os.Create(filePath)
+	if err != nil {
+		t.Fatalf("Couldn't create file %s, %+v", filePath, err)
+	}
+	defer CloseFile(newFile)
+
+	err = os.Truncate(filePath, size)
+	if err != nil {
+		t.Fatalf("Couldn't write %d zeroes to file %s , %+v", size, filePath, err)
+	}
+
+	fmt.Println("Created file", filePath)
+	return filePath
+}
+
 func addSubtitles(t *testing.T, videoPath string, subs []string) (subtitles []string) {
 	subsDir := filepath.Dir(videoPath)
 	for _, sub := range subs {
