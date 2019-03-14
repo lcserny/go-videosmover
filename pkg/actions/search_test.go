@@ -14,7 +14,8 @@ func TestSearchAction(t *testing.T) {
 	video2 := addVideo(t, path, "video2.mp4")
 	_ = addSubtitles(t, video2, []string{"subtitle.srt"})
 	video3 := addVideo(t, path, filepath.Join("A-Video1", "video1.mp4"))
-	hiddenVideo4 := addVideo(t, path, "NonVideo.txt")
+	_ = addFile(t, path, "nonVideo.txt", 1)
+	hiddenVideo4 := addVideo(t, path, "HiddenVideo.txt")
 
 	testData := []testActionData{
 		{
