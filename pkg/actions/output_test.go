@@ -25,6 +25,14 @@ func TestOutputAction(t *testing.T) {
 			},
 			response: models.OutputResponseData{[]string{"The Big Sick (2017)"}, models.ORIGIN_DISK},
 		},
+		{
+			request: models.OutputRequestData{
+				Name:             "Bodyguard-S01-Series.1--BBC-2018-720p-w.subs-x265-HEVC",
+				Type:             "tv",
+				SkipOnlineSearch: true,
+			},
+			response: models.OutputResponseData{[]string{"Bodyguard"}, models.ORIGIN_NAME},
+		},
 	}
 
 	runActionTest(t, testData, OutputAction)
