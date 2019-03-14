@@ -38,8 +38,8 @@ var (
 func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 	var request OutputRequestData
 	err := json.Unmarshal(jsonPayload, &request)
-	LogError(err)
 	if err != nil {
+		LogError(err)
 		return "", err
 	}
 
@@ -196,6 +196,11 @@ func normalize(name string, nameTrimPartsRegxs []*regexp.Regexp) (string, int) {
 }
 
 func findOnDisk(normalizedWithYear, diskPath string, maxOutputWalkDepth, acceptedSimPercent int) (results []string, found bool) {
+	if _, err := os.Stat(diskPath); os.IsNotExist(err) {
+		LogWarning(fmt.Sprintf("Diskpath provided not found: %s", diskPath))
+		return results, false
+	}
+
 	var tmpList []diskResult
 	err := filepath.Walk(diskPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -214,8 +219,8 @@ func findOnDisk(normalizedWithYear, diskPath string, maxOutputWalkDepth, accepte
 
 		return nil
 	})
-	LogError(err)
 	if err != nil {
+		LogError(err)
 		return results, false
 	}
 
