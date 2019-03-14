@@ -13,6 +13,7 @@ import (
 
 // TODO: add action to use from qBittorrent when done downloading to add to a db or something,
 //  then in Android app on startup it can maybe show you last finished downloading torrents
+//  For this to work, enable qBittorrent WebUI (bypass localhost login and set port) to issue delete requests from torrent list on download complete
 var actionsMap = map[string]Action{
 	"SEARCH": SearchAction,
 	"OUTPUT": OutputAction,
