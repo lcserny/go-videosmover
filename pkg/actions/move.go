@@ -20,27 +20,25 @@ const (
 )
 
 type moveExecutor struct {
-	actionConfig *ActionConfig
 	resultList   *[]MoveResponseData
 	request      *MoveRequestData
 	folder, dest string
 }
 
-func newMoveExecutor(resultList *[]MoveResponseData, request *MoveRequestData, config *ActionConfig) *moveExecutor {
+func newMoveExecutor(resultList *[]MoveResponseData, request *MoveRequestData) *moveExecutor {
 	videoDir := filepath.Dir(request.Video)
 	destination := filepath.Join(request.DiskPath, request.OutName)
 	return &moveExecutor{
-		actionConfig: config,
-		resultList:   resultList,
-		request:      request,
-		folder:       videoDir,
-		dest:         destination,
+		resultList: resultList,
+		request:    request,
+		folder:     videoDir,
+		dest:       destination,
 	}
 }
 
-func (me *moveExecutor) appendToUnmovedReasons(reason ...string) {
-	*me.resultList = append(*me.resultList, MoveResponseData{
-		me.folder,
+func appendToUnmovedReasons(resultList *[]MoveResponseData, folder string, reason ...string) {
+	*resultList = append(*resultList, MoveResponseData{
+		folder,
 		reason,
 	})
 }
@@ -48,7 +46,7 @@ func (me *moveExecutor) appendToUnmovedReasons(reason ...string) {
 func (me *moveExecutor) canProceed(err error, reason string) bool {
 	if err != nil {
 		LogError(err)
-		me.appendToUnmovedReasons(reason)
+		appendToUnmovedReasons(me.resultList, me.folder, reason)
 		return false
 	}
 	return true
@@ -58,12 +56,12 @@ func (me *moveExecutor) prepareMove() bool {
 	if _, err := os.Stat(me.dest); os.IsNotExist(err) {
 		err := os.MkdirAll(me.dest, os.ModePerm)
 		if err != nil {
-			me.appendToUnmovedReasons(fmt.Sprintf(COULDNT_CREATE_FOLDER_REASON, me.dest))
+			appendToUnmovedReasons(me.resultList, me.folder, fmt.Sprintf(COULDNT_CREATE_FOLDER_REASON, me.dest))
 			return false
 		}
 	} else {
 		if me.request.Type == MOVIE {
-			me.appendToUnmovedReasons(fmt.Sprintf(MOVIE_EXISTS_REASON, me.request.OutName, me.request.DiskPath))
+			appendToUnmovedReasons(me.resultList, me.folder, fmt.Sprintf(MOVIE_EXISTS_REASON, me.request.OutName, me.request.DiskPath))
 			return false
 		}
 	}
@@ -102,24 +100,35 @@ func (me *moveExecutor) moveSubs() bool {
 	}
 
 	if unmovedSubs {
-		me.appendToUnmovedReasons(unmovedSubsReasons...)
+		appendToUnmovedReasons(me.resultList, me.folder, unmovedSubsReasons...)
 		return false
 	}
 
 	return true
 }
 
-func (me *moveExecutor) cleanIfPossible() {
-	if restricted := pathRemovalIsRestricted(me.folder, me.actionConfig.RestrictedRemovePaths); restricted {
-		me.appendToUnmovedReasons(fmt.Sprintf(RESTRICTED_PATH_REASON, me.folder))
-		return
-	}
+func cleanFolders(cleaningSet []string, resultList *[]MoveResponseData, restrictedRemovePaths []string) {
+	for _, folder := range cleaningSet {
+		if restricted := pathRemovalIsRestricted(folder, restrictedRemovePaths); restricted {
+			appendToUnmovedReasons(resultList, folder, fmt.Sprintf(RESTRICTED_PATH_REASON, folder))
+			continue
+		}
 
-	err := wastebasket.Trash(me.folder)
-	if err != nil {
-		LogError(err)
-		me.appendToUnmovedReasons(fmt.Sprintf(COULDNT_REMOVE_FOLDER_REASON, me.folder))
+		err := wastebasket.Trash(folder)
+		if err != nil {
+			LogError(err)
+			appendToUnmovedReasons(resultList, folder, fmt.Sprintf(COULDNT_REMOVE_FOLDER_REASON, folder))
+		}
 	}
+}
+
+func addToCleanSet(cleaningSet *[]string, folder string) {
+	for _, existingFolder := range *cleaningSet {
+		if existingFolder == folder {
+			return
+		}
+	}
+	*cleaningSet = append(*cleaningSet, folder)
 }
 
 func MoveAction(jsonPayload []byte, config *ActionConfig) (string, error) {
@@ -131,8 +140,9 @@ func MoveAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 	}
 
 	resultList := make([]MoveResponseData, 0)
+	cleaningSet := make([]string, 0)
 	for _, req := range requests {
-		moveExecutor := newMoveExecutor(&resultList, &req, config)
+		moveExecutor := newMoveExecutor(&resultList, &req)
 		if proceed := moveExecutor.prepareMove(); !proceed {
 			continue
 		}
@@ -142,8 +152,9 @@ func MoveAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 		if proceed := moveExecutor.moveSubs(); !proceed {
 			continue
 		}
-		moveExecutor.cleanIfPossible()
+		addToCleanSet(&cleaningSet, moveExecutor.folder)
 	}
+	cleanFolders(cleaningSet, &resultList, config.RestrictedRemovePaths)
 
 	return getJSONEncodedString(resultList), nil
 }
