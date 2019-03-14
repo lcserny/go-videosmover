@@ -267,7 +267,7 @@ func movieTMDBSearch(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMD
 		movie := results.Results[i]
 		outName := specialCharsRegex.ReplaceAllString(movie.Title, "")
 		if movie.ReleaseDate != "" {
-			outName += " (" + movie.ReleaseDate[0:4] + ")"
+			outName += " (" + movie.ReleaseDate + ")"
 		}
 		searchedList = append(searchedList, outName)
 	}
