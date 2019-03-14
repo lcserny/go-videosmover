@@ -10,6 +10,11 @@ import (
 	"testing"
 )
 
+type testActionData struct {
+	request  interface{}
+	response interface{}
+}
+
 var (
 	cachedMP4VideoHeader   []byte
 	testSearchActionConfig *ActionConfig
@@ -20,6 +25,23 @@ func getTestActionConfig() *ActionConfig {
 		testSearchActionConfig = GenerateActionConfig("../../cfg", "commander-actions.test.json")
 	}
 	return testSearchActionConfig
+}
+
+func runActionTest(t *testing.T, items []testActionData, action Action) {
+	config := getTestActionConfig()
+	for _, td := range items {
+		reqBytes := getJSONBytesForTest(t, td.request)
+		resString := getJSONStringForTest(t, td.response)
+
+		result, err := action(reqBytes, config)
+		if err != nil {
+			t.Fatalf("Error occurred: %+v", err)
+		}
+
+		if result != resString {
+			t.Errorf("Result mismatch:\nwanted %s\ngot: %s", resString, result)
+		}
+	}
 }
 
 func setupTmpDir(t *testing.T, prefix string) (string, func()) {
