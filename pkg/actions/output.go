@@ -27,7 +27,7 @@ var (
 	outputTMDBCacheFile               = "tmdbOutput.cache"
 	outputTMDBCacheSeparator          = "###"
 	outputTMDBCacheFileNamesSeparator = ";"
-	specialCharsRegex                 = regexp.MustCompile(`[^a-zA-Z0-9-]`)
+	specialCharsRegex                 = regexp.MustCompile(`[^a-zA-Z0-9-\s]`)
 	yearPatternRegex                  = regexp.MustCompile(`\s\d{4}$`)
 	tmdbFuncMap                       = map[string]searchTMDBFunc{
 		MOVIE: movieTMDBSearch,
@@ -178,7 +178,7 @@ func normalize(name string, nameTrimPartsRegxs []*regexp.Regexp) (string, int) {
 	}
 
 	// strip special chars
-	name = specialCharsRegex.ReplaceAllString(name, " ")
+	name = specialCharsRegex.ReplaceAllString(name, "")
 	name = strings.Trim(name, " ")
 
 	// title case
