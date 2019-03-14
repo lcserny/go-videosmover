@@ -89,7 +89,10 @@ func (me *moveExecutor) moveSubs() bool {
 	for _, sub := range me.request.Subs {
 		trimmedSub := strings.Replace(sub, me.folder, "", 1)
 		subDest := filepath.Join(me.dest, trimmedSub)
+		subFolder := filepath.Dir(subDest)
+
 		// move sub
+		_ = os.MkdirAll(subFolder, os.ModePerm)
 		err := os.Rename(sub, subDest)
 		if err != nil {
 			unmovedSubs = true
