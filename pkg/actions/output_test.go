@@ -1,15 +1,29 @@
 package actions
 
 import (
-	. "github.com/lcserny/go-videosmover/pkg/models"
+	"github.com/lcserny/go-videosmover/pkg/models"
+	"path/filepath"
 	"testing"
 )
 
 func TestOutputAction(t *testing.T) {
+	tmpPath, cleanup := setupTmpDir(t, "videosmover_output_test-")
+	defer cleanup()
+	_ = addVideo(t, tmpPath, filepath.Join("The Big Sick (2017)", "video.mp4"))
+
 	testData := []testActionData{
 		{
-			request:  OutputRequestData{Name: "The Lord of the Rings: The Fellowship of <>the Ring (2001)", Type: "movie", SkipOnlineSearch: true},
-			response: OutputResponseData{[]string{"The Lord Of The Rings The Fellowship Of The Ring (2001)"}, ORIGIN_NAME},
+			request:  models.OutputRequestData{Name: "The Lord of the Rings: The Fellowship of <>the Ring (2001)", Type: "movie", SkipOnlineSearch: true},
+			response: models.OutputResponseData{[]string{"The Lord Of The Rings The Fellowship Of The Ring (2001)"}, models.ORIGIN_NAME},
+		},
+		{
+			request: models.OutputRequestData{
+				Name:             "The Big Sick 2017",
+				Type:             "movie",
+				SkipOnlineSearch: true,
+				DiskPath:         tmpPath,
+			},
+			response: models.OutputResponseData{[]string{"The Big Sick (2017)"}, models.ORIGIN_DISK},
 		},
 	}
 
