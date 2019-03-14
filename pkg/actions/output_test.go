@@ -8,7 +8,7 @@ import (
 func TestOutputAction(t *testing.T) {
 	outputs := []testActionData{
 		{
-			request:  OutputRequestData{Name: "", Type: "", SkipCache: false, DiskPath: "", UseOnlineSearch: false},
+			request:  OutputRequestData{Name: "", Type: "", SkipOnlineSearch: true},
 			response: OutputResponseData{[]string{"", ""}, ORIGIN_TMDB},
 		},
 	}

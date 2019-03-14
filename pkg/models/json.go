@@ -10,11 +10,11 @@ type SearchResponseData struct {
 }
 
 type OutputRequestData struct {
-	Name            string `json:"name"`
-	Type            string `json:"type"`
-	SkipCache       bool   `json:"skipCache"`
-	UseOnlineSearch bool   `json:"useOnlineSearch"`
-	DiskPath        string `json:"diskPath"`
+	Name             string `json:"name"`
+	Type             string `json:"type"`
+	SkipCache        bool   `json:"skipCache"`
+	SkipOnlineSearch bool   `json:"skipOnlineSearch"`
+	DiskPath         string `json:"diskPath"`
 }
 
 type OutputResponseData struct {
