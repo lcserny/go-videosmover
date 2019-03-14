@@ -49,7 +49,7 @@ func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 		return getJSONEncodedString(OutputResponseData{onDisk, ORIGIN_DISK}), nil
 	}
 
-	if config.tmdbAPI != nil {
+	if request.UseOnlineSearch && config.tmdbAPI != nil {
 		tmdbFunc, err := getTMDBFunc(request.Type)
 		if err != nil {
 			LogError(err)

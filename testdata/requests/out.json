@@ -2,5 +2,6 @@
   "name" : "Law.and.Order.SVU.S20E16.PROPER.WEBRip.x264-ION10",
   "type" : "tv",
   "skipCache" : false,
-  "diskPath" : "D:\\Movies\\TV"
+  "diskPath" : "D:\\Movies\\TV",
+  "useOnlineSearch": true
 }

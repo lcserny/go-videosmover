@@ -2,5 +2,6 @@
   "name" : "Grantchester.S01.720p.BluRay.X264-Japhson[rartv]",
   "type" : "tv",
   "skipCache" : false,
-  "diskPath" : "D:\\Movies\\TV"
+  "diskPath" : "D:\\Movies\\TV",
+  "useOnlineSearch": true
 }
