@@ -2,7 +2,7 @@
 #### Description
 How to run Server:  
 - get https://github.com/gobuffalo/packr  
-- make a config from example one for your OS and put it in `cfg` folder  
+- make a config from example one for your OS and put it in `cfg/server` folder  
 - from root of project `packr build cmd/server.go`  
 - launch server
 
@@ -34,4 +34,11 @@ How to run:
 - get https://github.com/gobuffalo/packr    
 - from root of project `packr build cmd/commander.go`  
 - for the TMDB online API search to work you need to set `TMDB_API_KEY` environment variable  
+- execute actions on built app  
+
+# Remove Torrents
+#### Description
+How to run:  
+- get https://github.com/gobuffalo/packr  
+- from root of project `packr build cmd/remove_torrents.go`  
 - execute actions on built app  

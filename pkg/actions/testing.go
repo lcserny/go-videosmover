@@ -22,7 +22,7 @@ var (
 
 func getTestActionConfig() *ActionConfig {
 	if testSearchActionConfig == nil {
-		testSearchActionConfig = GenerateActionConfig("../../cfg", "commander-actions.test.json")
+		testSearchActionConfig = GenerateActionConfig("../../cfg/commander", "actions.test.json")
 	}
 	return testSearchActionConfig
 }
