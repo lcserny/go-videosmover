@@ -14,10 +14,7 @@ func TestSearchAction(t *testing.T) {
 	video2 := addVideo(t, path, "video2.mp4")
 	_ = addSubtitles(t, video2, []string{"subtitle.srt"})
 
-	searches := []struct {
-		request  SearchRequestData
-		response []SearchResponseData
-	}{
+	searches := []testActionData{
 		{
 			request: SearchRequestData{path},
 			response: []SearchResponseData{
@@ -27,19 +24,5 @@ func TestSearchAction(t *testing.T) {
 		},
 	}
 
-	config := getTestActionConfig()
-
-	for _, search := range searches {
-		reqBytes := getJSONBytesForTest(t, search.request)
-		resString := getJSONStringForTest(t, search.response)
-
-		result, err := SearchAction(reqBytes, config)
-		if err != nil {
-			t.Fatalf("Error occurred: %+v", err)
-		}
-
-		if result != resString {
-			t.Errorf("Result mismatch:\nwanted %s\ngot: %s", resString, result)
-		}
-	}
+	runActionTest(t, searches, SearchAction)
 }
