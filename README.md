@@ -42,3 +42,7 @@ How to run:
 - get https://github.com/gobuffalo/packr  
 - from root of project `packr build cmd/remove_torrents.go`  
 - execute actions on built app  
+
+#### qBittorrent notes:    
+- enable WebUI, config it to bypass localhost credentials and add its port in the config here  
+- on torrent completion use following command: `/path/to/remove_torrent -hash="%I"`  

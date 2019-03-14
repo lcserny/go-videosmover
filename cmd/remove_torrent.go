@@ -1,14 +1,62 @@
 package main
 
-// TODO: add action to use from qBittorrent when done downloading to add to a db or something,
-//  then in Android app on startup it can maybe show you last finished downloading torrents
-//  For this to work, enable qBittorrent WebUI (bypass localhost login and set port) to issue delete requests from torrent list on download complete
+import (
+	"encoding/json"
+	"flag"
+	"fmt"
+	"github.com/gobuffalo/packr"
+	. "github.com/lcserny/goutils"
+	"io"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
+)
 
-// Example delete torrent
-/*POST http://localhost:8078/command/delete
-Content-Type: application/x-www-form-urlencoded
-hashes=e60bc7149e5c0e9b32f60cefb7c63bad303ceca6*/
+type RemoveTorrentsConfig struct {
+	QBitTorrentWebUIPort string `json:"qBittorrentWebUIPort"`
+}
+
+var hashFlag = flag.String("hash", "", "the hash of the downloaded torrent to be removed")
 
 func main() {
+	initRemoveTorrentLogger("vm-removetorrent.log")
 
+	args := os.Args[1:]
+	if len(args) < 1 {
+		_, err := fmt.Fprint(os.Stderr, "ERROR: Please provide `hash` flag arg\n")
+		LogError(err)
+		return
+	}
+
+	flag.Parse()
+	if err := executeRemoveTorrentRequest(); err != nil {
+		LogFatal(err)
+	}
+}
+
+func executeRemoveTorrentRequest() error {
+	values := url.Values{"hashes": {*hashFlag}}
+	LogInfo(fmt.Sprintf("Sending request with values: %v", values))
+	_, err := http.PostForm(getRemoveTorrentUrl(), values)
+	return err
+}
+
+func getRemoveTorrentUrl() string {
+	configFolder := packr.NewBox("../cfg/remove_torrents")
+	content, err := configFolder.Find("config.json")
+	LogFatal(err)
+
+	var config RemoveTorrentsConfig
+	err = json.Unmarshal(content, &config)
+	LogFatal(err)
+
+	return fmt.Sprintf("http://localhost:%s/command/delete", config.QBitTorrentWebUIPort)
+}
+
+func initRemoveTorrentLogger(logFile string) {
+	openFile, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	LogFatal(err)
+	writer := io.MultiWriter(os.Stdout, openFile)
+	log.SetOutput(writer)
 }
