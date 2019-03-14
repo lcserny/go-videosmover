@@ -12,11 +12,10 @@ import (
 )
 
 var actionsMap = map[string]Action{
-	"SEARCH":         SearchAction,
-	"OUTPUT":         OutputAction,
-	"MOVE":           MoveAction,
-	"DELETE":         DeleteAction,
-	"REMOVE_TORRENT": RemoveTorrentAction,
+	"SEARCH": SearchAction,
+	"OUTPUT": OutputAction,
+	"MOVE":   MoveAction,
+	"DELETE": DeleteAction,
 }
 
 type ActionConfig struct {
