@@ -99,6 +99,25 @@ func TestOutputAction(t *testing.T) {
 			},
 			response: models.OutputResponseData{[]string{"Extras (2005)"}, models.ORIGIN_DISK},
 		},
+		{
+			request: models.OutputRequestData{
+				Name:      "Fight Club",
+				Type:      "movie",
+				SkipCache: true,
+			},
+			response: models.OutputResponseData{[]string{
+				"Fight Club (1999)",
+				"Female Fight Club (2017)",
+				"Fight Club Members Only (2006)",
+				"Clubbed (2008)",
+				"Zombie Fight Club (2014)",
+				"Superhero Fight Club (2015)",
+				"Jurassic Fight Club (2008)",
+				"Lure Teen Fight Club (2010)",
+				"Fight club camp kusse (2005)",
+				"Florence Fight Club (2015)",
+			}, models.ORIGIN_TMDB},
+		},
 	}
 
 	runActionTest(t, testData, OutputAction)
