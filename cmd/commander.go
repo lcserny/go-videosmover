@@ -8,12 +8,13 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 var commanderActionFlag = flag.String("action", "search", "Please provide a `action` flag like: SEARCH")
 
 func main() {
-	initCommanderLogger("vm-commander.log")
+	initCommanderLogger()
 
 	args := os.Args[1:]
 	if len(args) < 2 {
@@ -36,8 +37,9 @@ func main() {
 	stopOnError(err)
 }
 
-func initCommanderLogger(logFile string) {
-	openFile, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+func initCommanderLogger() {
+	logfile := filepath.Join(filepath.Dir(os.Args[0]), "vm-commander.log")
+	openFile, err := os.OpenFile(logfile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	LogFatal(err)
 	log.SetOutput(openFile)
 }

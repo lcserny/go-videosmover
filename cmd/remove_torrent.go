@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"github.com/gobuffalo/packr"
 	. "github.com/lcserny/goutils"
-	"io"
+	"github.com/pkg/errors"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 )
 
 type RemoveTorrentsConfig struct {
@@ -20,12 +21,11 @@ type RemoveTorrentsConfig struct {
 var hashFlag = flag.String("hash", "", "the hash of the downloaded torrent to be removed")
 
 func main() {
-	initRemoveTorrentLogger("vm-removetorrent.log")
+	initRemoveTorrentLogger()
 
 	args := os.Args[1:]
 	if len(args) < 1 {
-		_, err := fmt.Fprint(os.Stderr, "ERROR: Please provide `hash` flag arg\n")
-		LogError(err)
+		LogError(errors.New("ERROR: Please provide `hash` flag\n"))
 		return
 	}
 
@@ -37,7 +37,6 @@ func main() {
 
 func executeRemoveTorrentRequest() error {
 	values := url.Values{"hashes": {*hashFlag}}
-	LogInfo(fmt.Sprintf("Sending request with values: %v", values))
 	_, err := http.PostForm(getRemoveTorrentUrl(), values)
 	return err
 }
@@ -54,9 +53,9 @@ func getRemoveTorrentUrl() string {
 	return fmt.Sprintf("http://localhost:%s/command/delete", config.QBitTorrentWebUIPort)
 }
 
-func initRemoveTorrentLogger(logFile string) {
-	openFile, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+func initRemoveTorrentLogger() {
+	logfile := filepath.Join(filepath.Dir(os.Args[0]), "vm-removetorrent.log")
+	openFile, err := os.OpenFile(logfile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	LogFatal(err)
-	writer := io.MultiWriter(os.Stdout, openFile)
-	log.SetOutput(writer)
+	log.SetOutput(openFile)
 }

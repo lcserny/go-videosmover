@@ -8,11 +8,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 )
 
 func main() {
-	initServerLogger("vm-server.log")
+	initServerLogger()
 	serverConfig := handlers.GenerateServerConfig("../../cfg/server", fmt.Sprintf("config_%s.json", runtime.GOOS))
 
 	mux := http.NewServeMux()
@@ -23,8 +24,9 @@ func main() {
 	LogFatal(http.ListenAndServe(fmt.Sprintf("%s:%s", serverConfig.Host, serverConfig.Port), mux))
 }
 
-func initServerLogger(logPath string) {
-	openFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+func initServerLogger() {
+	logfile := filepath.Join(filepath.Dir(os.Args[0]), "vm-server.log")
+	openFile, err := os.OpenFile(logfile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	LogFatal(err)
 	writer := io.MultiWriter(os.Stdout, openFile)
 	log.SetOutput(writer)
