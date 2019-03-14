@@ -29,7 +29,8 @@ var (
 	outputTMDBCacheFileNamesSeparator = ";"
 	specialCharsRegex                 = regexp.MustCompile(`[^a-zA-Z0-9-\s]`)
 	spaceMergeRegex                   = regexp.MustCompile(`\s{2,}`)
-	yearPatternRegex                  = regexp.MustCompile(`\s\d{4}$`)
+	yearRegex                         = regexp.MustCompile(`\s\d{4}$`)
+	releaseDateRegex                  = regexp.MustCompile(`\s+\(\d{4}(-\d{2}-\d{2})?\)$`)
 	tmdbFuncMap                       = map[string]searchTMDBFunc{
 		MOVIE: movieTMDBSearch,
 		TV:    tvSeriesTMDBSearch,
@@ -46,7 +47,7 @@ func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 
 	normalized, year := normalize(request.Name, config.compiledNameTrimRegexes)
 	normalizedWithYear := appendYear(normalized, year)
-	if onDisk, found := findOnDisk(normalizedWithYear, request.DiskPath, config.MaxOutputWalkDepth, config.SimilarityPercent); found {
+	if onDisk, found := findOnDisk(normalized, request.DiskPath, config.MaxOutputWalkDepth, config.SimilarityPercent); found {
 		return getJSONEncodedString(OutputResponseData{onDisk, ORIGIN_DISK}), nil
 	}
 
@@ -187,7 +188,7 @@ func normalize(name string, nameTrimPartsRegxs []*regexp.Regexp) (string, int) {
 	name = strings.Title(name)
 
 	// resolve year
-	yearLoc := yearPatternRegex.FindStringIndex(name)
+	yearLoc := yearRegex.FindStringIndex(name)
 	if yearLoc != nil {
 		year, err := strconv.ParseInt(name[yearLoc[0]+1:], 0, 32)
 		LogError(err)
@@ -197,7 +198,7 @@ func normalize(name string, nameTrimPartsRegxs []*regexp.Regexp) (string, int) {
 	return name, 0
 }
 
-func findOnDisk(normalizedWithYear, diskPath string, maxOutputWalkDepth, acceptedSimPercent int) (results []string, found bool) {
+func findOnDisk(normalized, diskPath string, maxOutputWalkDepth, acceptedSimPercent int) (results []string, found bool) {
 	if _, err := os.Stat(diskPath); os.IsNotExist(err) {
 		LogWarning(fmt.Sprintf("Diskpath provided not found: %s", diskPath))
 		return results, false
@@ -211,8 +212,9 @@ func findOnDisk(normalizedWithYear, diskPath string, maxOutputWalkDepth, accepte
 		}
 
 		if info.IsDir() && diskPath != path && walkDepthIsAcceptable(diskPath, path, maxOutputWalkDepth) {
-			distance := LevenshteinDistance(info.Name(), normalizedWithYear)
-			bigger := MaxInt(len(normalizedWithYear), len(info.Name()))
+			nameWithoutDate := trimReleaseDate(info.Name())
+			distance := LevenshteinDistance(nameWithoutDate, normalized)
+			bigger := MaxInt(len(normalized), len(nameWithoutDate))
 			simPercent := int(float32(bigger-distance) / float32(bigger) * 100)
 			if simPercent > acceptedSimPercent {
 				tmpList = append(tmpList, diskResult{info.Name(), simPercent})
@@ -239,6 +241,10 @@ func findOnDisk(normalizedWithYear, diskPath string, maxOutputWalkDepth, accepte
 	}
 
 	return results, true
+}
+
+func trimReleaseDate(nameWithReleaseDate string) string {
+	return releaseDateRegex.ReplaceAllString(nameWithReleaseDate, "")
 }
 
 func movieTMDBSearch(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMDBResultCount int) (searchedList []string, found bool) {
