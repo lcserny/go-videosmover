@@ -49,6 +49,30 @@ func TestOutputAction(t *testing.T) {
 			},
 			response: models.OutputResponseData{[]string{"Game Of Thrones"}, models.ORIGIN_NAME},
 		},
+		{
+			request: models.OutputRequestData{
+				Name:             "Acrimony.2018.1080p.WEB-DL.DD5.1.H264-FGT",
+				Type:             "movie",
+				SkipOnlineSearch: true,
+			},
+			response: models.OutputResponseData{[]string{"Acrimony (2018)"}, models.ORIGIN_NAME},
+		},
+		{
+			request: models.OutputRequestData{
+				Name:             "Criminal.Minds.s01e01",
+				Type:             "tv",
+				SkipOnlineSearch: true,
+			},
+			response: models.OutputResponseData{[]string{"Criminal Minds"}, models.ORIGIN_NAME},
+		},
+		{
+			request: models.OutputRequestData{
+				Name:             "Chicago.PD.S05E21.REPACK.HDTV.x264-KILLERS[rarbg]",
+				Type:             "tv",
+				SkipOnlineSearch: true,
+			},
+			response: models.OutputResponseData{[]string{"Chicago PD"}, models.ORIGIN_NAME},
+		},
 	}
 
 	runActionTest(t, testData, OutputAction)
