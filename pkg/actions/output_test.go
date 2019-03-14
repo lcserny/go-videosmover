@@ -10,6 +10,7 @@ func TestOutputAction(t *testing.T) {
 	tmpPath, cleanup := setupTmpDir(t, "videosmover_output_test-")
 	defer cleanup()
 	_ = addVideo(t, tmpPath, filepath.Join("The Big Sick (2017)", "video.mp4"))
+	_ = addVideo(t, tmpPath, filepath.Join("Extras (2005)", "video.mkv"))
 
 	testData := []testActionData{
 		{
@@ -72,6 +73,31 @@ func TestOutputAction(t *testing.T) {
 				SkipOnlineSearch: true,
 			},
 			response: models.OutputResponseData{[]string{"Chicago PD"}, models.ORIGIN_NAME},
+		},
+		{
+			request: models.OutputRequestData{
+				Name:             "House.of.Cards.S06.1080p.NF.WEBRip.DD5.1.x264-NTG[rartv]",
+				Type:             "tv",
+				SkipOnlineSearch: true,
+			},
+			response: models.OutputResponseData{[]string{"House Of Cards"}, models.ORIGIN_NAME},
+		},
+		{
+			request: models.OutputRequestData{
+				Name:             "House of Cards s06",
+				Type:             "tv",
+				SkipOnlineSearch: true,
+			},
+			response: models.OutputResponseData{[]string{"House Of Cards"}, models.ORIGIN_NAME},
+		},
+		{
+			request: models.OutputRequestData{
+				Name:             "Extras S02e01-06",
+				Type:             "tv",
+				SkipOnlineSearch: true,
+				DiskPath:         tmpPath,
+			},
+			response: models.OutputResponseData{[]string{"Extras (2005)"}, models.ORIGIN_DISK},
 		},
 	}
 
