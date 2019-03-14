@@ -17,6 +17,7 @@ func TestSearchAction(t *testing.T) {
 	_ = addFile(t, path, "nonVideo.txt", 1)
 	hiddenVideo4 := addVideo(t, path, "HiddenVideo.txt")
 	_ = addFile(t, path, "bigEmptyFile.nfo", 300)
+	_ = addVideo(t, path, filepath.Join("Programming Stuff", "disallowedPathVideo.mp4"))
 
 	testData := []testActionData{
 		{
