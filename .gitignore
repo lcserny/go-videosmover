@@ -2,10 +2,11 @@
 .idea
 *.iml
 *.log
-*/windows*
-*linux*
-*darwin*
+cfg/*/*windows*
+cfg/*/*linux*
+cfg/*/*darwin*
 *.cache
+bin
 !testdata/*.cache
 
 # Created by .ignore support plugin (hsz.mobi)
