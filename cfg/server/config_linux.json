@@ -1,6 +1,0 @@
-{
-  "host": "localhost",
-  "port": "8077",
-  "path.videosMover.java": "./commander.jar",
-  "path.videosMover.bin": "./commander"
-}
