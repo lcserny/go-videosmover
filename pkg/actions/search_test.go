@@ -13,11 +13,13 @@ func TestSearchAction(t *testing.T) {
 	video1Subs := addSubtitles(t, video1, []string{filepath.Join("Sub", "subtitle.srt")})
 	video2 := addVideo(t, path, "video2.mp4")
 	_ = addSubtitles(t, video2, []string{"subtitle.srt"})
+	video3 := addVideo(t, path, filepath.Join("A-Video1", "video1.mp4"))
 
 	testData := []testActionData{
 		{
 			request: SearchRequestData{path},
 			response: []SearchResponseData{
+				{video3, make([]string, 0)},
 				{video1, video1Subs},
 				{video2, make([]string, 0)},
 			},
