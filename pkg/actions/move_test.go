@@ -21,6 +21,12 @@ func TestMoveAction(t *testing.T) {
 	videoSeries2 := addVideo(t, fromPath, filepath.Join("six.feet.under.720p", "six.feet.under.s01e02.720p.mp4"))
 	videoSeries3 := addVideo(t, fromPath, filepath.Join("six.feet.under.720p", "six.feet.under.s01e03.720p.mp4"))
 
+	video3 := addVideo(t, fromPath, filepath.Join("another.movie", "anotherMovie.avi"))
+	video3Subs := addSubtitles(t, video3, []string{"subtit.srt", filepath.Join("Sub", "anotherMovie.nfo")})
+
+	video4 := addVideo(t, fromPath, filepath.Join("hello.movie", "hello.kmv"))
+	addFile(t, fromPath, filepath.Join("hello.movie", "hello.junk"), 5)
+
 	testData := []testActionData{
 		{
 			request: []models.MoveRequestData{
@@ -63,6 +69,29 @@ func TestMoveAction(t *testing.T) {
 					Type:     "tv",
 					DiskPath: tvToPath,
 					OutName:  "Six Feet Under",
+				},
+			},
+			response: []interface{}{},
+		},
+		{
+			request: []models.MoveRequestData{
+				{
+					Video:    video3,
+					Type:     "movie",
+					Subs:     video3Subs,
+					DiskPath: movieToPath,
+					OutName:  "Another Movie",
+				},
+			},
+			response: []interface{}{},
+		},
+		{
+			request: []models.MoveRequestData{
+				{
+					Video:    video4,
+					Type:     "movie",
+					DiskPath: movieToPath,
+					OutName:  "Movie With Junk Files",
 				},
 			},
 			response: []interface{}{},
