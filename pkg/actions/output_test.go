@@ -33,6 +33,22 @@ func TestOutputAction(t *testing.T) {
 			},
 			response: models.OutputResponseData{[]string{"Bodyguard"}, models.ORIGIN_NAME},
 		},
+		{
+			request: models.OutputRequestData{
+				Name:             "1922.1080p.[2017].x264",
+				Type:             "movie",
+				SkipOnlineSearch: true,
+			},
+			response: models.OutputResponseData{[]string{"1922"}, models.ORIGIN_NAME},
+		},
+		{
+			request: models.OutputRequestData{
+				Name:             "Game.Of.Thrones.s0e10",
+				Type:             "tv",
+				SkipOnlineSearch: true,
+			},
+			response: models.OutputResponseData{[]string{"Game Of Thrones"}, models.ORIGIN_NAME},
+		},
 	}
 
 	runActionTest(t, testData, OutputAction)
