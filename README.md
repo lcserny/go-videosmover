@@ -28,12 +28,12 @@ v2:
  - add Controller/s for UI rendering, use that as entry point
  - add support for html UI (so the requester doesn't need to provide Ui rendering)
 
-# WebUI Server
+# Webview
 #### Description
-How to run Server:  
+How to run:  
 - get https://github.com/gobuffalo/packr    
-- from root of project `packr build cmd/webui_server.go`  
-- launch server
+- from root of project `packr build cmd/webview.go`  
+- launch app
 
 # Commander
 #### Description
