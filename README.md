@@ -1,4 +1,4 @@
-# Server
+# Proxy Server
 #### Description
 How to run Server:  
 - get https://github.com/gobuffalo/packr  
@@ -27,6 +27,13 @@ v1:
 v2:
  - add Controller/s for UI rendering, use that as entry point
  - add support for html UI (so the requester doesn't need to provide Ui rendering)
+
+# WebUI Server
+#### Description
+How to run Server:  
+- get https://github.com/gobuffalo/packr    
+- from root of project `packr build cmd/webui_server.go`  
+- launch server
 
 # Commander
 #### Description
