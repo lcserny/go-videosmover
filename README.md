@@ -2,8 +2,8 @@
 #### Description
 How to run Server:  
 - get https://github.com/gobuffalo/packr  
-- make a config from example one for your OS and put it in `cfg/server` folder  
-- from root of project `packr build cmd/server.go`  
+- make a config from example one for your OS and put it in `cfg/proxyserver` folder  
+- from root of project `packr build cmd/proxy_server.go`  
 - launch server
 
 JSON requests should be like (regardless of GET or POST usage):  
@@ -40,9 +40,9 @@ How to run:
 #### Description
 How to run:  
 - get https://github.com/gobuffalo/packr  
-- from root of project `packr build cmd/remove_torrents.go`  
+- from root of project `packr build cmd/remove_from_qtorrent.go`  
 - execute actions on built app  
 
 #### qBittorrent notes:    
 - enable WebUI, set its port and config it to bypass localhost credentials  
-- on torrent completion use following command: `/path/to/remove_torrent -port=portNumber -hash="%I"`  
+- on torrent completion use following command: `/path/to/remove_from_qtorrent -port=portNumber -hash="%I"`  
