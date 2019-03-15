@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"github.com/lcserny/go-videosmover/pkg/actions"
@@ -16,9 +17,8 @@ func main() {
 	initCommanderLogger()
 
 	args := os.Args[1:]
-	if len(args) < 2 {
-		_, err := fmt.Fprint(os.Stderr, "ERROR: Please provide `action` flag and `jsonPayloadFilePath` args")
-		LogError(err)
+	if len(args) != 2 {
+		LogError(errors.New("ERROR: Please provide `action` flag and `jsonPayloadFilePath` args\n"))
 		return
 	}
 
