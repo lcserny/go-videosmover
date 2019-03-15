@@ -13,7 +13,7 @@ import (
 
 func main() {
 	initServerLogger()
-	serverConfig := handlers.GenerateServerConfig("../../cfg/server", fmt.Sprintf("config_%s.json", runtime.GOOS))
+	serverConfig := handlers.GenerateServerConfig("../../cfg/proxyserver", fmt.Sprintf("config_%s.json", runtime.GOOS))
 
 	mux := http.NewServeMux()
 	mux.Handle("/exec-java/videos-mover", handlers.NewJavaJsonExecuteHandler(serverConfig))
