@@ -24,7 +24,7 @@ type diskResult struct {
 }
 
 var (
-	outputTMDBCacheFile               = "tmdbOutput.cache"
+	outputTMDBCacheFile               = GetAbsCurrentPathOf("tmdbOutput.cache")
 	outputTMDBCacheSeparator          = "###"
 	outputTMDBCacheFileNamesSeparator = ";"
 	specialCharsRegex                 = regexp.MustCompile(`[^a-zA-Z0-9-\s]`)
