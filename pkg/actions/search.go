@@ -23,7 +23,7 @@ func SearchAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 		return "", err
 	}
 
-	realWalkRootPath, _ := GetRealPath(request.Path)
+	realWalkRootPath, _ := filepath.EvalSymlinks(request.Path)
 	var resultList []SearchResponseData
 	err = filepath.Walk(realWalkRootPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
