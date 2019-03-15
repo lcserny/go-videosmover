@@ -1,12 +1,10 @@
 package main
 
 import (
-	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
-	"github.com/gobuffalo/packr"
 	. "github.com/lcserny/goutils"
-	"github.com/pkg/errors"
 	"log"
 	"net/http"
 	"net/url"
@@ -14,18 +12,15 @@ import (
 	"path/filepath"
 )
 
-type RemoveTorrentsConfig struct {
-	QBitTorrentWebUIPort string `json:"qBittorrentWebUIPort"`
-}
-
+var portFlag = flag.String("port", "", "the port of qBittorrent's webUI")
 var hashFlag = flag.String("hash", "", "the hash of the downloaded torrent to be removed")
 
 func main() {
 	initRemoveTorrentLogger()
 
 	args := os.Args[1:]
-	if len(args) < 1 {
-		LogError(errors.New("ERROR: Please provide `hash` flag\n"))
+	if len(args) != 2 {
+		LogError(errors.New("ERROR: Please provide `port` and `hash` flags\n"))
 		return
 	}
 
@@ -37,20 +32,8 @@ func main() {
 
 func executeRemoveTorrentRequest() error {
 	values := url.Values{"hashes": {*hashFlag}}
-	_, err := http.PostForm(getRemoveTorrentUrl(), values)
+	_, err := http.PostForm(fmt.Sprintf("http://localhost:%s/command/delete", *portFlag), values)
 	return err
-}
-
-func getRemoveTorrentUrl() string {
-	configFolder := packr.NewBox("../cfg/remove_torrents")
-	content, err := configFolder.Find("config.json")
-	LogFatal(err)
-
-	var config RemoveTorrentsConfig
-	err = json.Unmarshal(content, &config)
-	LogFatal(err)
-
-	return fmt.Sprintf("http://localhost:%s/command/delete", config.QBitTorrentWebUIPort)
 }
 
 func initRemoveTorrentLogger() {

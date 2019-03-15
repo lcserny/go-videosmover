@@ -44,5 +44,5 @@ How to run:
 - execute actions on built app  
 
 #### qBittorrent notes:    
-- enable WebUI, config it to bypass localhost credentials and add its port in the config here  
-- on torrent completion use following command: `/path/to/remove_torrent -hash="%I"`  
+- enable WebUI, set its port and config it to bypass localhost credentials  
+- on torrent completion use following command: `/path/to/remove_torrent -port=portNumber -hash="%I"`  
