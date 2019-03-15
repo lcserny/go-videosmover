@@ -36,7 +36,7 @@ func executeRemoveTorrentRequest() error {
 }
 
 func initRemoveTorrentLogger() {
-	openFile, err := os.OpenFile(GetAbsCurrentPathOf("vm-removetorrent.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	openFile, err := os.OpenFile(GetAbsCurrentPathOf("vm-removeqtorrent.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	LogFatal(err)
 	log.SetOutput(openFile)
 }

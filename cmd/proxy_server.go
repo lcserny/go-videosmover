@@ -24,7 +24,7 @@ func main() {
 }
 
 func initServerLogger() {
-	openFile, err := os.OpenFile(GetAbsCurrentPathOf("vm-server.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	openFile, err := os.OpenFile(GetAbsCurrentPathOf("vm-proxyserver.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	LogFatal(err)
 	writer := io.MultiWriter(os.Stdout, openFile)
 	log.SetOutput(writer)
