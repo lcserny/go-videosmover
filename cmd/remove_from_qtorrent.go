@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
 )
 
 var portFlag = flag.String("port", "", "the port of qBittorrent's webUI")
@@ -37,8 +36,7 @@ func executeRemoveTorrentRequest() error {
 }
 
 func initRemoveTorrentLogger() {
-	logfile := filepath.Join(filepath.Dir(os.Args[0]), "vm-removetorrent.log")
-	openFile, err := os.OpenFile(logfile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	openFile, err := os.OpenFile(GetAbsCurrentPathOf("vm-removetorrent.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	LogFatal(err)
 	log.SetOutput(openFile)
 }

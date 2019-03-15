@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"runtime"
 )
 
@@ -25,8 +24,7 @@ func main() {
 }
 
 func initServerLogger() {
-	logfile := filepath.Join(filepath.Dir(os.Args[0]), "vm-server.log")
-	openFile, err := os.OpenFile(logfile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	openFile, err := os.OpenFile(GetAbsCurrentPathOf("vm-server.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	LogFatal(err)
 	writer := io.MultiWriter(os.Stdout, openFile)
 	log.SetOutput(writer)
