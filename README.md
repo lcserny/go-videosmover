@@ -30,11 +30,7 @@ v2:
 
 # Webview
 #### Description
-How to run:  
-- get https://github.com/gobuffalo/packr  
-- install requirements for webview for your OS https://github.com/zserge/webview  
-- from root of project `packr build cmd/webview.go`  
-- launch app
+
 
 # Commander
 #### Description
