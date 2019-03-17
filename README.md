@@ -1,10 +1,9 @@
 # Proxy Server
 #### Description
 How to run Server:  
-- get https://github.com/gobuffalo/packr  
-- make a config from example one for your OS and put it in `cfg/proxyserver` folder  
-- from root of project `packr build cmd/proxy_server.go`  
-- launch server
+- make a config from example one for your OS  
+- from root of project `go build cmd/proxy_server.go`  
+- launch server providing configsFolder path  
 
 JSON requests should be like (regardless of GET or POST usage):  
 {  
@@ -34,17 +33,15 @@ v2:
 
 # Commander
 #### Description
-How to run:  
-- get https://github.com/gobuffalo/packr    
-- from root of project `packr build cmd/commander.go`  
+How to run:      
+- from root of project `go build cmd/commander.go`  
 - for the TMDB online API search to work you need to set `TMDB_API_KEY` environment variable  
 - execute actions on built app  
 
 # Remove Torrents
 #### Description
 How to run:  
-- get https://github.com/gobuffalo/packr  
-- from root of project `packr build cmd/remove_from_qtorrent.go`  
+- from root of project `go build cmd/remove_from_qtorrent.go`  
 - execute actions on built app  
 
 #### qBittorrent notes:    
