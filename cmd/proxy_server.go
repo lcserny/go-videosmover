@@ -1,19 +1,28 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/lcserny/go-videosmover/pkg/handlers"
 	. "github.com/lcserny/goutils"
-	"io"
-	"log"
 	"net/http"
 	"os"
 	"runtime"
 )
 
+var proxyServerConfigsPathFlag = flag.String("configPath", "", "path to proxy server configs folder")
+
 func main() {
-	initServerLogger()
-	serverConfig := handlers.GenerateServerConfig("../../cfg/proxyserver", fmt.Sprintf("config_%s.json", runtime.GOOS))
+	args := os.Args[1:]
+	if len(args) != 1 {
+		_, _ = fmt.Fprintln(os.Stderr, "ERROR: Please provide `configPath` flag")
+		return
+	}
+
+	InitCurrentPathFileLogger("vm-proxyserver.log")
+
+	flag.Parse()
+	serverConfig := handlers.GenerateServerConfig(*proxyServerConfigsPathFlag, fmt.Sprintf("config_%s.json", runtime.GOOS))
 
 	mux := http.NewServeMux()
 	mux.Handle("/exec-java/videos-mover", handlers.NewJavaJsonExecuteHandler(serverConfig))
@@ -21,11 +30,4 @@ func main() {
 
 	LogInfo(fmt.Sprintf("Started server on %s port %s...", serverConfig.Host, serverConfig.Port))
 	LogFatal(http.ListenAndServe(fmt.Sprintf("%s:%s", serverConfig.Host, serverConfig.Port), mux))
-}
-
-func initServerLogger() {
-	openFile, err := os.OpenFile(GetAbsCurrentPathOf("vm-proxyserver.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	LogFatal(err)
-	writer := io.MultiWriter(os.Stdout, openFile)
-	log.SetOutput(writer)
 }

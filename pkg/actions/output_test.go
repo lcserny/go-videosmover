@@ -107,7 +107,6 @@ func TestOutputAction(t *testing.T) {
 			},
 			response: models.OutputResponseData{[]string{
 				"Fight Club (1999-10-15)",
-				"Female Fight Club (2017-03-16)",
 			}, models.ORIGIN_TMDB},
 		},
 		{
@@ -118,7 +117,6 @@ func TestOutputAction(t *testing.T) {
 			},
 			response: models.OutputResponseData{[]string{
 				"Game of Thrones (2011)",
-				"Untitled Game of Thrones Prequel (2021)",
 			}, models.ORIGIN_TMDB},
 		},
 	}

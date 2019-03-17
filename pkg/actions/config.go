@@ -2,11 +2,12 @@ package actions
 
 import (
 	"encoding/json"
-	"github.com/gobuffalo/packr"
 	. "github.com/lcserny/goutils"
 	"github.com/pkg/errors"
 	"github.com/ryanbradynd05/go-tmdb"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -38,13 +39,12 @@ type ActionConfig struct {
 
 type Action func(jsonPayload []byte, config *ActionConfig) (string, error)
 
-func GenerateActionConfig(path, file string) *ActionConfig {
-	configFolder := packr.NewBox(path)
-	content, err := configFolder.Find(file)
+func GenerateActionConfig(configsPath, actionConfigFile string) *ActionConfig {
+	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, actionConfigFile))
 	LogFatal(err)
 
 	var actionConfig ActionConfig
-	err = json.Unmarshal(content, &actionConfig)
+	err = json.Unmarshal(configBytes, &actionConfig)
 	LogFatal(err)
 
 	if key, exists := os.LookupEnv("TMDB_API_KEY"); exists {

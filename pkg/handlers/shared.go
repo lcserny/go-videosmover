@@ -3,11 +3,11 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gobuffalo/packr"
 	. "github.com/lcserny/goutils"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -27,15 +27,16 @@ type ResponseJsonData struct {
 }
 
 type ServerConfig struct {
-	Host                string `json:"host"`
-	Port                string `json:"port"`
-	PathVideosMoverJava string `json:"path.videosMover.java"`
-	PathVideosMoverBin  string `json:"path.videosMover.bin"`
+	Host                       string `json:"host"`
+	Port                       string `json:"port"`
+	PathVideosMoverJava        string `json:"path.videosMover.java"`
+	PathVideosMoverJavaConfigs string `json:"path.videosMover.java.configs"`
+	PathVideosMoverBin         string `json:"path.videosMover.bin"`
+	PathVideosMoverBinConfigs  string `json:"path.videosMover.bin.configs"`
 }
 
-func GenerateServerConfig(path, file string) *ServerConfig {
-	configFolder := packr.NewBox(path)
-	configBytes, err := configFolder.Find(file)
+func GenerateServerConfig(configsPath, configFile string) *ServerConfig {
+	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
 	LogFatal(err)
 
 	var serverConfig ServerConfig

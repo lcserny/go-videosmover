@@ -1,32 +1,34 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"github.com/lcserny/go-videosmover/pkg/actions"
 	. "github.com/lcserny/goutils"
 	"io/ioutil"
-	"log"
 	"os"
 )
 
-var commanderActionFlag = flag.String("action", "search", "Please provide a `action` flag like: SEARCH")
+var (
+	commanderConfigsFlag     = flag.String("configs", "", "configs folder path")
+	commanderActionFlag      = flag.String("action", "search", "action to execute")
+	commanderPayloadFileFlag = flag.String("payloadFile", "", "path to payload file")
+)
 
 func main() {
-	initCommanderLogger()
-
 	args := os.Args[1:]
-	if len(args) != 2 {
-		LogError(errors.New("ERROR: Please provide `action` flag and `jsonPayloadFilePath` args\n"))
+	if len(args) != 3 {
+		_, _ = fmt.Fprintln(os.Stderr, "ERROR: Please provide `configs`, `action` and `payloadFile` flags")
 		return
 	}
 
+	InitCurrentPathFileLogger("vm-commander.log")
+
 	flag.Parse()
 	action := actions.NewActionFrom(*commanderActionFlag)
-	config := actions.GenerateActionConfig("../../cfg/commander", "actions.json")
+	config := actions.GenerateActionConfig(*commanderConfigsFlag, "actions.json")
 
-	jsonBytes, err := ioutil.ReadFile(args[1])
+	jsonBytes, err := ioutil.ReadFile(*commanderPayloadFileFlag)
 	stopOnError(err)
 
 	response, err := action(jsonBytes, config)
@@ -34,12 +36,6 @@ func main() {
 
 	_, err = fmt.Fprint(os.Stdout, response)
 	stopOnError(err)
-}
-
-func initCommanderLogger() {
-	openFile, err := os.OpenFile(GetAbsCurrentPathOf("vm-commander.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	LogFatal(err)
-	log.SetOutput(openFile)
 }
 
 func stopOnError(err error) {

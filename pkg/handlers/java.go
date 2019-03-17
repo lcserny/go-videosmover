@@ -11,12 +11,14 @@ import (
 )
 
 type JavaJsonExecuteHandler struct {
-	videosMoverPath string
+	videosMoverPath        string
+	videosMoverConfigsPath string
 }
 
 func NewJavaJsonExecuteHandler(serverConfig *ServerConfig) *JavaJsonExecuteHandler {
 	return &JavaJsonExecuteHandler{
-		videosMoverPath: serverConfig.PathVideosMoverJava,
+		videosMoverPath:        serverConfig.PathVideosMoverJava,
+		videosMoverConfigsPath: serverConfig.PathVideosMoverBinConfigs,
 	}
 }
 
