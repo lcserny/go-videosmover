@@ -8,4 +8,5 @@ require (
 	github.com/lcserny/goutils v1.0.4
 	github.com/pkg/errors v0.8.1
 	github.com/ryanbradynd05/go-tmdb v0.0.0-20181220020137-291a20d25ffd
+	github.com/zserge/webview v0.0.0-20190123072648-16c93bcaeaeb
 )

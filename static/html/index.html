@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Webview Home</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <style>
+        button {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<button onclick="external.invoke('close')">Close</button>
+<button onclick="external.invoke('fullscreen')">Fullscreen</button>
+<button onclick="external.invoke('unfullscreen')">Unfullscreen</button>
+<button onclick="external.invoke('open')">Open</button>
+<button onclick="external.invoke('opendir')">Open directory</button>
+<button onclick="external.invoke('save')">Save</button>
+<button onclick="external.invoke('message')">Message</button>
+<button onclick="external.invoke('info')">Info</button>
+<button onclick="external.invoke('warning')">Warning</button>
+<button onclick="external.invoke('error')">Error</button>
+<button onclick="external.invoke('changeTitle:'+document.getElementById('new-title').value)">
+    Change title
+</button>
+<input id="new-title" type="text"/>
+<button onclick="external.invoke('changeColor:'+document.getElementById('new-color').value)">
+    Change color
+</button>
+<input id="new-color" value="#e91e63" type="color"/>
+</body>
+</html>
