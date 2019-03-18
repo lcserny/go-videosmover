@@ -29,7 +29,9 @@ v2:
 
 # Webview
 #### Description
-
+How to run:
+- follow instructions from here: https://github.com/sciter-sdk/go-sciter  to install sciter  
+- build and run the app
 
 # Commander
 #### Description
