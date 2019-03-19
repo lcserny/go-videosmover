@@ -20,7 +20,7 @@ import (
 type WebviewConfig struct {
 	Host                string `json:"host"`
 	Port                string `json:"port"`
-	HtmlFilesPattern    string `json:"htmlFilesPattern"`
+	HtmlFilesPath       string `json:"htmlFilesPath"`
 	ServerPingTimeoutMs int64  `json:"serverPingTimeoutMs"`
 }
 
@@ -42,7 +42,7 @@ func main() {
 	config := generateWebviewConfig(*wvConfigsPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
 
 	webPath := fmt.Sprintf("%s:%s", config.Host, config.Port)
-	handler := generateHandler(config.HtmlFilesPattern)
+	handler := generateHandler(config.HtmlFilesPath)
 	server := startFileServer(webPath, handler)
 	go openBrowser(webPath)
 	checkStopServer(server, config)
@@ -81,12 +81,14 @@ func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
 	return server
 }
 
-func generateHandler(htmlFilesPattern string) *http.ServeMux {
-	templates := template.Must(template.ParseGlob(htmlFilesPattern))
+func generateHandler(htmlFilesPath string) *http.ServeMux {
+	templates := template.Must(template.ParseGlob(filepath.Join(htmlFilesPath, "template", "*")))
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", defaultHtmlTemplateHandle(templates))
 	mux.HandleFunc("/running", handleRunningPing)
+	// FIXME: fix static files loading
+	mux.Handle("/static", http.FileServer(http.Dir(filepath.Join(htmlFilesPath, "static"))))
 	// TODO: add more paths for ajax calls maybe?
 	return mux
 }
