@@ -12,7 +12,6 @@ import (
 	"os"
 	"runtime"
 	"strings"
-	"time"
 )
 
 var (
@@ -37,14 +36,14 @@ func main() {
 
 	mux := generateHandler(config.HtmlFilesPattern)
 	server := startFileServer(webPath, mux)
-	checkRunningServer(server, config)
+	checkStopServer(server, config)
 }
 
-func checkRunningServer(server *http.Server, config *handlers.WebviewConfig) {
+func checkStopServer(server *http.Server, config *handlers.WebviewConfig) {
 	for {
 		if goutils.MakeTimestamp() > lastRunningPingTimestamp+config.ServerPingTimeoutMs {
 			goutils.LogInfo(fmt.Sprintf("No ping received in %d ms, stopping server", config.ServerPingTimeoutMs))
-			stopFileServer(server)
+			goutils.LogFatal(server.Shutdown(context.TODO()))
 		}
 	}
 }
@@ -56,11 +55,6 @@ func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
 		goutils.LogFatal(server.ListenAndServe())
 	}()
 	return server
-}
-
-func stopFileServer(server *http.Server) {
-	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-	goutils.LogFatal(server.Shutdown(ctx))
 }
 
 func generateHandler(htmlFilesPattern string) *http.ServeMux {
