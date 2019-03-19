@@ -1,5 +1,6 @@
 {
   "host": "localhost",
   "port": "8079",
-  "htmlFilesPath": "static/html"
+  "htmlFilesPattern": "static/html/*",
+  "serverPingTimeoutMs": 15000
 }

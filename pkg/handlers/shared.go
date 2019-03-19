@@ -36,9 +36,10 @@ type ProxyServerConfig struct {
 }
 
 type WebviewConfig struct {
-	Host          string `json:"host"`
-	Port          string `json:"port"`
-	HtmlFilesPath string `json:"htmlFilesPath"`
+	Host                string `json:"host"`
+	Port                string `json:"port"`
+	HtmlFilesPattern    string `json:"htmlFilesPattern"`
+	ServerPingTimeoutMs int64  `json:"serverPingTimeoutMs"`
 }
 
 func GenerateServerConfig(configsPath, configFile string) *ProxyServerConfig {

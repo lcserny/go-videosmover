@@ -7,6 +7,7 @@ import (
 	"github.com/lcserny/go-videosmover/pkg/handlers"
 	"github.com/lcserny/goutils"
 	"github.com/pkg/browser"
+	"html/template"
 	"net/http"
 	"os"
 	"runtime"
@@ -14,7 +15,10 @@ import (
 	"time"
 )
 
-var wvConfigsPath = flag.String("configPath", "", "path to webview config files")
+var (
+	wvConfigsPath            = flag.String("configPath", "", "path to webview config files")
+	lastRunningPingTimestamp = goutils.MakeTimestamp()
+)
 
 func main() {
 	args := os.Args[1:]
@@ -31,12 +35,16 @@ func main() {
 	webPath := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	go openBrowser(webPath)
 
-	mux := generateHandler(config.HtmlFilesPath)
-	_ = startFileServer(webPath, mux)
-	// TODO: from js send pings to /health which sets the timestamp of ping,
-	//  in another place, loop until ping time is older than time.Now() - 30sec?
-	//  this js that pings needs to be placed on each html page, so include it somehow? server side includes?
-	// stopFileServer(server)
+	mux := generateHandler(config.HtmlFilesPattern)
+	server := startFileServer(webPath, mux)
+
+	for {
+		currentTime := goutils.MakeTimestamp()
+		if currentTime > lastRunningPingTimestamp+config.ServerPingTimeoutMs {
+			goutils.LogInfo(fmt.Sprintf("No ping received in %d ms, stopping server", config.ServerPingTimeoutMs))
+			stopFileServer(server)
+		}
+	}
 }
 
 func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
@@ -53,12 +61,38 @@ func stopFileServer(server *http.Server) {
 	goutils.LogFatal(server.Shutdown(ctx))
 }
 
-func generateHandler(htmlDir string) *http.ServeMux {
+func generateHandler(htmlFilesPattern string) *http.ServeMux {
+	// FIXME: cannot parse subdirectories
+	templates := template.Must(template.ParseGlob(htmlFilesPattern))
+
 	mux := http.NewServeMux()
-	// TODO: instead of fileServer, use custom handler that maps uri to template file and writes response?
-	mux.Handle("/", http.FileServer(http.Dir(htmlDir)))
+	mux.HandleFunc("/", defaultHtmlTemplateHandle(templates))
+	mux.HandleFunc("/running", handleRunningPing)
 	// TODO: add more paths for ajax calls maybe?
 	return mux
+}
+
+func handleRunningPing(writer http.ResponseWriter, request *http.Request) {
+	lastRunningPingTimestamp = goutils.MakeTimestamp()
+}
+
+func defaultHtmlTemplateHandle(tmpl *template.Template) func(writer http.ResponseWriter, request *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		templateName := request.URL.Path
+		if templateName == "/favicon.ico" {
+			return
+		}
+
+		if templateName == "/" {
+			templateName = "index.html"
+		}
+
+		if strings.HasPrefix(templateName, "/") {
+			templateName = templateName[1:]
+		}
+
+		goutils.LogFatal(tmpl.ExecuteTemplate(writer, templateName, nil))
+	}
 }
 
 func openBrowser(webPath string) {

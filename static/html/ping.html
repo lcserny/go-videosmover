@@ -1,0 +1,22 @@
+{{define "ping"}}
+    <script>
+        function sendPingAjax() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "/running", true);
+            xhttp.send();
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function startPinging() {
+            while (true) {
+                sendPingAjax();
+                await sleep(1000);
+            }
+        }
+
+        startPinging();
+    </script>
+{{end}}
