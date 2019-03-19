@@ -15,7 +15,7 @@ type BinJsonExecuteHandler struct {
 	videosMoverConfigsPath string
 }
 
-func NewBinJsonExecuteHandler(serverConfig *ServerConfig) *BinJsonExecuteHandler {
+func NewBinJsonExecuteHandler(serverConfig *ProxyServerConfig) *BinJsonExecuteHandler {
 	return &BinJsonExecuteHandler{
 		videosMoverPath:        serverConfig.PathVideosMoverBin,
 		videosMoverConfigsPath: serverConfig.PathVideosMoverBinConfigs,

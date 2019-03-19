@@ -15,7 +15,7 @@ type JavaJsonExecuteHandler struct {
 	videosMoverConfigsPath string
 }
 
-func NewJavaJsonExecuteHandler(serverConfig *ServerConfig) *JavaJsonExecuteHandler {
+func NewJavaJsonExecuteHandler(serverConfig *ProxyServerConfig) *JavaJsonExecuteHandler {
 	return &JavaJsonExecuteHandler{
 		videosMoverPath:        serverConfig.PathVideosMoverJava,
 		videosMoverConfigsPath: serverConfig.PathVideosMoverBinConfigs,

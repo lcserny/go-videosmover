@@ -26,7 +26,7 @@ type ResponseJsonData struct {
 	Body  string `json:"body"`
 }
 
-type ServerConfig struct {
+type ProxyServerConfig struct {
 	Host                       string `json:"host"`
 	Port                       string `json:"port"`
 	PathVideosMoverJava        string `json:"path.videosMover.java"`
@@ -35,11 +35,11 @@ type ServerConfig struct {
 	PathVideosMoverBinConfigs  string `json:"path.videosMover.bin.configs"`
 }
 
-func GenerateServerConfig(configsPath, configFile string) *ServerConfig {
+func GenerateServerConfig(configsPath, configFile string) *ProxyServerConfig {
 	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
 	LogFatal(err)
 
-	var serverConfig ServerConfig
+	var serverConfig ProxyServerConfig
 	err = json.Unmarshal(configBytes, &serverConfig)
 	LogFatal(err)
 
