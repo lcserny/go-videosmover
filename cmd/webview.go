@@ -55,6 +55,7 @@ func stopFileServer(server *http.Server) {
 
 func generateHandler(htmlDir string) *http.ServeMux {
 	mux := http.NewServeMux()
+	// TODO: instead of fileServer, use custom handler that maps uri to template file and writes response?
 	mux.Handle("/", http.FileServer(http.Dir(htmlDir)))
 	// TODO: add more paths for ajax calls maybe?
 	return mux
