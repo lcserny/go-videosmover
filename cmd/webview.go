@@ -3,35 +3,43 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/sciter-sdk/go-sciter"
-	"github.com/sciter-sdk/go-sciter/window"
-	"log"
+	"github.com/lcserny/go-videosmover/pkg/handlers"
+	"github.com/lcserny/goutils"
+	"github.com/pkg/browser"
+	"net/http"
 	"os"
+	"runtime"
+	"strings"
 )
 
-var screenWidth = flag.Int("screenWidth", 0, "screen width")
-var screenHeight = flag.Int("screenHeight", 0, "screen height")
+var wvConfigsPath = flag.String("configPath", "", "path to webview config files")
 
 func main() {
 	args := os.Args[1:]
-	if len(args) != 2 {
-		_, _ = fmt.Fprintln(os.Stderr, "ERROR: Please provide `screenWidth` and `screenHeight` flags")
+	if len(args) != 1 {
+		_, _ = fmt.Fprintln(os.Stderr, "ERROR: Please provide `configPath` flag")
 		return
 	}
 
+	goutils.InitCurrentPathFileLogger("vm-webview.log")
+
 	flag.Parse()
+	config := handlers.GenerateWebviewConfig(*wvConfigsPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
 
-	windowWidth, windowHeight := 400, 400
-	top, left := (*screenHeight/2)-(windowHeight/2), (*screenWidth/2)-(windowWidth/2)
+	webPath := fmt.Sprintf("%s:%s", config.Host, config.Port)
+	go startFileServer(webPath, config.HtmlFilesPath)
+	go openBrowser(webPath)
+}
 
-	rect := sciter.NewRect(top, left, windowWidth, windowHeight)
-	w, err := window.New(sciter.DefaultWindowCreateFlag, rect)
-	if err != nil {
-		log.Fatal(err)
+func startFileServer(webPath, htmlDir string) {
+	http.Handle("/", http.FileServer(http.Dir(htmlDir)))
+	goutils.LogInfo(fmt.Sprintf("Started server on %s...", webPath))
+	goutils.LogFatal(http.ListenAndServe(webPath, nil))
+}
+
+func openBrowser(webPath string) {
+	if !strings.HasPrefix(webPath, "http") {
+		webPath = fmt.Sprintf("http://%s", webPath)
 	}
-	// log.Printf("handle: %v", w.Handle)
-	w.LoadFile("static/html/simple.html")
-	w.SetTitle("Example")
-	w.Show()
-	w.Run()
+	goutils.LogFatal(browser.OpenURL(webPath))
 }

@@ -35,6 +35,12 @@ type ProxyServerConfig struct {
 	PathVideosMoverBinConfigs  string `json:"path.videosMover.bin.configs"`
 }
 
+type WebviewConfig struct {
+	Host          string `json:"host"`
+	Port          string `json:"port"`
+	HtmlFilesPath string `json:"htmlFilesPath"`
+}
+
 func GenerateServerConfig(configsPath, configFile string) *ProxyServerConfig {
 	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
 	LogFatal(err)
@@ -48,6 +54,21 @@ func GenerateServerConfig(configsPath, configFile string) *ProxyServerConfig {
 	}
 
 	return &serverConfig
+}
+
+func GenerateWebviewConfig(configsPath, configFile string) *WebviewConfig {
+	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
+	LogFatal(err)
+
+	var config WebviewConfig
+	err = json.Unmarshal(configBytes, &config)
+	LogFatal(err)
+
+	if config.Host == "" || config.Port == "" {
+		LogFatal(errors.New("No `host` and/or `port` configured"))
+	}
+
+	return &config
 }
 
 func removeTmpStoredJsonPayload(tempJsonFile *os.File) {
