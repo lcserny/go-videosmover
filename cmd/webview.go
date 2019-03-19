@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"github.com/lcserny/go-videosmover/pkg/handlers"
@@ -14,7 +15,6 @@ import (
 
 var wvConfigsPath = flag.String("configPath", "", "path to webview config files")
 
-// TODO: figure out how to stop server when tab closed? JS loop?
 func main() {
 	args := os.Args[1:]
 	if len(args) != 1 {
@@ -31,8 +31,22 @@ func main() {
 	go openBrowser(webPath)
 
 	mux := generateHandler(config.HtmlFilesPath)
-	goutils.LogInfo(fmt.Sprintf("Started server on %s...", webPath))
-	goutils.LogFatal(http.ListenAndServe(webPath, mux))
+	_ = startFileServer(webPath, mux)
+	// TODO: figure out how to stop server when tab closed? JS loop?
+	// stopFileServer(server)
+}
+
+func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
+	server := &http.Server{Addr: webPath, Handler: handler}
+	go func() {
+		goutils.LogInfo(fmt.Sprintf("Started server on %s...", webPath))
+		goutils.LogFatal(server.ListenAndServe())
+	}()
+	return server
+}
+
+func stopFileServer(server *http.Server) {
+	goutils.LogFatal(server.Shutdown(context.TODO()))
 }
 
 func generateHandler(htmlDir string) *http.ServeMux {
