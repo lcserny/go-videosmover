@@ -37,10 +37,12 @@ func main() {
 
 	mux := generateHandler(config.HtmlFilesPattern)
 	server := startFileServer(webPath, mux)
+	checkRunningServer(server, config)
+}
 
+func checkRunningServer(server *http.Server, config *handlers.WebviewConfig) {
 	for {
-		currentTime := goutils.MakeTimestamp()
-		if currentTime > lastRunningPingTimestamp+config.ServerPingTimeoutMs {
+		if goutils.MakeTimestamp() > lastRunningPingTimestamp+config.ServerPingTimeoutMs {
 			goutils.LogInfo(fmt.Sprintf("No ping received in %d ms, stopping server", config.ServerPingTimeoutMs))
 			stopFileServer(server)
 		}
