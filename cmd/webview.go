@@ -11,6 +11,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 )
 
 var wvConfigsPath = flag.String("configPath", "", "path to webview config files")
@@ -46,7 +47,8 @@ func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
 }
 
 func stopFileServer(server *http.Server) {
-	goutils.LogFatal(server.Shutdown(context.TODO()))
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	goutils.LogFatal(server.Shutdown(ctx))
 }
 
 func generateHandler(htmlDir string) *http.ServeMux {
