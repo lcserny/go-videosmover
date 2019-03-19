@@ -32,10 +32,9 @@ func main() {
 	config := handlers.GenerateWebviewConfig(*wvConfigsPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
 
 	webPath := fmt.Sprintf("%s:%s", config.Host, config.Port)
+	handler := generateHandler(config.HtmlFilesPattern)
+	server := startFileServer(webPath, handler)
 	go openBrowser(webPath)
-
-	mux := generateHandler(config.HtmlFilesPattern)
-	server := startFileServer(webPath, mux)
 	checkStopServer(server, config)
 }
 
