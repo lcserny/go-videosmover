@@ -27,8 +27,8 @@ func main() {
 	config := handlers.GenerateWebviewConfig(*wvConfigsPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
 
 	webPath := fmt.Sprintf("%s:%s", config.Host, config.Port)
-	go startFileServer(webPath, config.HtmlFilesPath)
 	go openBrowser(webPath)
+	startFileServer(webPath, config.HtmlFilesPath)
 }
 
 func startFileServer(webPath, htmlDir string) {
