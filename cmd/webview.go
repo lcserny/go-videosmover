@@ -33,7 +33,9 @@ func main() {
 
 	mux := generateHandler(config.HtmlFilesPath)
 	_ = startFileServer(webPath, mux)
-	// TODO: figure out how to stop server when tab closed? JS loop?
+	// TODO: from js send pings to /health which sets the timestamp of ping,
+	//  in another place, loop until ping time is older than time.Now() - 30sec?
+	//  this js that pings needs to be placed on each html page, so include it somehow? server side includes?
 	// stopFileServer(server)
 }
 
