@@ -14,6 +14,7 @@ import (
 
 var wvConfigsPath = flag.String("configPath", "", "path to webview config files")
 
+// TODO: figure out how to stop server when tab closed? JS loop?
 func main() {
 	args := os.Args[1:]
 	if len(args) != 1 {
@@ -28,13 +29,17 @@ func main() {
 
 	webPath := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	go openBrowser(webPath)
-	startFileServer(webPath, config.HtmlFilesPath)
+
+	mux := generateHandler(config.HtmlFilesPath)
+	goutils.LogInfo(fmt.Sprintf("Started server on %s...", webPath))
+	goutils.LogFatal(http.ListenAndServe(webPath, mux))
 }
 
-func startFileServer(webPath, htmlDir string) {
-	http.Handle("/", http.FileServer(http.Dir(htmlDir)))
-	goutils.LogInfo(fmt.Sprintf("Started server on %s...", webPath))
-	goutils.LogFatal(http.ListenAndServe(webPath, nil))
+func generateHandler(htmlDir string) *http.ServeMux {
+	mux := http.NewServeMux()
+	mux.Handle("/", http.FileServer(http.Dir(htmlDir)))
+	// TODO: add more paths for ajax calls maybe?
+	return mux
 }
 
 func openBrowser(webPath string) {
