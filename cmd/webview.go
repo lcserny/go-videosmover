@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/lcserny/goutils"
+	. "github.com/lcserny/goutils"
 	"github.com/pkg/browser"
 	"github.com/pkg/errors"
 	"html/template"
@@ -26,7 +26,7 @@ type WebviewConfig struct {
 
 var (
 	wvConfigsPath            = flag.String("configPath", "", "path to webview config files")
-	lastRunningPingTimestamp = goutils.MakeTimestamp()
+	lastRunningPingTimestamp = MakeTimestamp()
 )
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 		return
 	}
 
-	goutils.InitCurrentPathFileLogger("vm-webview.log")
+	InitCurrentPathFileLogger("vm-webview.log")
 
 	flag.Parse()
 	config := generateWebviewConfig(*wvConfigsPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
@@ -50,14 +50,14 @@ func main() {
 
 func generateWebviewConfig(configsPath, configFile string) *WebviewConfig {
 	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
-	goutils.LogFatal(err)
+	LogFatal(err)
 
 	var config WebviewConfig
 	err = json.Unmarshal(configBytes, &config)
-	goutils.LogFatal(err)
+	LogFatal(err)
 
 	if config.Host == "" || config.Port == "" {
-		goutils.LogFatal(errors.New("No `host` and/or `port` configured"))
+		LogFatal(errors.New("No `host` and/or `port` configured"))
 	}
 
 	return &config
@@ -65,9 +65,9 @@ func generateWebviewConfig(configsPath, configFile string) *WebviewConfig {
 
 func checkStopServer(server *http.Server, config *WebviewConfig) {
 	for {
-		if goutils.MakeTimestamp() > lastRunningPingTimestamp+config.ServerPingTimeoutMs {
-			goutils.LogInfo(fmt.Sprintf("No ping received in %d ms, stopping server", config.ServerPingTimeoutMs))
-			goutils.LogFatal(server.Shutdown(context.TODO()))
+		if MakeTimestamp() > lastRunningPingTimestamp+config.ServerPingTimeoutMs {
+			LogInfo(fmt.Sprintf("No ping received in %d ms, stopping server", config.ServerPingTimeoutMs))
+			LogFatal(server.Shutdown(context.TODO()))
 		}
 	}
 }
@@ -75,8 +75,8 @@ func checkStopServer(server *http.Server, config *WebviewConfig) {
 func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
 	server := &http.Server{Addr: webPath, Handler: handler}
 	go func() {
-		goutils.LogInfo(fmt.Sprintf("Started server on %s...", webPath))
-		goutils.LogFatal(server.ListenAndServe())
+		LogInfo(fmt.Sprintf("Started server on %s...", webPath))
+		LogFatal(server.ListenAndServe())
 	}()
 	return server
 }
@@ -93,7 +93,7 @@ func generateHandler(htmlFilesPattern string) *http.ServeMux {
 }
 
 func handleRunningPing(writer http.ResponseWriter, request *http.Request) {
-	lastRunningPingTimestamp = goutils.MakeTimestamp()
+	lastRunningPingTimestamp = MakeTimestamp()
 }
 
 func defaultHtmlTemplateHandle(tmpl *template.Template) func(writer http.ResponseWriter, request *http.Request) {
@@ -111,7 +111,7 @@ func defaultHtmlTemplateHandle(tmpl *template.Template) func(writer http.Respons
 			templateName = templateName[1:]
 		}
 
-		goutils.LogFatal(tmpl.ExecuteTemplate(writer, templateName, nil))
+		LogFatal(tmpl.ExecuteTemplate(writer, templateName, nil))
 	}
 }
 
@@ -119,5 +119,5 @@ func openBrowser(webPath string) {
 	if !strings.HasPrefix(webPath, "http") {
 		webPath = fmt.Sprintf("http://%s", webPath)
 	}
-	goutils.LogFatal(browser.OpenURL(webPath))
+	LogFatal(browser.OpenURL(webPath))
 }
