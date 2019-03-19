@@ -82,7 +82,6 @@ func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
 }
 
 func generateHandler(htmlFilesPattern string) *http.ServeMux {
-	// FIXME: cannot parse subdirectories
 	templates := template.Must(template.ParseGlob(htmlFilesPattern))
 
 	mux := http.NewServeMux()
