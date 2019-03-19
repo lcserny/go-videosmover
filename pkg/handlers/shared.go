@@ -4,10 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	. "github.com/lcserny/goutils"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 )
@@ -24,52 +22,6 @@ type ResponseJsonData struct {
 	Error string `json:"error"`
 	Date  string `json:"date"`
 	Body  string `json:"body"`
-}
-
-type ProxyServerConfig struct {
-	Host                       string `json:"host"`
-	Port                       string `json:"port"`
-	PathVideosMoverJava        string `json:"path.videosMover.java"`
-	PathVideosMoverJavaConfigs string `json:"path.videosMover.java.configs"`
-	PathVideosMoverBin         string `json:"path.videosMover.bin"`
-	PathVideosMoverBinConfigs  string `json:"path.videosMover.bin.configs"`
-}
-
-type WebviewConfig struct {
-	Host                string `json:"host"`
-	Port                string `json:"port"`
-	HtmlFilesPattern    string `json:"htmlFilesPattern"`
-	ServerPingTimeoutMs int64  `json:"serverPingTimeoutMs"`
-}
-
-func GenerateServerConfig(configsPath, configFile string) *ProxyServerConfig {
-	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
-	LogFatal(err)
-
-	var serverConfig ProxyServerConfig
-	err = json.Unmarshal(configBytes, &serverConfig)
-	LogFatal(err)
-
-	if serverConfig.Host == "" || serverConfig.Port == "" {
-		LogFatal(errors.New("No `host` and/or `port` configured"))
-	}
-
-	return &serverConfig
-}
-
-func GenerateWebviewConfig(configsPath, configFile string) *WebviewConfig {
-	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
-	LogFatal(err)
-
-	var config WebviewConfig
-	err = json.Unmarshal(configBytes, &config)
-	LogFatal(err)
-
-	if config.Host == "" || config.Port == "" {
-		LogFatal(errors.New("No `host` and/or `port` configured"))
-	}
-
-	return &config
 }
 
 func removeTmpStoredJsonPayload(tempJsonFile *os.File) {
