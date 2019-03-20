@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 )
 
 type TemplatedController func(writer http.ResponseWriter, request *http.Request) (tmplName string, tmplData interface{}, renderTmpl bool)
@@ -29,7 +30,6 @@ var (
 	}
 )
 
-// FIXME: why is it using 30% CPU? profile it
 func main() {
 	args := os.Args[1:]
 	if len(args) != 1 {
@@ -55,6 +55,7 @@ func checkStopServer(server *http.Server, config *handlers.WebviewConfig) {
 			LogInfo(fmt.Sprintf("No ping received in %d ms, stopping server", config.ServerPingTimeoutMs))
 			LogFatal(server.Shutdown(context.TODO()))
 		}
+		time.Sleep(time.Second)
 	}
 }
 
