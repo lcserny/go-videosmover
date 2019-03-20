@@ -2,28 +2,19 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/lcserny/go-videosmover/pkg/handlers"
 	"github.com/lcserny/go-videosmover/pkg/view"
 	. "github.com/lcserny/goutils"
 	"github.com/pkg/browser"
-	"github.com/pkg/errors"
 	"html/template"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 )
-
-type WebviewConfig struct {
-	Host                string `json:"host"`
-	Port                string `json:"port"`
-	HtmlFilesPath       string `json:"htmlFilesPath"`
-	ServerPingTimeoutMs int64  `json:"serverPingTimeoutMs"`
-}
 
 type TemplatedController func(writer http.ResponseWriter, request *http.Request) (tmplName string, tmplData interface{}, renderTmpl bool)
 
@@ -49,7 +40,7 @@ func main() {
 	InitCurrentPathFileLogger("vm-webview.log")
 
 	flag.Parse()
-	config := generateWebviewConfig(*wvConfigsPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
+	config := handlers.GenerateWebviewConfig(*wvConfigsPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
 
 	webPath := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	handler := generateHandler(config.HtmlFilesPath)
@@ -58,22 +49,7 @@ func main() {
 	checkStopServer(server, config)
 }
 
-func generateWebviewConfig(configsPath, configFile string) *WebviewConfig {
-	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
-	LogFatal(err)
-
-	var config WebviewConfig
-	err = json.Unmarshal(configBytes, &config)
-	LogFatal(err)
-
-	if config.Host == "" || config.Port == "" {
-		LogFatal(errors.New("No `host` and/or `port` configured"))
-	}
-
-	return &config
-}
-
-func checkStopServer(server *http.Server, config *WebviewConfig) {
+func checkStopServer(server *http.Server, config *handlers.WebviewConfig) {
 	for {
 		if MakeTimestamp() > lastRunningPingTimestamp+config.ServerPingTimeoutMs {
 			LogInfo(fmt.Sprintf("No ping received in %d ms, stopping server", config.ServerPingTimeoutMs))
