@@ -84,7 +84,7 @@ func generateHandler(htmlFilesPath string) *http.ServeMux {
 		mux.HandleFunc(pat, func(writer http.ResponseWriter, request *http.Request) {
 			tmplName, tmplData, renderTmpl := tmplView(writer, request)
 			if renderTmpl {
-				LogFatal(templates.ExecuteTemplate(writer, tmplName, tmplData))
+				LogFatal(templates.ExecuteTemplate(writer, fmt.Sprintf("%s.gohtml", tmplName), tmplData))
 			}
 		})
 	}
