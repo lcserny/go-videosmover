@@ -25,16 +25,16 @@ type WebviewConfig struct {
 	ServerPingTimeoutMs int64  `json:"serverPingTimeoutMs"`
 }
 
-type TemplatedView func() (tmplName string, tmplData interface{})
+type TemplatedController func(writer http.ResponseWriter, request *http.Request) (tmplName string, tmplData interface{})
 
 var (
 	wvConfigsPath            = flag.String("configPath", "", "path to webview config files")
 	lastRunningPingTimestamp = MakeTimestamp()
 
-	templatedViewsMap = map[string]TemplatedView{
-		"/":              view.Search,
-		"/search":        view.Search,
-		"/searchResults": view.SearchResults,
+	templatedViewsMap = map[string]TemplatedController{
+		"/":              view.SearchController,
+		"/search":        view.SearchController,
+		"/searchResults": view.SearchResultsController,
 	}
 )
 
@@ -104,8 +104,8 @@ func generateHandler(htmlFilesPath string) *http.ServeMux {
 
 	templates := template.Must(template.ParseGlob(filepath.Join(htmlFilesPath, "*.gohtml")))
 	for pat, tmplView := range templatedViewsMap {
-		tmplName, tmplData := tmplView()
 		mux.HandleFunc(pat, func(writer http.ResponseWriter, request *http.Request) {
+			tmplName, tmplData := tmplView(writer, request)
 			LogFatal(templates.ExecuteTemplate(writer, tmplName, tmplData))
 		})
 	}
