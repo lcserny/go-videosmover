@@ -1,0 +1,9 @@
+{{define "ping"}}
+    <script>
+        setInterval(function(){
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "/running", true);
+            xhttp.send();
+        }, 1000);
+    </script>
+{{end}}

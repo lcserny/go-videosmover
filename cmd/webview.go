@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/lcserny/go-videosmover/pkg/view"
 	. "github.com/lcserny/goutils"
 	"github.com/pkg/browser"
 	"github.com/pkg/errors"
@@ -24,11 +25,20 @@ type WebviewConfig struct {
 	ServerPingTimeoutMs int64  `json:"serverPingTimeoutMs"`
 }
 
+type TemplatedView func() (tmplName string, tmplData interface{})
+
 var (
 	wvConfigsPath            = flag.String("configPath", "", "path to webview config files")
 	lastRunningPingTimestamp = MakeTimestamp()
+
+	templatedViewsMap = map[string]TemplatedView{
+		"/":              view.Search,
+		"/search":        view.Search,
+		"/searchResults": view.SearchResults,
+	}
 )
 
+// FIXME: why is it using 30% CPU? profile it
 func main() {
 	args := os.Args[1:]
 	if len(args) != 1 {
@@ -81,39 +91,26 @@ func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
 	return server
 }
 
+// TODO: add more paths if needed
 func generateHandler(htmlFilesPath string) *http.ServeMux {
-	templates := template.Must(template.ParseGlob(filepath.Join(htmlFilesPath, "template", "*")))
-
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", defaultHtmlTemplateHandle(templates))
-	mux.HandleFunc("/running", handleRunningPing)
-	// FIXME: fix static files loading
-	mux.Handle("/static", http.FileServer(http.Dir(filepath.Join(htmlFilesPath, "static"))))
-	// TODO: add more paths for ajax calls maybe?
-	return mux
-}
 
-func handleRunningPing(writer http.ResponseWriter, request *http.Request) {
-	lastRunningPingTimestamp = MakeTimestamp()
-}
+	mux.HandleFunc("/running", func(writer http.ResponseWriter, request *http.Request) {
+		lastRunningPingTimestamp = MakeTimestamp()
+	})
 
-func defaultHtmlTemplateHandle(tmpl *template.Template) func(writer http.ResponseWriter, request *http.Request) {
-	return func(writer http.ResponseWriter, request *http.Request) {
-		templateName := request.URL.Path
-		if templateName == "/favicon.ico" {
-			return
-		}
+	staticServer := http.FileServer(http.Dir(filepath.Join(htmlFilesPath, "static")))
+	mux.Handle("/static/", http.StripPrefix("/static/", staticServer))
 
-		if templateName == "/" {
-			templateName = "index.html"
-		}
-
-		if strings.HasPrefix(templateName, "/") {
-			templateName = templateName[1:]
-		}
-
-		LogFatal(tmpl.ExecuteTemplate(writer, templateName, nil))
+	templates := template.Must(template.ParseGlob(filepath.Join(htmlFilesPath, "*.gohtml")))
+	for pat, tmplView := range templatedViewsMap {
+		tmplName, tmplData := tmplView()
+		mux.HandleFunc(pat, func(writer http.ResponseWriter, request *http.Request) {
+			LogFatal(templates.ExecuteTemplate(writer, tmplName, tmplData))
+		})
 	}
+
+	return mux
 }
 
 func openBrowser(webPath string) {
