@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/lcserny/go-videosmover/pkg/handlers"
+	"github.com/lcserny/go-videosmover/pkg/models"
 	"github.com/lcserny/go-videosmover/pkg/view"
 	. "github.com/lcserny/goutils"
 	"github.com/pkg/browser"
@@ -49,7 +50,7 @@ func main() {
 	checkStopServer(server, config)
 }
 
-func checkStopServer(server *http.Server, config *handlers.WebviewConfig) {
+func checkStopServer(server *http.Server, config *models.WebviewConfig) {
 	for {
 		if MakeTimestamp() > lastRunningPingTimestamp+config.ServerPingTimeoutMs {
 			LogInfo(fmt.Sprintf("No ping received in %d ms, stopping server", config.ServerPingTimeoutMs))

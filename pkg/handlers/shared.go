@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/lcserny/go-videosmover/pkg/models"
 	. "github.com/lcserny/goutils"
 	"github.com/pkg/errors"
 	"io/ioutil"
@@ -26,27 +27,11 @@ type ResponseJsonData struct {
 	Body  string `json:"body"`
 }
 
-type ProxyServerConfig struct {
-	Host                       string `json:"host"`
-	Port                       string `json:"port"`
-	PathVideosMoverJava        string `json:"path.videosMover.java"`
-	PathVideosMoverJavaConfigs string `json:"path.videosMover.java.configs"`
-	PathVideosMoverBin         string `json:"path.videosMover.bin"`
-	PathVideosMoverBinConfigs  string `json:"path.videosMover.bin.configs"`
-}
-
-type WebviewConfig struct {
-	Host                string `json:"host"`
-	Port                string `json:"port"`
-	HtmlFilesPath       string `json:"htmlFilesPath"`
-	ServerPingTimeoutMs int64  `json:"serverPingTimeoutMs"`
-}
-
-func GenerateServerConfig(configsPath, configFile string) *ProxyServerConfig {
+func GenerateServerConfig(configsPath, configFile string) *models.ProxyServerConfig {
 	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
 	LogFatal(err)
 
-	var serverConfig ProxyServerConfig
+	var serverConfig models.ProxyServerConfig
 	err = json.Unmarshal(configBytes, &serverConfig)
 	LogFatal(err)
 
@@ -57,11 +42,11 @@ func GenerateServerConfig(configsPath, configFile string) *ProxyServerConfig {
 	return &serverConfig
 }
 
-func GenerateWebviewConfig(configsPath, configFile string) *WebviewConfig {
+func GenerateWebviewConfig(configsPath, configFile string) *models.WebviewConfig {
 	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
 	LogFatal(err)
 
-	var config WebviewConfig
+	var config models.WebviewConfig
 	err = json.Unmarshal(configBytes, &config)
 	LogFatal(err)
 
