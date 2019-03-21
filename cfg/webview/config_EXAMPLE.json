@@ -2,5 +2,6 @@
   "host": "localhost",
   "port": "8079",
   "htmlFilesPath": "html",
-  "serverPingTimeoutMs": 10000
+  "serverPingTimeoutMs": 10000,
+  "videosMoverAPI": "http://localhost:8077/exec-bin/videos-mover"
 }

@@ -29,7 +29,7 @@ type ResponseJsonData struct {
 }
 
 type TemplateController interface {
-	ServeTemplate(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool)
+	ServeTemplate(http.ResponseWriter, *http.Request) (string, interface{}, bool)
 }
 
 func GenerateServerConfig(configsPath, configFile string) *models.ProxyServerConfig {

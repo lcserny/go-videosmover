@@ -36,7 +36,7 @@ func main() {
 	config := handlers.GenerateWebviewConfig(*wvConfigsPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
 
 	webPath := fmt.Sprintf("%s:%s", config.Host, config.Port)
-	handler := generateHandler(config.HtmlFilesPath)
+	handler := generateHandler(config)
 	server := startFileServer(webPath, handler)
 	go openBrowser(webPath)
 	checkStopServer(server, config)
@@ -61,22 +61,22 @@ func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
 	return server
 }
 
-func generateHandler(htmlFilesPath string) *http.ServeMux {
+func generateHandler(config *models.WebviewConfig) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/running", func(writer http.ResponseWriter, request *http.Request) {
 		lastRunningPingTimestamp = MakeTimestamp()
 	})
 
-	staticServer := http.FileServer(http.Dir(filepath.Join(htmlFilesPath, "static")))
+	staticServer := http.FileServer(http.Dir(filepath.Join(config.HtmlFilesPath, "static")))
 	mux.Handle("/static/", http.StripPrefix("/static/", staticServer))
 
-	for pat, tmplController := range templateControllers() {
+	for pat, tmplController := range templateControllers(config) {
 		mux.HandleFunc(pat, func(resp http.ResponseWriter, req *http.Request) {
 			if tmplName, tmplData, renderTmpl := tmplController.ServeTemplate(resp, req); renderTmpl {
 				tmpl := template.Must(template.ParseFiles(
-					filepath.Join(htmlFilesPath, "layout.gohtml"),
-					filepath.Join(htmlFilesPath, fmt.Sprintf("%s.gohtml", tmplName))),
+					filepath.Join(config.HtmlFilesPath, "layout.gohtml"),
+					filepath.Join(config.HtmlFilesPath, fmt.Sprintf("%s.gohtml", tmplName))),
 				)
 				LogFatal(tmpl.Execute(resp, tmplData))
 			}
@@ -86,9 +86,9 @@ func generateHandler(htmlFilesPath string) *http.ServeMux {
 	return mux
 }
 
-func templateControllers() map[string]handlers.TemplateController {
+func templateControllers(config *models.WebviewConfig) map[string]handlers.TemplateController {
 	templatesMap := make(map[string]handlers.TemplateController)
-	searchController := &view.SearchController{}
+	searchController := view.NewSearchController(config)
 	templatesMap["/"] = searchController
 	templatesMap["/search"] = searchController
 	// TODO: add more if needed

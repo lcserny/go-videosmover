@@ -37,4 +37,5 @@ type WebviewConfig struct {
 	Port                string `json:"port"`
 	HtmlFilesPath       string `json:"htmlFilesPath"`
 	ServerPingTimeoutMs int64  `json:"serverPingTimeoutMs"`
+	VideosMoverAPI      string `json:"videosMoverAPI"`
 }
