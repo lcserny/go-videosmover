@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+type SearchResultPageData struct {
+	Videos []string
+}
+
 type SearchController struct {
 	config *models.WebviewConfig
 }
@@ -27,12 +31,13 @@ func (sc *SearchController) ServeTemplate(resp http.ResponseWriter, req *http.Re
 
 func (sc *SearchController) GET(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
 	resp.WriteHeader(http.StatusOK)
-
 	return "search", nil, true
 }
 
 func (sc *SearchController) POST(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
 	resp.WriteHeader(http.StatusOK)
 	// TODO: exec POST on `cfg.videosMoverAPI` passing needed data
-	return "search", nil, true
+	var videos []string
+	videos = append(videos, "/some/path/here.mp4")
+	return "search", SearchResultPageData{Videos: videos}, true
 }
