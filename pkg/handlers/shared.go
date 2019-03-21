@@ -7,6 +7,7 @@ import (
 	. "github.com/lcserny/goutils"
 	"github.com/pkg/errors"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -25,6 +26,10 @@ type ResponseJsonData struct {
 	Error string `json:"error"`
 	Date  string `json:"date"`
 	Body  string `json:"body"`
+}
+
+type TemplateController interface {
+	ServeTemplate(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool)
 }
 
 func GenerateServerConfig(configsPath, configFile string) *models.ProxyServerConfig {
