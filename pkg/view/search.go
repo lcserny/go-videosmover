@@ -2,11 +2,25 @@ package view
 
 import "net/http"
 
-// TODO: if you want to encapsulate better, make a handler class and use interface in `templatedViewsMap`
-func SearchController(writer http.ResponseWriter, request *http.Request) (tmplName string, tmplData interface{}, renderTmpl bool) {
+type SearchController struct {
+}
+
+func (sc *SearchController) ServeTemplate(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
+	resp.Header().Set("Content-Type", "text/html; charset=utf-8")
+	resp.WriteHeader(http.StatusOK)
+
+	if req.Method == http.MethodPost {
+		return sc.POST(resp, req)
+	}
+	return sc.GET(resp, req)
+}
+
+func (sc *SearchController) GET(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
+
 	return "search", nil, true
 }
 
-func SearchResultsController(writer http.ResponseWriter, request *http.Request) (tmplName string, tmplData interface{}, renderTmpl bool) {
-	return "search_results", nil, true
+func (sc *SearchController) POST(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
+
+	return "search", nil, true
 }

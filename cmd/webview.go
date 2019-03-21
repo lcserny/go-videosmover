@@ -18,17 +18,13 @@ import (
 	"time"
 )
 
-type TemplatedController func(writer http.ResponseWriter, request *http.Request) (tmplName string, tmplData interface{}, renderTmpl bool)
+type TemplatedHandler interface {
+	ServeTemplate(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool)
+}
 
 var (
 	wvConfigsPath            = flag.String("configPath", "", "path to webview config files")
 	lastRunningPingTimestamp = MakeTimestamp()
-
-	templatedViewsMap = map[string]TemplatedController{
-		"/":              view.SearchController,
-		"/search":        view.SearchController,
-		"/searchResults": view.SearchResultsController,
-	}
 )
 
 func main() {
@@ -69,7 +65,6 @@ func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
 	return server
 }
 
-// TODO: add more paths if needed
 func generateHandler(htmlFilesPath string) *http.ServeMux {
 	mux := http.NewServeMux()
 
@@ -81,16 +76,24 @@ func generateHandler(htmlFilesPath string) *http.ServeMux {
 	mux.Handle("/static/", http.StripPrefix("/static/", staticServer))
 
 	templates := template.Must(template.ParseGlob(filepath.Join(htmlFilesPath, "*.gohtml")))
-	for pat, tmplView := range templatedViewsMap {
+	for pat, tmplHandler := range getTemplatedHandlers() {
 		mux.HandleFunc(pat, func(writer http.ResponseWriter, request *http.Request) {
-			tmplName, tmplData, renderTmpl := tmplView(writer, request)
-			if renderTmpl {
+			if tmplName, tmplData, renderTmpl := tmplHandler.ServeTemplate(writer, request); renderTmpl {
 				LogFatal(templates.ExecuteTemplate(writer, fmt.Sprintf("%s.gohtml", tmplName), tmplData))
 			}
 		})
 	}
 
 	return mux
+}
+
+func getTemplatedHandlers() (templatesMap map[string]TemplatedHandler) {
+	searchController := &view.SearchController{}
+	templatesMap["/"] = searchController
+	templatesMap["/search"] = searchController
+	// TODO: add more if needed
+
+	return templatesMap
 }
 
 func openBrowser(webPath string) {
