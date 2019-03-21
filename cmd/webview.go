@@ -56,7 +56,10 @@ func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
 	server := &http.Server{Addr: webPath, Handler: handler}
 	go func() {
 		LogInfo(fmt.Sprintf("Started server on %s...", webPath))
-		LogFatal(server.ListenAndServe())
+		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+			LogFatal(err)
+		}
+		os.Exit(0)
 	}()
 	return server
 }
