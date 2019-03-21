@@ -3,6 +3,7 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/lcserny/go-videosmover/pkg/models"
 	. "github.com/lcserny/goutils"
 	"io/ioutil"
 	"os"
@@ -17,10 +18,10 @@ type testActionData struct {
 
 var (
 	cachedMP4VideoHeader   []byte
-	testSearchActionConfig *ActionConfig
+	testSearchActionConfig *models.ActionConfig
 )
 
-func getTestActionConfig() *ActionConfig {
+func getTestActionConfig() *models.ActionConfig {
 	if testSearchActionConfig == nil {
 		testSearchActionConfig = GenerateActionConfig("../../cfg/commander", "actions.test.json")
 	}
