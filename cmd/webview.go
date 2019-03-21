@@ -34,7 +34,7 @@ func main() {
 		return
 	}
 
-	InitCurrentPathFileLogger("vm-webview.log")
+	InitFileLogger("vm-webview.log")
 
 	flag.Parse()
 	config := handlers.GenerateWebviewConfig(*wvConfigsPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
@@ -75,11 +75,14 @@ func generateHandler(htmlFilesPath string) *http.ServeMux {
 	staticServer := http.FileServer(http.Dir(filepath.Join(htmlFilesPath, "static")))
 	mux.Handle("/static/", http.StripPrefix("/static/", staticServer))
 
-	templates := template.Must(template.ParseGlob(filepath.Join(htmlFilesPath, "*.gohtml")))
 	for pat, tmplHandler := range getTemplatedHandlers() {
-		mux.HandleFunc(pat, func(writer http.ResponseWriter, request *http.Request) {
-			if tmplName, tmplData, renderTmpl := tmplHandler.ServeTemplate(writer, request); renderTmpl {
-				LogFatal(templates.ExecuteTemplate(writer, fmt.Sprintf("%s.gohtml", tmplName), tmplData))
+		mux.HandleFunc(pat, func(resp http.ResponseWriter, req *http.Request) {
+			if tmplName, tmplData, renderTmpl := tmplHandler.ServeTemplate(resp, req); renderTmpl {
+				tmpl := template.Must(template.ParseFiles(
+					filepath.Join(htmlFilesPath, "layout.gohtml"),
+					filepath.Join(htmlFilesPath, fmt.Sprintf("%s.gohtml", tmplName))),
+				)
+				LogFatal(tmpl.Execute(resp, tmplData))
 			}
 		})
 	}

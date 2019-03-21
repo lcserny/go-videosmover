@@ -236,6 +236,8 @@ github.com/lcserny/goutils v1.0.4 h1:tRFJgpJeDI4in1f7Bl6EAQwMYbk93ozEJb7mIhIktz4
 github.com/lcserny/goutils v1.0.4/go.mod h1:w170imEeFxJY6RxDvZ85ZOU2VMiZBqfHNvWATCKqOmg=
 github.com/lcserny/goutils v1.0.5 h1:tH+4CFCNitwiyed8TuSuZHOOoPldx1kKFB3DpktqOe4=
 github.com/lcserny/goutils v1.0.5/go.mod h1:w170imEeFxJY6RxDvZ85ZOU2VMiZBqfHNvWATCKqOmg=
+github.com/lcserny/goutils v1.0.6 h1:9woaC9sX5XWQ+gG+SD981IBR8jTvH8l0u+eDxsmn4pQ=
+github.com/lcserny/goutils v1.0.6/go.mod h1:w170imEeFxJY6RxDvZ85ZOU2VMiZBqfHNvWATCKqOmg=
 github.com/lib/pq v1.0.0/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=
 github.com/magiconair/properties v1.8.0/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
 github.com/markbates/deplist v1.0.4/go.mod h1:gRRbPbbuA8TmMiRvaOzUlRfzfjeCCBqX2A6arxN01MM=

@@ -1,16 +1,25 @@
-{{define "layoutHead"}}
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <title>VideosMover - Webview</title>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    </head>
-    <body>
-{{end}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{block "title" .}} {{end}}</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-{{define "layoutTail"}}
-    {{template "ping"}}
-    </body>
-    </html>
-{{end}}
+    <link rel="stylesheet" type="text/css" href="/static/css/base.css">
+    {{block "additionalStyles" .}} {{end}}
+</head>
+<body>
+
+{{template "content"}}
+
+<script src="/static/js/base.js"></script>
+<script>
+    setInterval(function () {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "/running", true);
+        xhttp.send();
+    }, 1000);
+</script>
+{{block "additionalScripts" .}} {{end}}
+</body>
+</html>
