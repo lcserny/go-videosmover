@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/lcserny/go-videosmover/pkg/models"
 	. "github.com/lcserny/goutils"
 	"net/http"
 	"os/exec"
@@ -15,7 +16,7 @@ type BinJsonExecuteHandler struct {
 	videosMoverConfigsPath string
 }
 
-func NewBinJsonExecuteHandler(serverConfig *ProxyServerConfig) *BinJsonExecuteHandler {
+func NewBinJsonExecuteHandler(serverConfig *models.ProxyServerConfig) *BinJsonExecuteHandler {
 	return &BinJsonExecuteHandler{
 		videosMoverPath:        serverConfig.PathVideosMoverBin,
 		videosMoverConfigsPath: serverConfig.PathVideosMoverBinConfigs,

@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/lcserny/go-videosmover/pkg/models"
 	. "github.com/lcserny/goutils"
 	"net/http"
 	"os/exec"
@@ -15,7 +16,7 @@ type JavaJsonExecuteHandler struct {
 	videosMoverConfigsPath string
 }
 
-func NewJavaJsonExecuteHandler(serverConfig *ProxyServerConfig) *JavaJsonExecuteHandler {
+func NewJavaJsonExecuteHandler(serverConfig *models.ProxyServerConfig) *JavaJsonExecuteHandler {
 	return &JavaJsonExecuteHandler{
 		videosMoverPath:        serverConfig.PathVideosMoverJava,
 		videosMoverConfigsPath: serverConfig.PathVideosMoverBinConfigs,
