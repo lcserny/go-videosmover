@@ -87,12 +87,12 @@ func generateHandler(htmlFilesPath string) *http.ServeMux {
 	return mux
 }
 
-func getTemplatedHandlers() (templatesMap map[string]TemplatedHandler) {
+func getTemplatedHandlers() map[string]TemplatedHandler {
+	templatesMap := make(map[string]TemplatedHandler)
 	searchController := &view.SearchController{}
 	templatesMap["/"] = searchController
 	templatesMap["/search"] = searchController
 	// TODO: add more if needed
-
 	return templatesMap
 }
 
