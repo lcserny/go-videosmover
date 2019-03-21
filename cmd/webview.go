@@ -45,7 +45,6 @@ func main() {
 func checkStopServer(server *http.Server, config *models.WebviewConfig) {
 	for {
 		if MakeTimestamp() > lastRunningPingTimestamp+config.ServerPingTimeoutMs {
-			LogInfo(fmt.Sprintf("No ping received in %d ms, stopping server", config.ServerPingTimeoutMs))
 			LogFatal(server.Shutdown(context.TODO()))
 		}
 		time.Sleep(time.Second)
@@ -55,7 +54,6 @@ func checkStopServer(server *http.Server, config *models.WebviewConfig) {
 func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
 	server := &http.Server{Addr: webPath, Handler: handler}
 	go func() {
-		LogInfo(fmt.Sprintf("Started server on %s...", webPath))
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
 			LogFatal(err)
 		}
