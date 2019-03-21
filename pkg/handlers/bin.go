@@ -66,7 +66,10 @@ func (h *BinJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request
 	cmd := exec.Command(h.videosMoverPath, "-configs="+h.videosMoverConfigsPath, "-action="+jsonData.Action, "-payloadFile="+tempJsonFile.Name())
 	cmd.Stdout = &cmdOut
 	cmd.Stderr = &cmdErr
-	_ = cmd.Run()
+	err = cmd.Run()
+	if err != nil {
+		cmdErr.WriteString(err.Error())
+	}
 
 	_, _ = w.Write(getJsonResponseFromAsBytes(string(cmdOut.Bytes()), string(cmdErr.Bytes())))
 }

@@ -66,7 +66,10 @@ func (h *JavaJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Reques
 	cmd := exec.Command("java", "-jar", h.videosMoverPath, jsonData.Action, tempJsonFile.Name())
 	cmd.Stdout = &cmdOut
 	cmd.Stderr = &cmdErr
-	_ = cmd.Run()
+	err = cmd.Run()
+	if err != nil {
+		cmdErr.WriteString(err.Error())
+	}
 
 	_, _ = w.Write(getJsonResponseFromAsBytes(string(cmdOut.Bytes()), string(cmdErr.Bytes())))
 }
