@@ -1,7 +1,12 @@
 package view
 
 import (
+	"bytes"
+	"encoding/json"
+	"errors"
+	"github.com/lcserny/go-videosmover/pkg/handlers"
 	"github.com/lcserny/go-videosmover/pkg/models"
+	"io/ioutil"
 	"net/http"
 	"strings"
 )
@@ -35,9 +40,37 @@ func (sc *SearchController) GET(resp http.ResponseWriter, req *http.Request) (na
 }
 
 func (sc *SearchController) POST(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
+	bodyReq, err := generateActionRequest("search", &models.SearchRequestData{Path: sc.config.DownloadsPath})
+	if err != nil {
+		return return500Error("search", err, resp)
+	}
+
+	apiResp, err := http.Post(sc.config.VideosMoverAPI, "application/json", bytes.NewBufferString(bodyReq))
+	if err != nil {
+		return return500Error("search", err, resp)
+	}
+	defer apiResp.Body.Close()
+
+	body, _ := ioutil.ReadAll(apiResp.Body)
+	if apiResp.StatusCode != http.StatusOK {
+		return return500Error("search", errors.New(string(body)), resp)
+	}
+
+	var jsonResp handlers.ResponseJsonData
+	if err = json.Unmarshal(body, &jsonResp); err != nil {
+		return return500Error("search", err, resp)
+	}
+
+	var searchResponseDataList []models.SearchResponseData
+	if err = json.Unmarshal([]byte(jsonResp.Body), &searchResponseDataList); err != nil {
+		return return500Error("search", err, resp)
+	}
+
+	pageData := SearchResultPageData{}
+	for _, data := range searchResponseDataList {
+		pageData.Videos = append(pageData.Videos, data.Path)
+	}
+
 	resp.WriteHeader(http.StatusOK)
-	// TODO: exec POST on `cfg.videosMoverAPI` passing needed data
-	var videos []string
-	videos = append(videos, "/some/path/here.mp4")
-	return "search", SearchResultPageData{Videos: videos}, true
+	return "search", pageData, true
 }
