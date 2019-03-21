@@ -2,5 +2,5 @@
   "host": "localhost",
   "port": "8079",
   "htmlFilesPath": "html",
-  "serverPingTimeoutMs": 15000
+  "serverPingTimeoutMs": 10000
 }

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/static/css/base.css">
     {{block "additionalStyles" .}} {{end}}
 </head>
@@ -12,12 +13,13 @@
 
 {{template "content"}}
 
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/popper.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
 <script src="/static/js/base.js"></script>
 <script>
     setInterval(function () {
-        var xhttp = new XMLHttpRequest();
-        xhttp.open("GET", "/running", true);
-        xhttp.send();
+        $.get("/running");
     }, 1000);
 </script>
 {{block "additionalScripts" .}} {{end}}
