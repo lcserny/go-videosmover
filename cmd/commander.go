@@ -22,7 +22,7 @@ func main() {
 		return
 	}
 
-	InitCurrentPathFileLogger("vm-commander.log")
+	InitFileLogger("vm-commander.log")
 
 	flag.Parse()
 	action := actions.NewActionFrom(*commanderActionFlag)

@@ -19,7 +19,7 @@ func main() {
 		return
 	}
 
-	InitCurrentPathFileLogger("vm-proxyserver.log")
+	InitFileLogger("vm-proxyserver.log")
 
 	flag.Parse()
 	serverConfig := handlers.GenerateServerConfig(*proxyServerConfigsPathFlag, fmt.Sprintf("config_%s.json", runtime.GOOS))

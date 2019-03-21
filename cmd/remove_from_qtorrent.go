@@ -19,7 +19,7 @@ func main() {
 		return
 	}
 
-	InitCurrentPathFileLogger("vm-removeqtorrent.log")
+	InitFileLogger("vm-removeqtorrent.log")
 
 	flag.Parse()
 	if err := executeRemoveTorrentRequest(); err != nil {
