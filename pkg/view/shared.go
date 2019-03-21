@@ -48,7 +48,7 @@ func executeVideosMoverPOST(action string, payload interface{}, videosMoverAPI s
 		return "", err
 	}
 
-	if apiResp.StatusCode != http.StatusOK {
+	if apiResp.StatusCode != http.StatusOK || jsonResp.Code != http.StatusOK {
 		return "", errors.New(jsonResp.Error)
 	}
 
