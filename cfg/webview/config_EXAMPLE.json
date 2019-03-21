@@ -3,5 +3,8 @@
   "port": "8079",
   "htmlFilesPath": "html",
   "serverPingTimeoutMs": 10000,
-  "videosMoverAPI": "http://localhost:8077/exec-bin/videos-mover"
+  "videosMoverAPI": "http://localhost:8077/exec-bin/videos-mover",
+  "downloadsPath": "/path/to/downloads",
+  "moviesPath": "/path/to/movies",
+  "tvSeriesPath": "/path/to/tvSeries"
 }

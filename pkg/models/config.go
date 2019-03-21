@@ -38,4 +38,7 @@ type WebviewConfig struct {
 	HtmlFilesPath       string `json:"htmlFilesPath"`
 	ServerPingTimeoutMs int64  `json:"serverPingTimeoutMs"`
 	VideosMoverAPI      string `json:"videosMoverAPI"`
+	DownloadsPath       string `json:"downloadsPath"`
+	MoviesPath          string `json:"moviesPath"`
+	TvSeriesPath        string `json:"tvSeriesPath"`
 }
