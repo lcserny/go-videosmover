@@ -26,6 +26,13 @@ func SearchAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 	realWalkRootPath, _ := filepath.EvalSymlinks(request.Path)
 	var resultList []SearchResponseData
 	err = filepath.Walk(realWalkRootPath, func(path string, info os.FileInfo, err error) error {
+		// check path
+		for _, exPath := range config.SearchExcludePaths {
+			if strings.Contains(path, exPath) {
+				return filepath.SkipDir
+			}
+		}
+
 		if err != nil {
 			LogError(err)
 			return nil
@@ -61,13 +68,6 @@ func isVideo(path string, info os.FileInfo, config *ActionConfig) bool {
 	n, _ := file.Read(head)
 	if n < config.HeaderBytesSize {
 		return false
-	}
-
-	// check path
-	for _, exPath := range config.SearchExcludePaths {
-		if strings.Contains(path, exPath) {
-			return false
-		}
 	}
 
 	// check type
