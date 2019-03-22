@@ -1,27 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>{{block "title" .}} {{end}}</title>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+{{define "header"}}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <title>{{block "title" .}}VideosMover - Webview{{end}}</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/base.css">
-    {{block "additionalStyles" .}} {{end}}
-</head>
-<body>
+        <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="/static/css/base.css">
+        {{block "additionalStyles" .}}{{end}}
+    </head>
+    <body>
+{{end}}
 
-{{template "content" .}}
-
-<script src="/static/js/jquery.min.js"></script>
-<script src="/static/js/popper.min.js"></script>
-<script src="/static/js/bootstrap.min.js"></script>
-<script src="/static/js/base.js"></script>
-<script>
-    setInterval(function () {
-        $.get("/running");
-    }, 1000);
-</script>
-{{block "additionalScripts" .}} {{end}}
-</body>
-</html>
+{{define "footer"}}
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/popper.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/base.js"></script>
+    <script>
+        setInterval(function () {
+            $.get("/running");
+        }, 1000);
+    </script>
+    {{block "additionalScripts" .}}{{end}}
+    </body>
+    </html>
+{{end}}

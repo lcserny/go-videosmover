@@ -72,14 +72,11 @@ func generateHandler(config *models.WebviewConfig) *http.ServeMux {
 	staticServer := http.FileServer(http.Dir(filepath.Join(config.HtmlFilesPath, "static")))
 	mux.Handle("/static/", http.StripPrefix("/static/", staticServer))
 
+	templates := template.Must(template.ParseGlob(filepath.Join(config.HtmlFilesPath, "*.gohtml")))
 	for pat, tmplController := range templateControllers(config) {
 		mux.HandleFunc(pat, func(resp http.ResponseWriter, req *http.Request) {
 			if tmplName, tmplData, renderTmpl := tmplController.ServeTemplate(resp, req); renderTmpl {
-				tmpl := template.Must(template.ParseFiles(
-					filepath.Join(config.HtmlFilesPath, "layout.gohtml"),
-					filepath.Join(config.HtmlFilesPath, fmt.Sprintf("%s.gohtml", tmplName))),
-				)
-				LogFatal(tmpl.Execute(resp, tmplData))
+				LogFatal(templates.ExecuteTemplate(resp, fmt.Sprintf("%s.gohtml", tmplName), tmplData))
 			}
 		})
 	}

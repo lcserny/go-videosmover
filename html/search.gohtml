@@ -1,16 +1,16 @@
 {{define "title"}}VideosMover - Search{{end}}
 
-{{define "content"}}
-    <div class="container">
-        <h1 class="h1">Hello there from Search</h1>
-        <img src="/static/img/google.png" alt=""/>
+{{template "header" .}}
+<div class="container">
+    <h1 class="h1">Hello there from Search</h1>
+    <img src="/static/img/google.png" alt=""/>
 
-        {{range .Videos}}
-            <div>This is a video found: {{.}}</div>
-        {{end}}
+    {{range .Videos}}
+        <div>This is a video found: {{.}}</div>
+    {{end}}
 
-        <form action="/search" method="post">
-            <input type="submit" value="Search" class="btn btn-success">
-        </form>
-    </div>
-{{end}}
+    <form action="/search" method="post">
+        <input type="submit" value="Search" class="btn btn-success">
+    </form>
+</div>
+{{template "footer" .}}
