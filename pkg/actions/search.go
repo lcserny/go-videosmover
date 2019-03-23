@@ -5,6 +5,7 @@ import (
 	"github.com/h2non/filetype"
 	. "github.com/lcserny/go-videosmover/pkg/models"
 	. "github.com/lcserny/goutils"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -65,7 +66,7 @@ func isVideo(path string, info os.FileInfo, config *ActionConfig) bool {
 	}
 	defer CloseFile(file)
 	head := make([]byte, config.HeaderBytesSize)
-	n, _ := file.Read(head)
+	n, _ := io.ReadFull(file, head)
 	if n < config.HeaderBytesSize {
 		return false
 	}
