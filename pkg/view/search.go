@@ -8,8 +8,14 @@ import (
 	"strings"
 )
 
+type SearchResult struct {
+	Index              int
+	Name               string
+	SearchResponseData models.SearchResponseData
+}
+
 type SearchResultPageData struct {
-	Videos []string
+	Videos []SearchResult
 }
 
 type SearchController struct {
@@ -48,9 +54,9 @@ func (sc *SearchController) POST(resp http.ResponseWriter, req *http.Request) (n
 	}
 
 	pageData := SearchResultPageData{}
-	for _, data := range searchResponseDataList {
-		// TODO: data should be saved to session or so, just add viewData here?
-		pageData.Videos = append(pageData.Videos, filepath.Base(data.Path))
+	for i, data := range searchResponseDataList {
+		searchResult := SearchResult{Index: i, Name: filepath.Base(data.Path), SearchResponseData: data}
+		pageData.Videos = append(pageData.Videos, searchResult)
 	}
 
 	resp.WriteHeader(http.StatusOK)

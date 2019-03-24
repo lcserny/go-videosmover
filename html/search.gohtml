@@ -15,28 +15,29 @@
                 </thead>
                 <tbody>
                 {{/* TODO: add checkboxes with SkipCache and SkipOnlineSearch with defaults */}}
-                {{range $i, $p := .Videos}}
-                    <tr>
-                        <th scope="row">{{$i}}</th>
-                        <td>{{$p}}</td>
+                {{range .Videos}}
+                    <tr id="js-videoRow{{.Index}}"
+                        data-name="{{.Name}}"
+                        data-path="{{.SearchResponseData.Path}}"
+                        data-subs="{{.SearchResponseData.Subtitles}}">
+
+                        <th scope="row">{{.Index}}</th>
+                        <td>{{.Name}}</td>
                         <td>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input js-videoTypeInput"
-                                       type="radio" name="videoType{{$i}}" id="videoTypeMovie{{$i}}"
-                                       data-type="movie" data-name="{{$p}}">
-                                <label class="form-check-label" for="videoTypeMovie{{$i}}">Movie</label>
+                                <input class="form-check-input js-videoTypeInput" type="radio"
+                                       name="videoType{{.Index}}" id="videoTypeMovie{{.Index}}" value="movie">
+                                <label class="form-check-label" for="videoTypeMovie{{.Index}}">Movie</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input js-videoTypeInput"
-                                       type="radio" name="videoType{{$i}}" id="videoTypeTv{{$i}}"
-                                       data-type="tv" data-name="{{$p}}">
-                                <label class="form-check-label" for="videoTypeTv{{$i}}">TV</label>
+                                <input class="form-check-input js-videoTypeInput" type="radio"
+                                       name="videoType{{.Index}}" id="videoTypeTv{{.Index}}" value="tv">
+                                <label class="form-check-label" for="videoTypeTv{{.Index}}">TV</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input js-videoTypeInput"
-                                       type="radio" name="videoType{{$i}}" id="videoTypeUnknown{{$i}}"
-                                       data-type="unknown" data-name="{{$p}}">
-                                <label class="form-check-label" for="videoTypeUnknown{{$i}}">Unknown</label>
+                                <input class="form-check-input js-videoTypeInput" type="radio"
+                                       name="videoType{{.Index}}" id="videoTypeUnknown{{.Index}}" value="unknown">
+                                <label class="form-check-label" for="videoTypeUnknown{{.Index}}">Unknown</label>
                             </div>
                         </td>
                         <td>Another hmmm</td>
