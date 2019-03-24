@@ -17,6 +17,6 @@ func NewOutputController(config *models.WebviewConfig) *AjaxOutputController {
 func (sc *AjaxOutputController) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	if strings.ToUpper(req.Method) == http.MethodPost {
-		// TODO: write to the response the list of names
+		// TODO: validate request params! and write to the response the list of names
 	}
 }
