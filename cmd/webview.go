@@ -81,6 +81,10 @@ func generateHandler(config *models.WebviewConfig) *http.ServeMux {
 		})
 	}
 
+	for pat, controller := range ajaxHandlers(config) {
+		mux.Handle(pat, controller)
+	}
+
 	return mux
 }
 
@@ -90,6 +94,15 @@ func templateControllers(config *models.WebviewConfig) map[string]handlers.Templ
 	templatesMap["/"] = searchController
 	templatesMap["/search"] = searchController
 	// TODO: add more if needed
+
+	return templatesMap
+}
+
+func ajaxHandlers(config *models.WebviewConfig) map[string]http.Handler {
+	templatesMap := make(map[string]http.Handler)
+	templatesMap["/ajax/output"] = view.NewOutputController(config)
+	// TODO: add more if needed
+
 	return templatesMap
 }
 
