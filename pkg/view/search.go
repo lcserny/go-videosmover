@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/lcserny/go-videosmover/pkg/models"
 	"net/http"
+	"path/filepath"
 	"strings"
 )
 
@@ -48,7 +49,8 @@ func (sc *SearchController) POST(resp http.ResponseWriter, req *http.Request) (n
 
 	pageData := SearchResultPageData{}
 	for _, data := range searchResponseDataList {
-		pageData.Videos = append(pageData.Videos, data.Path)
+		// TODO: data should be saved to session or so, just add viewData here?
+		pageData.Videos = append(pageData.Videos, filepath.Base(data.Path))
 	}
 
 	resp.WriteHeader(http.StatusOK)

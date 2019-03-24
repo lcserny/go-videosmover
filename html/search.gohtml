@@ -2,14 +2,49 @@
 
 {{define "title"}}VideosMover - Search{{end}}
 {{define "content"}}
-    <div class="container">
-        <h1 class="h1">Hello there from Search</h1>
-        <img src="/static/img/google.png" alt=""/>
-
-        {{range .Videos}}
-            <div>This is a video found: {{.}}</div>
+    <div class="container p-3">
+        {{if .Videos}}
+            <table class="table">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Output</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{/* TODO: add checkboxes with SkipCache and SkipOnlineSearch with defaults */}}
+                {{range $i, $p := .Videos}}
+                    <tr>
+                        <th scope="row">{{$i}}</th>
+                        <td>{{$p}}</td>
+                        <td>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input js-videoTypeInput"
+                                       type="radio" name="videoType{{$i}}" id="videoTypeMovie{{$i}}"
+                                       data-type="movie" data-name="{{$p}}">
+                                <label class="form-check-label" for="videoTypeMovie{{$i}}">Movie</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input js-videoTypeInput"
+                                       type="radio" name="videoType{{$i}}" id="videoTypeTv{{$i}}"
+                                       data-type="tv" data-name="{{$p}}">
+                                <label class="form-check-label" for="videoTypeTv{{$i}}">TV</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input js-videoTypeInput"
+                                       type="radio" name="videoType{{$i}}" id="videoTypeUnknown{{$i}}"
+                                       data-type="unknown" data-name="{{$p}}">
+                                <label class="form-check-label" for="videoTypeUnknown{{$i}}">Unknown</label>
+                            </div>
+                        </td>
+                        <td>Another hmmm</td>
+                    </tr>
+                {{end}}
+                </tbody>
+            </table>
         {{end}}
-
         <form action="/search" method="post">
             <input type="submit" value="Search" class="btn btn-success">
         </form>
