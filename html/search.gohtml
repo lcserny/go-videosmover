@@ -22,7 +22,8 @@
                         data-skipcache=false
                         data-skiponlinesearch=false
                         data-path="{{.SearchResponseData.Path}}"
-                        data-subs="{{.SearchResponseData.Subtitles}}">
+                        data-subs="{{.SearchResponseData.Subtitles}}"
+                        data-output="">
 
                         <th scope="row">{{.Index}}</th>
                         <td>{{.Name}}</td>
@@ -64,7 +65,10 @@
                                 </div>
                             </div>
                         </td>
-                        <td>Another hmmm</td>
+                        <td>
+                            <input type="text" class="form-control js-videoOutputInput" id="videoOutput{{.Index}}"
+                                   data-index="{{.Index}}" placeholder="Check video type or type here">
+                        </td>
                     </tr>
                 {{end}}
                 </tbody>
