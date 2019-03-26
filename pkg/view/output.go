@@ -18,5 +18,6 @@ func (sc *AjaxOutputController) ServeHTTP(resp http.ResponseWriter, req *http.Re
 	resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	if strings.ToUpper(req.Method) == http.MethodPost {
 		// TODO: validate request params! and write to the response the list of names
+		resp.Write([]byte(req.FormValue("data")))
 	}
 }

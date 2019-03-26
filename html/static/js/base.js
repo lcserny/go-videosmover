@@ -1,12 +1,27 @@
 function addToRowData(index, key, val) {
-    var data = $("#js-videoRow" + index).data();
+    let data = $("#js-videoRow" + index).data();
     data[key] = val;
+    return data;
 }
 
 $(document).ready(function () {
     $("input.js-videoTypeInput").change(function () {
-        addToRowData($(this).data("index"), "type", $(this).val());
-        // TODO: ajax post to /ajax/output sending needed data then populate output field
+        let index = $(this).data("index");
+        let data = addToRowData(index, "type", $(this).val());
+
+        $.ajax({
+            url: 'ajax/output',
+            type: 'post',
+            dataType: 'html',
+            data : { data: data},
+            success : function(response) {
+                let $output = $("#videoOutput" + index);
+                $output.val(response);
+                $output.change();
+
+                console.log("Response is: " + response);
+            },
+        });
     });
 
     $("input.js-videoSkipCacheInput").change(function () {
