@@ -14,35 +14,54 @@
                 </tr>
                 </thead>
                 <tbody>
-                {{/* TODO: add checkboxes with SkipCache and SkipOnlineSearch with defaults */}}
                 {{range .Videos}}
                     <tr id="js-videoRow{{.Index}}"
                         data-index="{{.Index}}"
                         data-name="{{.Name}}"
                         data-type="unknown"
+                        data-skipcache=false
+                        data-skiponlinesearch=false
                         data-path="{{.SearchResponseData.Path}}"
                         data-subs="{{.SearchResponseData.Subtitles}}">
 
                         <th scope="row">{{.Index}}</th>
                         <td>{{.Name}}</td>
                         <td>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input js-videoTypeInput" type="radio"
-                                       name="videoType{{.Index}}" id="videoTypeMovie{{.Index}}"
-                                       value="movie" data-index="{{.Index}}">
-                                <label class="form-check-label" for="videoTypeMovie{{.Index}}">Movie</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input js-videoTypeInput" type="radio"
+                                           id="videoTypeMovie{{.Index}}" name="videoType{{.Index}}"
+                                           value="movie" data-index="{{.Index}}">
+                                    <label class="form-check-label" for="videoTypeMovie{{.Index}}">Movie</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input js-videoTypeInput" type="radio"
+                                           id="videoTypeTv{{.Index}}" name="videoType{{.Index}}"
+                                           value="tv" data-index="{{.Index}}">
+                                    <label class="form-check-label" for="videoTypeTv{{.Index}}">TV</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input js-videoTypeInput" type="radio"
+                                           id="videoTypeUnknown{{.Index}}" name="videoType{{.Index}}"
+                                           value="unknown" data-index="{{.Index}}">
+                                    <label class="form-check-label" for="videoTypeUnknown{{.Index}}">Unknown</label>
+                                </div>
                             </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input js-videoTypeInput" type="radio"
-                                       name="videoType{{.Index}}" id="videoTypeTv{{.Index}}"
-                                       value="tv" data-index="{{.Index}}">
-                                <label class="form-check-label" for="videoTypeTv{{.Index}}">TV</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input js-videoTypeInput" type="radio"
-                                       name="videoType{{.Index}}" id="videoTypeUnknown{{.Index}}"
-                                       value="unknown" data-index="{{.Index}}">
-                                <label class="form-check-label" for="videoTypeUnknown{{.Index}}">Unknown</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input js-videoSkipCacheInput"
+                                           type="checkbox" id="videoSkipCache{{.Index}}" data-index="{{.Index}}">
+                                    <label class="form-check-label" for="videoSkipCache{{.Index}}">
+                                        skip cache
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input js-videoSkipOnlineSearchInput"
+                                           type="checkbox" id="videoSkipOnlineSearch{{.Index}}" data-index="{{.Index}}">
+                                    <label class="form-check-label" for="videoSkipOnlineSearch{{.Index}}">
+                                        skip online search
+                                    </label>
+                                </div>
                             </div>
                         </td>
                         <td>Another hmmm</td>
