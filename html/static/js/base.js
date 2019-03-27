@@ -4,20 +4,26 @@ function addToRowData(index, key, val) {
     return data;
 }
 
-function handleOutputValChange(index, val) {
-    let $output = $("#videoOutput" + index);
-    if (val === "") {
-        $output.val(val);
-        $output.change();
-        addToRowData(index, "outputnames", []);
-        addToRowData(index, "outputorigin", "");
-        return
+function handleOutputValChange(index, data, triggerChange) {
+    let outputVal = data;
+    let outputNames = [data];
+    let outputOrigin = "";
+
+    if (typeof data !== "string") {
+        outputVal = data["names"][0];
+        outputNames = data["names"];
+        outputOrigin = data["origin"];
     }
 
-    $output.val(val["names"][0]);
-    $output.change();
-    addToRowData(index, "outputnames", val["names"]);
-    addToRowData(index, "outputorigin", val["origin"]);
+    addToRowData(index, "output", outputVal);
+    addToRowData(index, "outputnames", outputNames);
+    addToRowData(index, "outputorigin", outputOrigin);
+
+    if (triggerChange) {
+        let $output = $("#videoOutput" + index);
+        $output.val(outputVal);
+        $output.change();
+    }
 }
 
 $(document).ready(function () {
@@ -27,7 +33,7 @@ $(document).ready(function () {
         let rowData = addToRowData(rowIndex, "type", rowType);
 
         if (rowType === "unknown") {
-            handleOutputValChange(rowIndex, "");
+            handleOutputValChange(rowIndex, "", true);
         } else {
             $.post("/ajax/output", {
                 name: rowData["name"],
@@ -36,11 +42,10 @@ $(document).ready(function () {
                 skiponlinesearch: rowData["skiponlinesearch"],
             }, function (response) {
                 if (typeof response === 'undefined' || response.length < 1) {
-                    handleOutputValChange(rowIndex, "");
+                    response = "";
                     console.log("Output response invalid, check logs.");
-                    return
                 }
-                handleOutputValChange(rowIndex, response);
+                handleOutputValChange(rowIndex, response, true);
             });
         }
     });
@@ -54,6 +59,6 @@ $(document).ready(function () {
     });
 
     $("input.js-videoOutputInput").change(function () {
-        addToRowData($(this).data("index"), "output", $(this).val());
+        handleOutputValChange($(this).data("index"), $(this).val(), false);
     });
 });
