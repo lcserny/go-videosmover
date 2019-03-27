@@ -4,15 +4,37 @@ function addToRowData(index, key, val) {
     return data;
 }
 
+function setOutputVal(index, val) {
+    let $output = $("#videoOutput" + index);
+    $output.val(val);
+    $output.change();
+}
+
 $(document).ready(function () {
     $("input.js-videoTypeInput").change(function () {
         let rowIndex = $(this).data("index");
-        let rowData = addToRowData(rowIndex, "type", $(this).val());
-        $.post("/ajax/output", {data: JSON.stringify(rowData)}, function (response) {
-            let $output = $("#videoOutput" + rowIndex);
-            $output.val(response); // TODO: this is an array, get first always?
-            $output.change();
-        });
+        let rowType = $(this).val();
+        let rowData = addToRowData(rowIndex, "type", rowType);
+
+        if (rowType === "unknown") {
+            setOutputVal(rowIndex, "");
+        } else {
+            $.post("/ajax/output", {
+                name: rowData["name"],
+                type: rowData["type"],
+                skipcache: rowData["skipcache"],
+                skiponlinesearch: rowData["skiponlinesearch"],
+            }, function (response) {
+                if (typeof response === 'undefined' || response.length < 1) {
+                    setOutputVal(rowIndex, "");
+                    console.log("Output response invalid, check logs.");
+                    return
+                }
+
+                setOutputVal(rowIndex, response["names"][0]); // TODO: this is an array, get first always?
+                console.log(response); // TODO: remove me afterwards
+            });
+        }
     });
 
     $("input.js-videoSkipCacheInput").change(function () {
