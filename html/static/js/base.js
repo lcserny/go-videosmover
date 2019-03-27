@@ -4,10 +4,11 @@ function addToRowData(index, key, val) {
     return data;
 }
 
-function handleOutputValChange(index, data, triggerChange) {
+function populateOutputData(index, data) {
+    let $output = $("#videoOutput" + index);
     let outputVal = data;
     let outputNames = [data];
-    let outputOrigin = "";
+    let outputOrigin = "MANUAL";
 
     if (typeof data !== "string") {
         outputVal = data["names"][0];
@@ -15,15 +16,10 @@ function handleOutputValChange(index, data, triggerChange) {
         outputOrigin = data["origin"];
     }
 
+    $output.val(outputVal);
     addToRowData(index, "output", outputVal);
     addToRowData(index, "outputnames", outputNames);
     addToRowData(index, "outputorigin", outputOrigin);
-
-    if (triggerChange) {
-        let $output = $("#videoOutput" + index);
-        $output.val(outputVal);
-        $output.change();
-    }
 }
 
 $(document).ready(function () {
@@ -33,7 +29,7 @@ $(document).ready(function () {
         let rowData = addToRowData(rowIndex, "type", rowType);
 
         if (rowType === "unknown") {
-            handleOutputValChange(rowIndex, "", true);
+            populateOutputData(rowIndex, "");
         } else {
             $.post("/ajax/output", {
                 name: rowData["name"],
@@ -45,7 +41,7 @@ $(document).ready(function () {
                     response = "";
                     console.log("Output response invalid, check logs.");
                 }
-                handleOutputValChange(rowIndex, response, true);
+                populateOutputData(rowIndex, response);
             });
         }
     });
@@ -58,7 +54,7 @@ $(document).ready(function () {
         addToRowData($(this).data("index"), "skiponlinesearch", $(this).is(":checked"));
     });
 
-    $("input.js-videoOutputInput").change(function () {
-        handleOutputValChange($(this).data("index"), $(this).val(), false);
+    $("input.js-videoOutputInput").keyup(function () {
+        populateOutputData($(this).data("index"), $(this).val());
     });
 });
