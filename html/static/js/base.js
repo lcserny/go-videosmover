@@ -4,10 +4,20 @@ function addToRowData(index, key, val) {
     return data;
 }
 
-function setOutputVal(index, val) {
+function handleOutputValChange(index, val) {
     let $output = $("#videoOutput" + index);
-    $output.val(val);
+    if (val === "") {
+        $output.val(val);
+        $output.change();
+        addToRowData(index, "outputnames", []);
+        addToRowData(index, "outputorigin", "");
+        return
+    }
+
+    $output.val(val["names"][0]);
     $output.change();
+    addToRowData(index, "outputnames", val["names"]);
+    addToRowData(index, "outputorigin", val["origin"]);
 }
 
 $(document).ready(function () {
@@ -17,7 +27,7 @@ $(document).ready(function () {
         let rowData = addToRowData(rowIndex, "type", rowType);
 
         if (rowType === "unknown") {
-            setOutputVal(rowIndex, "");
+            handleOutputValChange(rowIndex, "");
         } else {
             $.post("/ajax/output", {
                 name: rowData["name"],
@@ -26,13 +36,11 @@ $(document).ready(function () {
                 skiponlinesearch: rowData["skiponlinesearch"],
             }, function (response) {
                 if (typeof response === 'undefined' || response.length < 1) {
-                    setOutputVal(rowIndex, "");
+                    handleOutputValChange(rowIndex, "");
                     console.log("Output response invalid, check logs.");
                     return
                 }
-
-                setOutputVal(rowIndex, response["names"][0]); // TODO: this is an array, get first always?
-                console.log(response); // TODO: remove me afterwards
+                handleOutputValChange(rowIndex, response);
             });
         }
     });
