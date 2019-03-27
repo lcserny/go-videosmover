@@ -6,13 +6,12 @@ function addToRowData(index, key, val) {
 
 $(document).ready(function () {
     $("input.js-videoTypeInput").change(function () {
-        let index = $(this).data("index");
-        let data = addToRowData(index, "type", $(this).val());
-        $.post("/ajax/output", { data: JSON.stringify(data)}, function (response) {
-            let $output = $("#videoOutput" + index);
-            $output.val(response);
+        let rowIndex = $(this).data("index");
+        let rowData = addToRowData(rowIndex, "type", $(this).val());
+        $.post("/ajax/output", {data: JSON.stringify(rowData)}, function (response) {
+            let $output = $("#videoOutput" + rowIndex);
+            $output.val(response); // TODO: this is an array, get first always?
             $output.change();
-            console.log("Response is: " + response);
         });
     });
 

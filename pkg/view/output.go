@@ -1,7 +1,9 @@
 package view
 
 import (
+	"encoding/json"
 	"github.com/lcserny/go-videosmover/pkg/models"
+	. "github.com/lcserny/goutils"
 	"net/http"
 	"strings"
 )
@@ -15,9 +17,11 @@ func NewOutputController(config *models.WebviewConfig) *AjaxOutputController {
 }
 
 func (sc *AjaxOutputController) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
-	resp.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	resp.Header().Set("Content-Type", "application/json")
 	if strings.ToUpper(req.Method) == http.MethodPost {
 		// TODO: validate request params! and write to the response the list of names
-		resp.Write([]byte(req.FormValue("data")))
+		formBytes, err := json.Marshal(req.FormValue("data"))
+		LogError(err)
+		resp.Write(formBytes)
 	}
 }
