@@ -100,7 +100,7 @@ func templateControllers(config *models.WebviewConfig) map[string]handlers.Templ
 
 func ajaxHandlers(config *models.WebviewConfig) map[string]http.Handler {
 	templatesMap := make(map[string]http.Handler)
-	templatesMap["/ajax/output"] = view.NewOutputController(config)
+	templatesMap["/ajax/output"] = view.NewAjaxOutputController(config)
 	// TODO: add more if needed
 
 	return templatesMap

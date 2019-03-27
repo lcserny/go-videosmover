@@ -12,7 +12,7 @@ type AjaxOutputController struct {
 	config *models.WebviewConfig
 }
 
-func NewOutputController(config *models.WebviewConfig) *AjaxOutputController {
+func NewAjaxOutputController(config *models.WebviewConfig) *AjaxOutputController {
 	return &AjaxOutputController{config: config}
 }
 
