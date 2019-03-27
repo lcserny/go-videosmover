@@ -8,19 +8,11 @@ $(document).ready(function () {
     $("input.js-videoTypeInput").change(function () {
         let index = $(this).data("index");
         let data = addToRowData(index, "type", $(this).val());
-
-        $.ajax({
-            url: 'ajax/output',
-            type: 'post',
-            dataType: 'html',
-            data : { data: data},
-            success : function(response) {
-                let $output = $("#videoOutput" + index);
-                $output.val(response);
-                $output.change();
-
-                console.log("Response is: " + response);
-            },
+        $.post("/ajax/output", { data: JSON.stringify(data)}, function (response) {
+            let $output = $("#videoOutput" + index);
+            $output.val(response);
+            $output.change();
+            console.log("Response is: " + response);
         });
     });
 
