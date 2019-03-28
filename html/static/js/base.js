@@ -64,8 +64,9 @@ function registerEventHandlers() {
                 populateOutputData(rowIndex, response);
             });
         }
+    }).on("hidden.bs.modal", "#moveIssuesModal", function () {
+        $("#searchVideos").submit();
     }).on("click", "#moveVideos", function () {
-        // TODO: show loading
         let dataList = [];
         $(".js-videoRow").each(function (i, row) {
             let rowData = $(row).data();
@@ -88,8 +89,6 @@ function registerEventHandlers() {
                 $("#searchVideos").submit();
                 return;
             }
-
-            // TODO: hide loading
             $("#moveIssuesModal .modal-body").html(JSON.stringify(response));
             $("#moveIssuesModal").modal("show");
         });

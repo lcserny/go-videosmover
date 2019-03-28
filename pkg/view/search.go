@@ -48,6 +48,10 @@ func (sc *SearchController) POST(resp http.ResponseWriter, req *http.Request) (n
 		return return500Error("search", err, resp)
 	}
 
+	if jsonBody == "" {
+		return sc.GET(resp, req)
+	}
+
 	var searchResponseDataList []models.SearchResponseData
 	if err = json.Unmarshal([]byte(jsonBody), &searchResponseDataList); err != nil {
 		return return500Error("search", err, resp)
