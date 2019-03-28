@@ -16,6 +16,10 @@ function populateOutputData(index, data) {
         outputOrigin = data["origin"];
     }
 
+    if (outputVal === $output.val()) {
+        return;
+    }
+
     $output.val(outputVal);
     addToRowData(index, "output", outputVal);
     addToRowData(index, "outputnames", outputNames);
