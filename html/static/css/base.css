@@ -35,3 +35,11 @@
 .overflow-hidden {
     overflow: hidden;
 }
+
+#searchVideos {
+    display: inline-block;
+}
+
+#moveVideos {
+    display: none;
+}

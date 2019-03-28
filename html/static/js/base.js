@@ -61,6 +61,7 @@ function registerEventHandlers() {
                     response = "";
                     console.log("Output response invalid, check logs.");
                 }
+                $("#moveVideos").show();
                 populateOutputData(rowIndex, response);
             });
         }
