@@ -5,25 +5,33 @@ function addToRowData(index, key, val) {
 }
 
 function populateOutputData(index, data) {
+    let videoRowData = $("#js-videoRow" + index).data();
     let $output = $("#videoOutput" + index);
     let outputVal = data;
-    let outputNames = [data];
-    let outputOrigin = "MANUAL";
 
-    if (typeof data !== "string") {
-        outputVal = data["names"][0];
-        outputNames = data["names"];
-        outputOrigin = data["origin"];
-    }
-
-    if (outputVal === $output.val()) {
+    if (outputVal === videoRowData["output"]) {
         return;
     }
 
-    $output.val(outputVal);
+    if (typeof data !== "string") {
+        outputVal = data["names"][0];
+        addToRowData(index, "outputnames", data["names"]);
+        addToRowData(index, "outputorigin", data["origin"]);
+        populateOutputDropdown(index, data["names"]);
+    }
     addToRowData(index, "output", outputVal);
-    addToRowData(index, "outputnames", outputNames);
-    addToRowData(index, "outputorigin", outputOrigin);
+
+    $output.val(outputVal);
+}
+
+function populateOutputDropdown(index, outputNames) {
+    let $dropdownContainer = $("#js-videoOutputDropdown" + index);
+    let dropdownContent = "";
+    for (let i = 0; i < outputNames.length; i++) {
+        dropdownContent += "<a class=\"js-videoOutputDropdownItem dropdown-item\" data-index=\""
+            + index + "\" href=\"#\">" + outputNames[i] + "</a>";
+    }
+    $dropdownContainer.html(dropdownContent);
 }
 
 $(document).ready(function () {
@@ -50,15 +58,13 @@ $(document).ready(function () {
         }
     });
 
-    $("input.js-videoSkipCacheInput").change(function () {
+    $(document).on("change", "input.js-videoSkipCacheInput", function () {
         addToRowData($(this).data("index"), "skipcache", $(this).is(":checked"));
-    });
-
-    $("input.js-videoSkipOnlineSearchInput").change(function () {
+    }).on("change", "input.js-videoSkipOnlineSearchInput", function () {
         addToRowData($(this).data("index"), "skiponlinesearch", $(this).is(":checked"));
-    });
-
-    $("input.js-videoOutputInput").keyup(function () {
+    }).on("keyup", "input.js-videoOutputInput", function () {
         populateOutputData($(this).data("index"), $(this).val());
+    }).on("click", "a.js-videoOutputDropdownItem", function () {
+        populateOutputData($(this).data("index"), $(this).text());
     });
 });

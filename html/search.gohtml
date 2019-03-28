@@ -70,8 +70,21 @@
                             </div>
                         </td>
                         <td>
-                            <input type="text" class="form-control js-videoOutputInput" id="videoOutput{{.Index}}"
-                                   data-index="{{.Index}}" placeholder="Check video type or type here">
+                            <div class="input-group">
+                                <input type="text" class="form-control js-videoOutputInput" id="videoOutput{{.Index}}"
+                                       autocomplete="off" data-index="{{.Index}}"
+                                       placeholder="Check video type or type here">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-default js-videoOutputButton"
+                                            id="videoOutputDropdownButton{{.Index}}"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        ...
+                                    </button>
+                                    <div class="js-videoOutputDropdown dropdown-menu" id="js-videoOutputDropdown{{.Index}}"
+                                         aria-labelledby="videoOutputDropdownButton{{.Index}}">
+                                    </div>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 {{end}}
