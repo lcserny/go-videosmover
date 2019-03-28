@@ -34,8 +34,16 @@ function populateOutputDropdown(index, outputNames) {
     $dropdownContainer.html(dropdownContent);
 }
 
-$(document).ready(function () {
-    $("input.js-videoTypeInput").change(function () {
+function registerEventHandlers() {
+    $(document).on("change", "input.js-videoSkipCacheInput", function () {
+        addToRowData($(this).data("index"), "skipcache", $(this).is(":checked"));
+    }).on("change", "input.js-videoSkipOnlineSearchInput", function () {
+        addToRowData($(this).data("index"), "skiponlinesearch", $(this).is(":checked"));
+    }).on("keyup", "input.js-videoOutputInput", function () {
+        populateOutputData($(this).data("index"), $(this).val());
+    }).on("click", "a.js-videoOutputDropdownItem", function () {
+        populateOutputData($(this).data("index"), $(this).text());
+    }).on("change", "input.js-videoTypeInput", function () {
         let rowIndex = $(this).data("index");
         let rowType = $(this).val();
         let rowData = addToRowData(rowIndex, "type", rowType);
@@ -56,15 +64,38 @@ $(document).ready(function () {
                 populateOutputData(rowIndex, response);
             });
         }
-    });
+    }).on("click", "#moveVideos", function () {
+        // TODO: show loading
+        let dataList = [];
+        $(".js-videoRow").each(function (i, row) {
+            let rowData = $(row).data();
+            let type = rowData["type"];
+            if (type === "unknown") {
+                return true;
+            }
 
-    $(document).on("change", "input.js-videoSkipCacheInput", function () {
-        addToRowData($(this).data("index"), "skipcache", $(this).is(":checked"));
-    }).on("change", "input.js-videoSkipOnlineSearchInput", function () {
-        addToRowData($(this).data("index"), "skiponlinesearch", $(this).is(":checked"));
-    }).on("keyup", "input.js-videoOutputInput", function () {
-        populateOutputData($(this).data("index"), $(this).val());
-    }).on("click", "a.js-videoOutputDropdownItem", function () {
-        populateOutputData($(this).data("index"), $(this).text());
+            let moveData = {
+                video: rowData["path"],
+                subs: rowData["subs"],
+                type: type,
+                outName: rowData["output"]
+            };
+            dataList.push(moveData);
+        });
+
+        $.post("/ajax/move", {movedata: JSON.stringify(dataList)}, function (response) {
+            if (response.length === 0) {
+                $("#searchVideos").submit();
+                return;
+            }
+
+            // TODO: hide loading
+            $("#moveIssuesModal .modal-body").html(JSON.stringify(response));
+            $("#moveIssuesModal").modal("show");
+        });
     });
+}
+
+$(document).ready(function () {
+    registerEventHandlers();
 });

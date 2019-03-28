@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/lcserny/go-videosmover/pkg/handlers"
+	"github.com/lcserny/go-videosmover/pkg/models"
 	. "github.com/lcserny/goutils"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 type VideosMoverAPIRequest struct {
@@ -53,4 +55,16 @@ func executeVideosMoverPOST(action string, payload interface{}, videosMoverAPI s
 	}
 
 	return jsonResp.Body, nil
+}
+
+func getDiskPath(videoType string, config *models.WebviewConfig) string {
+	loweredType := strings.ToLower(videoType)
+	if loweredType != models.UNKNOWN {
+		diskPath := config.MoviesPath
+		if loweredType != models.MOVIE {
+			diskPath = config.TvSeriesPath
+		}
+		return diskPath
+	}
+	return ""
 }

@@ -22,15 +22,13 @@ func (sc *AjaxOutputController) ServeHTTP(resp http.ResponseWriter, req *http.Re
 	if strings.ToUpper(req.Method) == http.MethodPost {
 		// TODO: validate request
 		reqDataType := req.FormValue("type")
-		diskPath := sc.config.MoviesPath
-		if strings.ToLower(reqDataType) != models.MOVIE {
-			diskPath = sc.config.TvSeriesPath
-		}
+		diskPath := getDiskPath(reqDataType, sc.config)
 
 		reqDataSkipCache := req.FormValue("skipcache")
 		skipCache, err := strconv.ParseBool(reqDataSkipCache)
 		if err != nil {
 			LogError(err)
+			resp.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
@@ -38,6 +36,7 @@ func (sc *AjaxOutputController) ServeHTTP(resp http.ResponseWriter, req *http.Re
 		skipOnlineSearch, err := strconv.ParseBool(reqDataSkipOnlineSearch)
 		if err != nil {
 			LogError(err)
+			resp.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
@@ -52,18 +51,21 @@ func (sc *AjaxOutputController) ServeHTTP(resp http.ResponseWriter, req *http.Re
 		}, sc.config.VideosMoverAPI)
 		if err != nil {
 			LogError(err)
+			resp.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		var outputResponseData models.OutputResponseData
 		if err = json.Unmarshal([]byte(jsonBody), &outputResponseData); err != nil {
 			LogError(err)
+			resp.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		responseBytes, err := json.Marshal(outputResponseData)
 		if err != nil {
 			LogError(err)
+			resp.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 

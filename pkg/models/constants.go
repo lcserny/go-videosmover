@@ -1,8 +1,9 @@
 package models
 
 const (
-	MOVIE = "movie"
-	TV    = "tv"
+	MOVIE   = "movie"
+	TV      = "tv"
+	UNKNOWN = "unknown"
 
 	ORIGIN_NAME       = "NAME"
 	ORIGIN_DISK       = "DISK"
