@@ -3,6 +3,14 @@
 {{define "title"}}VideosMover - Search{{end}}
 {{define "content"}}
     <div class="container p-3">
+        <div class="pb-3">
+            <form id="searchVideos" action="/search" method="post">
+                <input type="submit" value="Search" class="btn btn-success">
+            </form>
+            <button id="moveVideos" type="button" class="btn btn-warning">
+                Move Selected
+            </button>
+        </div>
         {{if .Videos}}
             <table class="table table-striped table-hover table-bordered">
                 <thead class="thead-dark">
@@ -94,12 +102,6 @@
                 </tbody>
             </table>
         {{end}}
-        <form id="searchVideos" action="/search" method="post">
-            <input type="submit" value="Search" class="btn btn-success">
-        </form>
-        <button id="moveVideos" type="button" class="btn btn-warning">
-            Move Selected
-        </button>
     </div>
 
     <div class="modal fade" id="moveIssuesModal" tabindex="-1" role="dialog"
