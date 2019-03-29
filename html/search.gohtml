@@ -17,18 +17,19 @@
                 {{range .Videos}}
                     <tr id="js-videoRow{{.Index}}" class="js-videoRow"
                         data-index="{{.Index}}"
+                        data-filename="{{.FileName}}"
                         data-name="{{.Name}}"
                         data-type="unknown"
                         data-skipcache=false
                         data-skiponlinesearch=false
-                        data-path="{{.SearchResponseData.Path}}"
-                        data-subs="{{.SearchResponseData.Subtitles}}" TODO: encode this properly
+                        data-path="{{.VideoPath}}"
+                        data-subs="{{.EncodedSubsArray}}"
                         data-output=""
                         data-outputnames=[]
                         data-outputorigin="">
 
                         <th scope="row">{{.Index}}</th>
-                        <td>{{.Name}}</td>
+                        <td>{{.FileName}}</td>
                         <td>
                             <div>
                                 <div class="form-check form-check-inline">
@@ -75,13 +76,15 @@
                                        autocomplete="off" data-index="{{.Index}}"
                                        placeholder="Check video type or type here">
                                 <div class="input-group-append">
-                                    <button type="button" class="btn btn-default js-videoOutputButton"
-                                            id="videoOutputDropdownButton{{.Index}}"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        ...
-                                    </button>
-                                    <div class="js-videoOutputDropdown dropdown-menu" id="js-videoOutputDropdown{{.Index}}"
-                                         aria-labelledby="videoOutputDropdownButton{{.Index}}">
+                                    <div class="btn-group dropleft">
+                                        <button type="button" class="btn btn-default js-videoOutputButton"
+                                                id="videoOutputDropdownButton{{.Index}}"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            ...
+                                        </button>
+                                        <div class="js-videoOutputDropdown dropdown-menu" id="js-videoOutputDropdown{{.Index}}"
+                                             aria-labelledby="videoOutputDropdownButton{{.Index}}">
+                                        </div>
                                     </div>
                                 </div>
                             </div>

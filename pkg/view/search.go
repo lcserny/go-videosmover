@@ -9,9 +9,11 @@ import (
 )
 
 type SearchResult struct {
-	Index              int
-	Name               string
-	SearchResponseData models.SearchResponseData
+	Index            int
+	Name             string
+	FileName         string
+	VideoPath        string
+	EncodedSubsArray string
 }
 
 type SearchResultPageData struct {
@@ -59,7 +61,20 @@ func (sc *SearchController) POST(resp http.ResponseWriter, req *http.Request) (n
 
 	pageData := SearchResultPageData{}
 	for i, data := range searchResponseDataList {
-		searchResult := SearchResult{Index: i, Name: filepath.Base(data.Path), SearchResponseData: data}
+		fileName := filepath.Base(data.Path)
+		fileDir := filepath.Dir(data.Path)
+		name := filepath.Base(fileDir)
+		if fileDir == filepath.Clean(sc.config.DownloadsPath) {
+			name = fileName
+		}
+
+		searchResult := SearchResult{
+			Index:            i,
+			Name:             name,
+			FileName:         fileName,
+			VideoPath:        data.Path,
+			EncodedSubsArray: encodeToJSONArray(data.Subtitles),
+		}
 		pageData.Videos = append(pageData.Videos, searchResult)
 	}
 

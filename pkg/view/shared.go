@@ -68,3 +68,9 @@ func getDiskPath(videoType string, config *models.WebviewConfig) string {
 	}
 	return ""
 }
+
+func encodeToJSONArray(slice interface{}) string {
+	resultBytes, err := json.Marshal(slice)
+	LogError(err)
+	return string(resultBytes)
+}
