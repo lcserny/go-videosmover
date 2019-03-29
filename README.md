@@ -26,8 +26,8 @@ How to run:
 - from root of project `go build cmd/webview.go` NOTE (windows): add `-ldflags -H=windowsgui`  
 - launch server providing configsFolder path  
 
-Known issues:  
-- quickly reopening the webview after closing it will not work, timeout of 10 (configured) sec required  
+TODO:  
+- improve tmdb results select UI (add poster, cast etc to dropdown select)
 
 # Commander
 #### Description

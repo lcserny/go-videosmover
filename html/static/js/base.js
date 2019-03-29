@@ -6,7 +6,6 @@ function addToRowData(index, key, val) {
 
 function populateOutputData(index, data) {
     let videoRowData = $("#js-videoRow" + index).data();
-    let $output = $("#videoOutput" + index);
     let outputVal = data;
 
     if (outputVal === videoRowData["output"]) {
@@ -21,7 +20,7 @@ function populateOutputData(index, data) {
     }
     addToRowData(index, "output", outputVal);
 
-    $output.val(outputVal);
+    $("#videoOutput" + index).val(outputVal);
 }
 
 function populateOutputDropdown(index, outputNames) {
@@ -69,6 +68,9 @@ function registerEventHandlers() {
     }).on("hidden.bs.modal", "#moveIssuesModal", function () {
         $("#searchVideos").submit();
     }).on("click", "#moveVideos", function () {
+        let $loadingContainer = $("#loading-container");
+        $loadingContainer.show();
+
         let dataList = [];
         $(".js-videoRow").each(function (i, row) {
             let rowData = $(row).data();
@@ -87,6 +89,8 @@ function registerEventHandlers() {
         });
 
         $.post("/ajax/move", {movedata: JSON.stringify(dataList)}, function (response) {
+            $loadingContainer.hide();
+
             if (response.length === 0) {
                 $("#searchVideos").submit();
                 return;

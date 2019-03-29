@@ -43,3 +43,10 @@
 #moveVideos {
     display: none;
 }
+
+#loading-container {
+    position: fixed;
+    top: calc(50% - 128px); /* adjust as needed for size of loading gif */
+    left: calc(50% - 128px); /* adjust as needed for size of loading gif */
+    display: none; /* trigger show from JS */
+}
