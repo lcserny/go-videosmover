@@ -41,8 +41,9 @@ function registerEventHandlers() {
         addToRowData($(this).data("index"), "skiponlinesearch", $(this).is(":checked"));
     }).on("keyup", "input.js-videoOutputInput", function () {
         populateOutputData($(this).data("index"), $(this).val());
-    }).on("click", "a.js-videoOutputDropdownItem", function () {
+    }).on("click", "a.js-videoOutputDropdownItem", function (event) {
         populateOutputData($(this).data("index"), $(this).text());
+        event.preventDefault();
     }).on("change", "input.js-videoTypeInput", function () {
         let rowIndex = $(this).data("index");
         let rowType = $(this).val();
