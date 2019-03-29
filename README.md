@@ -28,6 +28,8 @@ How to run:
 
 TODO:  
 - improve tmdb results select UI (add poster, cast etc to dropdown select)
+- improve UI in general (add CSS animations and etc.)
+- separate statics better (move from base to search.js and such)
 
 # Commander
 #### Description
