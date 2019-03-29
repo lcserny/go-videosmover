@@ -91,7 +91,7 @@ function registerEventHandlers() {
                 $("#searchVideos").submit();
                 return;
             }
-            $("#moveIssuesModal .modal-body").html(JSON.stringify(response));
+            $("#moveIssuesModal .modal-body pre").html(JSON.stringify(response, undefined, 2));
             $("#moveIssuesModal").modal("show");
         });
     });
