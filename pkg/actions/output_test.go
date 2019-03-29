@@ -119,6 +119,14 @@ func TestOutputAction(t *testing.T) {
 				"Game of Thrones (2011)",
 			}, models.ORIGIN_TMDB},
 		},
+		{
+			request: models.OutputRequestData{
+				Name:             "Law.&.Order",
+				Type:             "tv",
+				SkipOnlineSearch: true,
+			},
+			response: models.OutputResponseData{[]string{"Law And Order"}, models.ORIGIN_NAME},
+		},
 	}
 
 	runActionTest(t, testData, OutputAction)

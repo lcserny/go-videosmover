@@ -27,6 +27,7 @@ var (
 	outputTMDBCacheFile               = GetAbsCurrentPathOf("tmdbOutput.cache")
 	outputTMDBCacheSeparator          = "###"
 	outputTMDBCacheFileNamesSeparator = ";"
+	specialCharsReplaceMap            = map[string]string{"&": "and"}
 	specialCharsRegex                 = regexp.MustCompile(`[^a-zA-Z0-9-\s]`)
 	spaceMergeRegex                   = regexp.MustCompile(`\s{2,}`)
 	yearRegex                         = regexp.MustCompile(`\s\d{4}$`)
@@ -180,6 +181,7 @@ func normalize(name string, nameTrimPartsRegxs []*regexp.Regexp) (string, int) {
 	}
 
 	// strip special chars
+	name = replaceSpecialChars(name)
 	name = specialCharsRegex.ReplaceAllString(name, " ")
 	name = spaceMergeRegex.ReplaceAllString(name, " ")
 	name = strings.Trim(name, " ")
@@ -196,6 +198,13 @@ func normalize(name string, nameTrimPartsRegxs []*regexp.Regexp) (string, int) {
 	}
 
 	return name, 0
+}
+
+func replaceSpecialChars(text string) string {
+	for k, v := range specialCharsReplaceMap {
+		text = strings.ReplaceAll(text, k, v)
+	}
+	return text
 }
 
 func findOnDisk(normalized, diskPath string, maxOutputWalkDepth, acceptedSimPercent int) (results []string, found bool) {
@@ -265,7 +274,8 @@ func movieTMDBSearch(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMD
 
 	for i := 0; i < MinInt(maxTMDBResultCount, len(results.Results)); i++ {
 		movie := results.Results[i]
-		outName := specialCharsRegex.ReplaceAllString(movie.Title, "")
+		outName := replaceSpecialChars(movie.Title)
+		outName = specialCharsRegex.ReplaceAllString(outName, "")
 		if movie.ReleaseDate != "" {
 			outName += " (" + movie.ReleaseDate + ")"
 		}
@@ -293,7 +303,8 @@ func tvSeriesTMDBSearch(normalizedName string, year int, tmdbAPI *tmdb.TMDb, max
 
 	for i := 0; i < MinInt(maxTMDBResultCount, len(results.Results)); i++ {
 		tvShow := results.Results[i]
-		outName := specialCharsRegex.ReplaceAllString(tvShow.Name, "")
+		outName := replaceSpecialChars(tvShow.Name)
+		outName = specialCharsRegex.ReplaceAllString(outName, "")
 		if tvShow.FirstAirDate != "" {
 			outName += " (" + tvShow.FirstAirDate[0:4] + ")"
 		}
