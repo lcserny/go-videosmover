@@ -43,7 +43,7 @@ JSON response should be like:
 
 #### TODO:  
 - improve tmdb results select UI (add poster, cast etc to dropdown select)
-- improve UI in general (add CSS animations and etc.)
+- improve UI in general (improve html responsiveness, add CSS animations and etc.)
 - separate statics better (move from base to search.js and such)
 
 ### Commander
