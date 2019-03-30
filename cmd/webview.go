@@ -20,7 +20,7 @@ import (
 
 var (
 	wvConfigsPath            = flag.String("configPath", "", "path to webview config files")
-	lastRunningPingTimestamp = MakeTimestamp()
+	lastRunningPingTimestamp int64
 )
 
 func main() {
@@ -44,7 +44,7 @@ func main() {
 
 func checkStopServer(server *http.Server, config *models.WebviewConfig) {
 	for {
-		if MakeTimestamp() > lastRunningPingTimestamp+config.ServerPingTimeoutMs {
+		if (lastRunningPingTimestamp != 0) && (MakeTimestamp() > lastRunningPingTimestamp+config.ServerPingTimeoutMs) {
 			LogFatal(server.Shutdown(context.TODO()))
 		}
 		time.Sleep(time.Second)
