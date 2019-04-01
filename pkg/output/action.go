@@ -1,10 +1,11 @@
-package actions
+package output
 
 import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	. "github.com/lcserny/go-videosmover/pkg/models"
+	"github.com/lcserny/go-videosmover/pkg/action"
+	"github.com/lcserny/go-videosmover/pkg/convert"
 	. "github.com/lcserny/goutils"
 	"github.com/pkg/errors"
 	"github.com/ryanbradynd05/go-tmdb"
@@ -14,6 +15,13 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+)
+
+const (
+	ORIGIN_NAME       = "NAME"
+	ORIGIN_DISK       = "DISK"
+	ORIGIN_TMDB       = "TMDB"
+	ORIGIN_TMDB_CACHE = "TMDB_CACHE"
 )
 
 type searchTMDBFunc func(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMDBResultCount int) ([]string, bool)
@@ -33,13 +41,13 @@ var (
 	yearRegex                         = regexp.MustCompile(`\s\d{4}$`)
 	releaseDateRegex                  = regexp.MustCompile(`\s+\(\d{4}(-\d{2}-\d{2})?\)$`)
 	tmdbFuncMap                       = map[string]searchTMDBFunc{
-		MOVIE: movieTMDBSearch,
-		TV:    tvSeriesTMDBSearch,
+		action.MOVIE: movieTMDBSearch,
+		action.TV:    tvSeriesTMDBSearch,
 	}
 )
 
-func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
-	var request OutputRequestData
+func Action(jsonPayload []byte, config *convert.ActionConfig) (string, error) {
+	var request convert.OutputRequestData
 	err := json.Unmarshal(jsonPayload, &request)
 	if err != nil {
 		LogError(err)
@@ -49,7 +57,7 @@ func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 	normalized, year := normalize(request.Name, config.CompiledNameTrimRegexes)
 	normalizedWithYear := appendYear(normalized, year)
 	if onDisk, found := findOnDisk(normalized, request.DiskPath, config.MaxOutputWalkDepth, config.SimilarityPercent); found {
-		return getJSONEncodedString(OutputResponseData{onDisk, ORIGIN_DISK}), nil
+		return convert.GetJSONEncodedString(convert.OutputResponseData{onDisk, ORIGIN_DISK}), nil
 	}
 
 	if !request.SkipOnlineSearch && config.TmdbAPI != nil {
@@ -63,18 +71,18 @@ func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 		if !request.SkipCache {
 			if _, err := os.Stat(outputTMDBCacheFile); !os.IsNotExist(err) {
 				if cachedTMDBNames, exist := getFromTMDBOutputCache(cacheKey, outputTMDBCacheFile); exist {
-					return getJSONEncodedString(OutputResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE}), nil
+					return convert.GetJSONEncodedString(convert.OutputResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE}), nil
 				}
 			}
 		}
 
 		if tmdbNames, found := tmdbFunc(normalized, year, config.TmdbAPI, config.MaxTMDBResultCount); found {
 			saveInTMDBOutputCache(cacheKey, tmdbNames, outputTMDBCacheFile, config.OutTMDBCacheLimit)
-			return getJSONEncodedString(OutputResponseData{tmdbNames, ORIGIN_TMDB}), nil
+			return convert.GetJSONEncodedString(convert.OutputResponseData{tmdbNames, ORIGIN_TMDB}), nil
 		}
 	}
 
-	return getJSONEncodedString(OutputResponseData{[]string{normalizedWithYear}, ORIGIN_NAME}), nil
+	return convert.GetJSONEncodedString(convert.OutputResponseData{[]string{normalizedWithYear}, ORIGIN_NAME}), nil
 }
 
 func saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string, cacheLimit int) {
@@ -151,13 +159,6 @@ func generateTMDBOutputCacheKey(videoType, normalizedWithYear, separator string)
 	return fmt.Sprintf("%s__%s%s", strings.ToUpper(videoType), normalizedWithYear, separator)
 }
 
-func getRegexList(patterns []string) (regxs []*regexp.Regexp) {
-	for _, pat := range patterns {
-		regxs = append(regxs, regexp.MustCompile(fmt.Sprintf("(?i)(-?%s)", pat)))
-	}
-	return regxs
-}
-
 func appendYear(normalizedName string, year int) string {
 	if year > 0 {
 		return fmt.Sprintf("%s (%d)", normalizedName, year)
@@ -220,7 +221,7 @@ func findOnDisk(normalized, diskPath string, maxOutputWalkDepth, acceptedSimPerc
 			return nil
 		}
 
-		if info.IsDir() && diskPath != path && walkDepthIsAcceptable(diskPath, path, maxOutputWalkDepth) {
+		if info.IsDir() && diskPath != path && action.WalkDepthIsAcceptable(diskPath, path, maxOutputWalkDepth) {
 			nameWithoutDate := trimReleaseDate(info.Name())
 			distance := LevenshteinDistance(nameWithoutDate, normalized)
 			bigger := MaxInt(len(normalized), len(nameWithoutDate))

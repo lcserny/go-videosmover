@@ -1,9 +1,10 @@
-package actions
+package testing
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/lcserny/go-videosmover/pkg/models"
+	"github.com/lcserny/go-videosmover/pkg/action"
+	"github.com/lcserny/go-videosmover/pkg/convert"
+	"github.com/lcserny/go-videosmover/pkg/generate"
 	. "github.com/lcserny/goutils"
 	"io/ioutil"
 	"os"
@@ -11,28 +12,18 @@ import (
 	"testing"
 )
 
-type testActionData struct {
-	request  interface{}
-	response interface{}
+type TestActionData struct {
+	Request  interface{}
+	Response interface{}
 }
 
-var (
-	cachedMP4VideoHeader   []byte
-	testSearchActionConfig *models.ActionConfig
-)
+var cachedMP4VideoHeader []byte
 
-func getTestActionConfig() *models.ActionConfig {
-	if testSearchActionConfig == nil {
-		testSearchActionConfig = GenerateActionConfig("../../cfg/commander", "actions.test.json")
-	}
-	return testSearchActionConfig
-}
-
-func runActionTest(t *testing.T, items []testActionData, action Action) {
-	config := getTestActionConfig()
+func RunActionTest(t *testing.T, items []TestActionData, action action.Action) {
+	config := generate.NewTestActionConfig()
 	for _, td := range items {
-		reqBytes := getJSONBytesForTest(t, td.request)
-		resString := getJSONStringForTest(t, td.response)
+		reqBytes := convert.GetJSONBytesForTest(t, td.Request)
+		resString := convert.GetJSONStringForTest(t, td.Response)
 
 		result, err := action(reqBytes, config)
 		if err != nil {
@@ -45,7 +36,7 @@ func runActionTest(t *testing.T, items []testActionData, action Action) {
 	}
 }
 
-func setupTmpDir(t *testing.T, prefix string) (string, func()) {
+func SetupTmpDir(t *testing.T, prefix string) (string, func()) {
 	dir, err := ioutil.TempDir("", prefix)
 	if err != nil {
 		t.Fatalf("Couldn't create tmpDir,  %+v", err)
@@ -61,7 +52,7 @@ func setupTmpDir(t *testing.T, prefix string) (string, func()) {
 	}
 }
 
-func addVideo(t *testing.T, path, video string) string {
+func AddVideo(t *testing.T, path, video string) string {
 	videoPath := filepath.Join(path, video)
 
 	err := os.MkdirAll(filepath.Dir(videoPath), os.ModePerm)
@@ -78,7 +69,7 @@ func addVideo(t *testing.T, path, video string) string {
 	return videoPath
 }
 
-func addFile(t *testing.T, path, file string, size int64) string {
+func AddFile(t *testing.T, path, file string, size int64) string {
 	filePath := filepath.Join(path, file)
 
 	err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm)
@@ -101,7 +92,7 @@ func addFile(t *testing.T, path, file string, size int64) string {
 	return filePath
 }
 
-func addSubtitles(t *testing.T, videoPath string, subs []string) (subtitles []string) {
+func AddSubtitles(t *testing.T, videoPath string, subs []string) (subtitles []string) {
 	subsDir := filepath.Dir(videoPath)
 	for _, sub := range subs {
 		subPath := filepath.Join(subsDir, sub)
@@ -131,20 +122,4 @@ func getVideoContent() []byte {
 		fmt.Println("Loaded video header content from", headerContentPath)
 	}
 	return cachedMP4VideoHeader
-}
-
-func getJSONBytesForTest(t *testing.T, data interface{}) []byte {
-	bytes, err := json.Marshal(data)
-	if err != nil {
-		t.Fatalf("Couldn't decode request: %+v", err)
-	}
-	return bytes
-}
-
-func getJSONStringForTest(t *testing.T, data interface{}) string {
-	bytes, err := json.Marshal(data)
-	if err != nil {
-		t.Fatalf("Couldn't decode response: %+v", err)
-	}
-	return string(bytes)
 }

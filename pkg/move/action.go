@@ -1,10 +1,11 @@
-package actions
+package move
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/Bios-Marcel/wastebasket"
-	. "github.com/lcserny/go-videosmover/pkg/models"
+	"github.com/lcserny/go-videosmover/pkg/action"
+	"github.com/lcserny/go-videosmover/pkg/convert"
 	. "github.com/lcserny/goutils"
 	"os"
 	"path/filepath"
@@ -20,12 +21,12 @@ const (
 )
 
 type moveExecutor struct {
-	resultList   *[]MoveResponseData
-	request      *MoveRequestData
+	resultList   *[]convert.MoveResponseData
+	request      *convert.MoveRequestData
 	folder, dest string
 }
 
-func newMoveExecutor(resultList *[]MoveResponseData, request *MoveRequestData) *moveExecutor {
+func newMoveExecutor(resultList *[]convert.MoveResponseData, request *convert.MoveRequestData) *moveExecutor {
 	videoDir := filepath.Dir(request.Video)
 	destination := filepath.Join(request.DiskPath, request.OutName)
 	return &moveExecutor{
@@ -36,8 +37,8 @@ func newMoveExecutor(resultList *[]MoveResponseData, request *MoveRequestData) *
 	}
 }
 
-func appendToUnmovedReasons(resultList *[]MoveResponseData, folder string, reason ...string) {
-	*resultList = append(*resultList, MoveResponseData{
+func appendToUnmovedReasons(resultList *[]convert.MoveResponseData, folder string, reason ...string) {
+	*resultList = append(*resultList, convert.MoveResponseData{
 		folder,
 		reason,
 	})
@@ -60,7 +61,7 @@ func (me *moveExecutor) prepareMove() bool {
 			return false
 		}
 	} else {
-		if me.request.Type == MOVIE {
+		if me.request.Type == action.MOVIE {
 			appendToUnmovedReasons(me.resultList, me.folder, fmt.Sprintf(MOVIE_EXISTS_REASON, me.request.OutName, me.request.DiskPath))
 			return false
 		}
@@ -110,10 +111,10 @@ func (me *moveExecutor) moveSubs() bool {
 	return true
 }
 
-func cleanFolders(cleaningSet []string, resultList *[]MoveResponseData, restrictedRemovePaths []string) {
+func cleanFolders(cleaningSet []string, resultList *[]convert.MoveResponseData, restrictedRemovePaths []string) {
 	for _, folder := range cleaningSet {
-		if restricted := pathRemovalIsRestricted(folder, restrictedRemovePaths); restricted {
-			appendToUnmovedReasons(resultList, folder, fmt.Sprintf(RESTRICTED_PATH_REASON, folder))
+		if restricted := action.PathRemovalIsRestricted(folder, restrictedRemovePaths); restricted {
+			appendToUnmovedReasons(resultList, folder, fmt.Sprintf(action.RESTRICTED_PATH_REASON, folder))
 			continue
 		}
 
@@ -134,15 +135,15 @@ func addToCleanSet(cleaningSet *[]string, folder string) {
 	*cleaningSet = append(*cleaningSet, folder)
 }
 
-func MoveAction(jsonPayload []byte, config *ActionConfig) (string, error) {
-	var requests []MoveRequestData
+func Action(jsonPayload []byte, config *convert.ActionConfig) (string, error) {
+	var requests []convert.MoveRequestData
 	err := json.Unmarshal(jsonPayload, &requests)
 	LogError(err)
 	if err != nil {
 		return "", err
 	}
 
-	resultList := make([]MoveResponseData, 0)
+	resultList := make([]convert.MoveResponseData, 0)
 	cleaningSet := make([]string, 0)
 	for _, req := range requests {
 		moveExecutor := newMoveExecutor(&resultList, &req)
@@ -159,5 +160,5 @@ func MoveAction(jsonPayload []byte, config *ActionConfig) (string, error) {
 	}
 	cleanFolders(cleaningSet, &resultList, config.RestrictedRemovePaths)
 
-	return getJSONEncodedString(resultList), nil
+	return convert.GetJSONEncodedString(resultList), nil
 }

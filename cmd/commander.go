@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/lcserny/go-videosmover/pkg/actions"
+	"github.com/lcserny/go-videosmover/pkg/generate"
 	. "github.com/lcserny/goutils"
 	"io/ioutil"
 	"os"
@@ -25,13 +25,13 @@ func main() {
 	InitFileLogger("vm-commander.log")
 
 	flag.Parse()
-	action := actions.NewActionFrom(*commanderActionFlag)
-	config := actions.GenerateActionConfig(*commanderConfigsFlag, "actions.json")
+	a := generate.NewActionFrom(*commanderActionFlag)
+	c := generate.NewActionConfig(*commanderConfigsFlag, "actions.json")
 
 	jsonBytes, err := ioutil.ReadFile(*commanderPayloadFileFlag)
 	stopOnError(err)
 
-	response, err := action(jsonBytes, config)
+	response, err := a(jsonBytes, c)
 	stopOnError(err)
 
 	_, err = fmt.Fprint(os.Stdout, response)

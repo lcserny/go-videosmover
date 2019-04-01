@@ -1,15 +1,13 @@
-package view
+package http
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/lcserny/go-videosmover/pkg/handlers"
-	"github.com/lcserny/go-videosmover/pkg/models"
-	. "github.com/lcserny/goutils"
+	"github.com/lcserny/go-videosmover/pkg/convert"
+	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"net/http"
-	"strings"
 )
 
 type VideosMoverAPIRequest struct {
@@ -26,13 +24,13 @@ func generateActionRequest(action string, payload interface{}) (string, error) {
 	return string(jsonBytes), nil
 }
 
-func return500Error(tmpl string, err error, resp http.ResponseWriter) (string, interface{}, bool) {
+func Return500Error(tmpl string, err error, resp http.ResponseWriter) (string, interface{}, bool) {
 	resp.WriteHeader(http.StatusInternalServerError)
-	LogError(err)
+	goutils.LogError(err)
 	return tmpl, nil, false
 }
 
-func executeVideosMoverPOST(action string, payload interface{}, videosMoverAPI string) (string, error) {
+func ExecuteVideosMoverPOST(action string, payload interface{}, videosMoverAPI string) (string, error) {
 	apiReq, err := generateActionRequest(action, payload)
 	if err != nil {
 		return "", err
@@ -45,7 +43,7 @@ func executeVideosMoverPOST(action string, payload interface{}, videosMoverAPI s
 	defer apiResp.Body.Close()
 
 	apiBody, _ := ioutil.ReadAll(apiResp.Body)
-	var jsonResp handlers.ResponseJsonData
+	var jsonResp convert.ResponseJsonData
 	if err = json.Unmarshal(apiBody, &jsonResp); err != nil {
 		return "", err
 	}
@@ -55,22 +53,4 @@ func executeVideosMoverPOST(action string, payload interface{}, videosMoverAPI s
 	}
 
 	return jsonResp.Body, nil
-}
-
-func getDiskPath(videoType string, config *models.WebviewConfig) string {
-	loweredType := strings.ToLower(videoType)
-	if loweredType != models.UNKNOWN {
-		diskPath := config.MoviesPath
-		if loweredType != models.MOVIE {
-			diskPath = config.TvSeriesPath
-		}
-		return diskPath
-	}
-	return ""
-}
-
-func encodeToJSONArray(slice interface{}) string {
-	resultBytes, err := json.Marshal(slice)
-	LogError(err)
-	return string(resultBytes)
 }

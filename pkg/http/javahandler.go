@@ -1,10 +1,10 @@
-package handlers
+package http
 
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/lcserny/go-videosmover/pkg/models"
-	. "github.com/lcserny/goutils"
+	"github.com/lcserny/go-videosmover/pkg/convert"
+	"github.com/lcserny/goutils"
 	"net/http"
 	"os/exec"
 	"strings"
@@ -16,7 +16,7 @@ type JavaJsonExecuteHandler struct {
 	videosMoverConfigsPath string
 }
 
-func NewJavaJsonExecuteHandler(serverConfig *models.ProxyServerConfig) *JavaJsonExecuteHandler {
+func NewJavaJsonExecuteHandler(serverConfig *convert.ProxyServerConfig) *JavaJsonExecuteHandler {
 	return &JavaJsonExecuteHandler{
 		videosMoverPath:        serverConfig.PathVideosMoverJava,
 		videosMoverConfigsPath: serverConfig.PathVideosMoverBinConfigs,
@@ -32,34 +32,34 @@ func (h *JavaJsonExecuteHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		h.servePOST(w, r)
 		break
 	default:
-		LogWarning("Invalid http method. JavaJsonExecuteHandler doesn't support: " + r.Method)
+		goutils.LogWarning("Invalid http method. JavaJsonExecuteHandler doesn't support: " + r.Method)
 		return
 	}
 }
 
 func (h *JavaJsonExecuteHandler) serveGET(w http.ResponseWriter, r *http.Request) {
-	LogInfo("Entered in GET request")
+	goutils.LogInfo("Entered in GET request")
 
 	time.Sleep(5 * time.Second)
 
-	LogInfo("Exited GET request")
+	goutils.LogInfo("Exited GET request")
 }
 
 func (h *JavaJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	decoder := json.NewDecoder(r.Body)
-	var jsonData RequestJsonData
+	var jsonData convert.RequestJsonData
 	err := decoder.Decode(&jsonData)
 	if err != nil {
 		errorMessage := "Couldn't decode JSON data provided"
-		_, _ = w.Write(getErrorJsonResponseAsBytes(errorMessage))
-		LogErrorWithMessage(errorMessage, err)
+		_, _ = w.Write(convert.GetErrorJsonResponseAsBytes(errorMessage))
+		goutils.LogErrorWithMessage(errorMessage, err)
 		return
 	}
 
-	tempJsonFile := tmpStoreJsonPayload(jsonData.Payload)
-	defer removeTmpStoredJsonPayload(tempJsonFile)
+	tempJsonFile := convert.TmpStoreJsonPayload(jsonData.Payload)
+	defer convert.RemoveTmpStoredJsonPayload(tempJsonFile)
 
 	var cmdOut bytes.Buffer
 	var cmdErr bytes.Buffer
@@ -71,5 +71,5 @@ func (h *JavaJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Reques
 		cmdErr.WriteString(err.Error())
 	}
 
-	_, _ = w.Write(getJsonResponseFromAsBytes(string(cmdOut.Bytes()), string(cmdErr.Bytes())))
+	_, _ = w.Write(convert.GetJsonResponseFromAsBytes(string(cmdOut.Bytes()), string(cmdErr.Bytes())))
 }
