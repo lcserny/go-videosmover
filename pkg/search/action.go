@@ -1,8 +1,9 @@
-package actions
+package search
 
 import (
 	"encoding/json"
 	"github.com/h2non/filetype"
+	"github.com/lcserny/go-videosmover/pkg/action"
 	. "github.com/lcserny/go-videosmover/pkg/models"
 	. "github.com/lcserny/goutils"
 	"io"
@@ -11,7 +12,14 @@ import (
 	"strings"
 )
 
-func SearchAction(jsonPayload []byte, config *ActionConfig) (string, error) {
+func init() {
+	action.Register("search", &searchAction{})
+}
+
+type searchAction struct {
+}
+
+func (sa *searchAction) Execute(jsonPayload []byte, config *ActionConfig) (string, error) {
 	var request SearchRequestData
 	err := json.Unmarshal(jsonPayload, &request)
 	LogError(err)

@@ -1,9 +1,10 @@
-package actions
+package move
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/Bios-Marcel/wastebasket"
+	"github.com/lcserny/go-videosmover/pkg/action"
 	. "github.com/lcserny/go-videosmover/pkg/models"
 	. "github.com/lcserny/goutils"
 	"os"
@@ -18,6 +19,13 @@ const (
 	MOVING_PROBLEM_REASON        = "Problem occurred trying to move '%s'"
 	COULDNT_REMOVE_FOLDER_REASON = "Couldn't remove video dir '%s'"
 )
+
+func init() {
+	action.Register("move", &moveAction{})
+}
+
+type moveAction struct {
+}
 
 type moveExecutor struct {
 	resultList   *[]MoveResponseData
@@ -134,7 +142,7 @@ func addToCleanSet(cleaningSet *[]string, folder string) {
 	*cleaningSet = append(*cleaningSet, folder)
 }
 
-func MoveAction(jsonPayload []byte, config *ActionConfig) (string, error) {
+func (ma *moveAction) Execute(jsonPayload []byte, config *ActionConfig) (string, error) {
 	var requests []MoveRequestData
 	err := json.Unmarshal(jsonPayload, &requests)
 	LogError(err)

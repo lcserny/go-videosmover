@@ -1,16 +1,24 @@
-package actions
+package delete
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/Bios-Marcel/wastebasket"
+	"github.com/lcserny/go-videosmover/pkg/action"
 	. "github.com/lcserny/go-videosmover/pkg/models"
 	. "github.com/lcserny/goutils"
 )
 
 const COULDNT_MOVE_TO_TRASH = "Couldn't move folder '%s' to trash"
 
-func DeleteAction(jsonPayload []byte, config *ActionConfig) (string, error) {
+func init() {
+	action.Register("delete", &deleteAction{})
+}
+
+type deleteAction struct {
+}
+
+func (da *deleteAction) Execute(jsonPayload []byte, config *ActionConfig) (string, error) {
 	var requests []DeleteRequestData
 	err := json.Unmarshal(jsonPayload, &requests)
 	LogError(err)

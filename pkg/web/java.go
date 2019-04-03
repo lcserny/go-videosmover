@@ -1,4 +1,4 @@
-package handlers
+package web
 
 import (
 	"bytes"
@@ -11,19 +11,19 @@ import (
 	"time"
 )
 
-type BinJsonExecuteHandler struct {
+type JavaJsonExecuteHandler struct {
 	videosMoverPath        string
 	videosMoverConfigsPath string
 }
 
-func NewBinJsonExecuteHandler(serverConfig *models.ProxyServerConfig) *BinJsonExecuteHandler {
-	return &BinJsonExecuteHandler{
-		videosMoverPath:        serverConfig.PathVideosMoverBin,
+func NewJavaJsonExecuteHandler(serverConfig *models.ProxyServerConfig) *JavaJsonExecuteHandler {
+	return &JavaJsonExecuteHandler{
+		videosMoverPath:        serverConfig.PathVideosMoverJava,
 		videosMoverConfigsPath: serverConfig.PathVideosMoverBinConfigs,
 	}
 }
 
-func (h *BinJsonExecuteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *JavaJsonExecuteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch strings.ToUpper(r.Method) {
 	case "GET":
 		h.serveGET(w, r)
@@ -32,12 +32,12 @@ func (h *BinJsonExecuteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		h.servePOST(w, r)
 		break
 	default:
-		LogWarning("Invalid http method. BinJsonExecuteHandler doesn't support: " + r.Method)
+		LogWarning("Invalid http method. JavaJsonExecuteHandler doesn't support: " + r.Method)
 		return
 	}
 }
 
-func (h *BinJsonExecuteHandler) serveGET(w http.ResponseWriter, r *http.Request) {
+func (h *JavaJsonExecuteHandler) serveGET(w http.ResponseWriter, r *http.Request) {
 	LogInfo("Entered in GET request")
 
 	time.Sleep(5 * time.Second)
@@ -45,7 +45,7 @@ func (h *BinJsonExecuteHandler) serveGET(w http.ResponseWriter, r *http.Request)
 	LogInfo("Exited GET request")
 }
 
-func (h *BinJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request) {
+func (h *JavaJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	decoder := json.NewDecoder(r.Body)
@@ -63,7 +63,7 @@ func (h *BinJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request
 
 	var cmdOut bytes.Buffer
 	var cmdErr bytes.Buffer
-	cmd := exec.Command(h.videosMoverPath, "-configs="+h.videosMoverConfigsPath, "-action="+jsonData.Action, "-payloadFile="+tempJsonFile.Name())
+	cmd := exec.Command("java", "-jar", h.videosMoverPath, jsonData.Action, tempJsonFile.Name())
 	cmd.Stdout = &cmdOut
 	cmd.Stderr = &cmdErr
 	err = cmd.Run()

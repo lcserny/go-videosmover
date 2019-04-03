@@ -1,11 +1,17 @@
-package models
+package action
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/lcserny/goutils"
 	"github.com/ryanbradynd05/go-tmdb"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"regexp"
 )
 
-type ActionConfig struct {
+type actionConfig struct {
 	MinimumVideoSize          int64    `json:"minimumVideoSize"`
 	SimilarityPercent         int      `json:"similarityPercent"`
 	MaxOutputWalkDepth        int      `json:"maxOutputWalkDepth"`
@@ -23,22 +29,28 @@ type ActionConfig struct {
 	CompiledNameTrimRegexes []*regexp.Regexp
 }
 
-type ProxyServerConfig struct {
-	Host                       string `json:"host"`
-	Port                       string `json:"port"`
-	PathVideosMoverJava        string `json:"path.videosMover.java"`
-	PathVideosMoverJavaConfigs string `json:"path.videosMover.java.configs"`
-	PathVideosMoverBin         string `json:"path.videosMover.bin"`
-	PathVideosMoverBinConfigs  string `json:"path.videosMover.bin.configs"`
+func NewConfig(configsPath, actionConfigFile string) *actionConfig {
+	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, actionConfigFile))
+	goutils.LogFatal(err)
+
+	var actionConfig actionConfig
+	err = json.Unmarshal(configBytes, &actionConfig)
+	goutils.LogFatal(err)
+
+	if key, exists := os.LookupEnv("TMDB_API_KEY"); exists {
+		actionConfig.TmdbAPI = tmdb.Init(tmdb.Config{key, false, nil})
+	}
+
+	if actionConfig.NameTrimRegexes != nil {
+		actionConfig.CompiledNameTrimRegexes = getRegexList(actionConfig.NameTrimRegexes)
+	}
+
+	return &actionConfig
 }
 
-type WebviewConfig struct {
-	Host                string `json:"host"`
-	Port                string `json:"port"`
-	HtmlFilesPath       string `json:"htmlFilesPath"`
-	ServerPingTimeoutMs int64  `json:"serverPingTimeoutMs"`
-	VideosMoverAPI      string `json:"videosMoverAPI"`
-	DownloadsPath       string `json:"downloadsPath"`
-	MoviesPath          string `json:"moviesPath"`
-	TvSeriesPath        string `json:"tvSeriesPath"`
+func getRegexList(patterns []string) (regxs []*regexp.Regexp) {
+	for _, pat := range patterns {
+		regxs = append(regxs, regexp.MustCompile(fmt.Sprintf("(?i)(-?%s)", pat)))
+	}
+	return regxs
 }

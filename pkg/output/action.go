@@ -1,9 +1,10 @@
-package actions
+package output
 
 import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/lcserny/go-videosmover/pkg/action"
 	. "github.com/lcserny/go-videosmover/pkg/models"
 	. "github.com/lcserny/goutils"
 	"github.com/pkg/errors"
@@ -15,6 +16,13 @@ import (
 	"strconv"
 	"strings"
 )
+
+func init() {
+	action.Register("output", &outputAction{})
+}
+
+type outputAction struct {
+}
 
 type searchTMDBFunc func(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMDBResultCount int) ([]string, bool)
 
@@ -38,7 +46,7 @@ var (
 	}
 )
 
-func OutputAction(jsonPayload []byte, config *ActionConfig) (string, error) {
+func (oa *outputAction) Execute(jsonPayload []byte, config *ActionConfig) (string, error) {
 	var request OutputRequestData
 	err := json.Unmarshal(jsonPayload, &request)
 	if err != nil {
@@ -149,13 +157,6 @@ func getFromTMDBOutputCache(cacheKey, cacheFile string) ([]string, bool) {
 
 func generateTMDBOutputCacheKey(videoType, normalizedWithYear, separator string) string {
 	return fmt.Sprintf("%s__%s%s", strings.ToUpper(videoType), normalizedWithYear, separator)
-}
-
-func getRegexList(patterns []string) (regxs []*regexp.Regexp) {
-	for _, pat := range patterns {
-		regxs = append(regxs, regexp.MustCompile(fmt.Sprintf("(?i)(-?%s)", pat)))
-	}
-	return regxs
 }
 
 func appendYear(normalizedName string, year int) string {

@@ -1,4 +1,4 @@
-package actions
+package search
 
 import (
 	. "github.com/lcserny/go-videosmover/pkg/models"

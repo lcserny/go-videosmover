@@ -1,4 +1,4 @@
-package view
+package output
 
 import (
 	"encoding/json"

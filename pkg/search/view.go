@@ -1,4 +1,4 @@
-package view
+package search
 
 import (
 	"encoding/json"

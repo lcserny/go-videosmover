@@ -1,14 +1,17 @@
-package actions
+package action
 
 import (
-	"encoding/json"
-	. "github.com/lcserny/goutils"
+	"github.com/lcserny/go-videosmover/pkg/models"
 	"os"
 	"strings"
 )
 
 const (
 	RESTRICTED_PATH_REASON = "Dir '%s' is a restricted path"
+
+	MOVIE   = "movie"
+	TV      = "tv"
+	UNKNOWN = "unknown"
 )
 
 func pathRemovalIsRestricted(folder string, restrictedRemovePaths []string) bool {
@@ -20,10 +23,16 @@ func pathRemovalIsRestricted(folder string, restrictedRemovePaths []string) bool
 	return false
 }
 
-func getJSONEncodedString(data interface{}) string {
-	resultBytes, err := json.Marshal(data)
-	LogError(err)
-	return string(resultBytes)
+func getDiskPath(videoType string, config *models.WebviewConfig) string {
+	loweredType := strings.ToLower(videoType)
+	if loweredType != models.UNKNOWN {
+		diskPath := config.MoviesPath
+		if loweredType != models.MOVIE {
+			diskPath = config.TvSeriesPath
+		}
+		return diskPath
+	}
+	return ""
 }
 
 func walkDepthIsAcceptable(rootPath string, path string, maxWalkDepth int) bool {

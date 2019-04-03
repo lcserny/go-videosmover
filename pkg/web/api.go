@@ -1,16 +1,16 @@
-package view
+package web
 
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"github.com/lcserny/go-videosmover/pkg/handlers"
-	"github.com/lcserny/go-videosmover/pkg/models"
-	. "github.com/lcserny/goutils"
 	"io/ioutil"
 	"net/http"
-	"strings"
 )
+
+type TemplateController interface {
+	ServeTemplate(http.ResponseWriter, *http.Request) (string, interface{}, bool)
+}
 
 type VideosMoverAPIRequest struct {
 	Action  string      `json:"action"`
@@ -55,22 +55,4 @@ func executeVideosMoverPOST(action string, payload interface{}, videosMoverAPI s
 	}
 
 	return jsonResp.Body, nil
-}
-
-func getDiskPath(videoType string, config *models.WebviewConfig) string {
-	loweredType := strings.ToLower(videoType)
-	if loweredType != models.UNKNOWN {
-		diskPath := config.MoviesPath
-		if loweredType != models.MOVIE {
-			diskPath = config.TvSeriesPath
-		}
-		return diskPath
-	}
-	return ""
-}
-
-func encodeToJSONArray(slice interface{}) string {
-	resultBytes, err := json.Marshal(slice)
-	LogError(err)
-	return string(resultBytes)
 }

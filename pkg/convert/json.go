@@ -1,65 +1,20 @@
-package handlers
+package convert
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/lcserny/go-videosmover/pkg/models"
-	. "github.com/lcserny/goutils"
-	"github.com/pkg/errors"
 	"io/ioutil"
-	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 )
 
 const TIME_FORMAT = "2006-01-02 15:04:05"
 
-type RequestJsonData struct {
-	Action  string      `json:"action"`
-	Payload interface{} `json:"payload,string"`
-}
-
-type ResponseJsonData struct {
-	Code  int    `json:"code"`
-	Error string `json:"error"`
-	Date  string `json:"date"`
-	Body  string `json:"body"`
-}
-
-type TemplateController interface {
-	ServeTemplate(http.ResponseWriter, *http.Request) (string, interface{}, bool)
-}
-
-func GenerateServerConfig(configsPath, configFile string) *models.ProxyServerConfig {
-	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
-	LogFatal(err)
-
-	var serverConfig models.ProxyServerConfig
-	err = json.Unmarshal(configBytes, &serverConfig)
-	LogFatal(err)
-
-	if serverConfig.Host == "" || serverConfig.Port == "" {
-		LogFatal(errors.New("No `host` and/or `port` configured"))
-	}
-
-	return &serverConfig
-}
-
-func GenerateWebviewConfig(configsPath, configFile string) *models.WebviewConfig {
-	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
-	LogFatal(err)
-
-	var config models.WebviewConfig
-	err = json.Unmarshal(configBytes, &config)
-	LogFatal(err)
-
-	if config.Host == "" || config.Port == "" {
-		LogFatal(errors.New("No `host` and/or `port` configured"))
-	}
-
-	return &config
+func getJSONEncodedString(data interface{}) string {
+	resultBytes, err := json.Marshal(data)
+	LogError(err)
+	return string(resultBytes)
 }
 
 func removeTmpStoredJsonPayload(tempJsonFile *os.File) {
