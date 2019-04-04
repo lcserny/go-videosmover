@@ -25,6 +25,7 @@ func main() {
 	InitFileLogger("vm-commander.log")
 
 	flag.Parse()
+	// FIXME: trigger the init()'s somehow or different approach to populate
 	a := action.Retrieve(*commanderActionFlag)
 	c := action.NewConfig(*commanderConfigsFlag, "actions.json")
 
