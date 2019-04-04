@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/lcserny/goutils"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -41,10 +42,10 @@ func RemoveTmpStoredJsonPayload(tempJsonFile *os.File) {
 
 func TmpStoreJsonPayload(jsonData interface{}) *os.File {
 	tempFile, err := ioutil.TempFile(os.TempDir(), "vms-")
-	goutils.LogErrorWithMessage(fmt.Sprintf("Couldn't create tmpFile: %s", tempFile.Name()), err)
+	goutils.LogError(errors.Wrap(err, "Couldn't create tmpFile"))
 
 	jsonString, err := json.Marshal(jsonData)
-	goutils.LogErrorWithMessage("Couldn't convert data to bytes", err)
+	goutils.LogError(errors.Wrap(err, "Couldn't convert data to bytes"))
 	if err == nil {
 		_, err = tempFile.Write([]byte(jsonString))
 	}
