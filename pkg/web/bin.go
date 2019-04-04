@@ -3,7 +3,7 @@ package web
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/lcserny/go-videosmover/pkg/models"
+	"github.com/lcserny/go-videosmover/pkg/convert"
 	. "github.com/lcserny/goutils"
 	"net/http"
 	"os/exec"
@@ -16,7 +16,7 @@ type BinJsonExecuteHandler struct {
 	videosMoverConfigsPath string
 }
 
-func NewBinJsonExecuteHandler(serverConfig *models.ProxyServerConfig) *BinJsonExecuteHandler {
+func NewBinJsonExecuteHandler(serverConfig *ProxyConfig) *BinJsonExecuteHandler {
 	return &BinJsonExecuteHandler{
 		videosMoverPath:        serverConfig.PathVideosMoverBin,
 		videosMoverConfigsPath: serverConfig.PathVideosMoverBinConfigs,
@@ -58,8 +58,8 @@ func (h *BinJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	tempJsonFile := tmpStoreJsonPayload(jsonData.Payload)
-	defer removeTmpStoredJsonPayload(tempJsonFile)
+	tempJsonFile := convert.TmpStoreJsonPayload(jsonData.Payload)
+	defer convert.RemoveTmpStoredJsonPayload(tempJsonFile)
 
 	var cmdOut bytes.Buffer
 	var cmdErr bytes.Buffer

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/Bios-Marcel/wastebasket"
 	"github.com/lcserny/go-videosmover/pkg/action"
-	. "github.com/lcserny/go-videosmover/pkg/models"
+	"github.com/lcserny/go-videosmover/pkg/convert"
 	. "github.com/lcserny/goutils"
 )
 
@@ -18,20 +18,20 @@ func init() {
 type deleteAction struct {
 }
 
-func (da *deleteAction) Execute(jsonPayload []byte, config *ActionConfig) (string, error) {
-	var requests []DeleteRequestData
+func (da *deleteAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
+	var requests []RequestData
 	err := json.Unmarshal(jsonPayload, &requests)
 	LogError(err)
 	if err != nil {
 		return "", err
 	}
 
-	resultList := make([]DeleteResponseData, 0)
+	resultList := make([]ResponseData, 0)
 	for _, req := range requests {
-		if restricted := pathRemovalIsRestricted(req.Folder, config.RestrictedRemovePaths); restricted {
-			resultList = append(resultList, DeleteResponseData{
+		if restricted := action.PathRemovalIsRestricted(req.Folder, config.RestrictedRemovePaths); restricted {
+			resultList = append(resultList, ResponseData{
 				req.Folder,
-				[]string{fmt.Sprintf(RESTRICTED_PATH_REASON, req.Folder)},
+				[]string{fmt.Sprintf(action.RESTRICTED_PATH_REASON, req.Folder)},
 			})
 			continue
 		}
@@ -39,12 +39,12 @@ func (da *deleteAction) Execute(jsonPayload []byte, config *ActionConfig) (strin
 		err := wastebasket.Trash(req.Folder)
 		if err != nil {
 			LogError(err)
-			resultList = append(resultList, DeleteResponseData{
+			resultList = append(resultList, ResponseData{
 				req.Folder,
 				[]string{fmt.Sprintf(COULDNT_MOVE_TO_TRASH, req.Folder)},
 			})
 		}
 	}
 
-	return getJSONEncodedString(resultList), nil
+	return convert.GetJSONEncodedString(resultList), nil
 }

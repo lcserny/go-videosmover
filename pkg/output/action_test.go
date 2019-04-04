@@ -1,133 +1,133 @@
 package output
 
 import (
-	"github.com/lcserny/go-videosmover/pkg/models"
+	"github.com/lcserny/go-videosmover/pkg/action"
 	"path/filepath"
 	"testing"
 )
 
 func TestOutputAction(t *testing.T) {
-	tmpPath, cleanup := setupTmpDir(t, "videosmover_output_test-")
+	tmpPath, cleanup := action.SetupTestTmpDir(t, "videosmover_output_test-")
 	defer cleanup()
-	_ = addVideo(t, tmpPath, filepath.Join("The Big Sick (2017)", "video.mp4"))
-	_ = addVideo(t, tmpPath, filepath.Join("Extras (2005)", "video.mkv"))
+	_ = action.AddTestVideo(t, tmpPath, filepath.Join("The Big Sick (2017)", "video.mp4"))
+	_ = action.AddTestVideo(t, tmpPath, filepath.Join("Extras (2005)", "video.mkv"))
 
-	testData := []testActionData{
+	testData := []action.TestActionData{
 		{
-			request:  models.OutputRequestData{Name: "The Lord of the Rings: The Fellowship of <>the Ring (2001)", Type: "movie", SkipOnlineSearch: true},
-			response: models.OutputResponseData{[]string{"The Lord Of The Rings The Fellowship Of The Ring (2001)"}, models.ORIGIN_NAME},
+			Request:  RequestData{Name: "The Lord of the Rings: The Fellowship of <>the Ring (2001)", Type: "movie", SkipOnlineSearch: true},
+			Response: ResponseData{[]string{"The Lord Of The Rings The Fellowship Of The Ring (2001)"}, ORIGIN_NAME},
 		},
 		{
-			request: models.OutputRequestData{
+			Request: RequestData{
 				Name:             "The Big Sick 2017",
 				Type:             "movie",
 				SkipOnlineSearch: true,
 				DiskPath:         tmpPath,
 			},
-			response: models.OutputResponseData{[]string{"The Big Sick (2017)"}, models.ORIGIN_DISK},
+			Response: ResponseData{[]string{"The Big Sick (2017)"}, ORIGIN_DISK},
 		},
 		{
-			request: models.OutputRequestData{
+			Request: RequestData{
 				Name:             "Bodyguard-S01-Series.1--BBC-2018-720p-w.subs-x265-HEVC",
 				Type:             "tv",
 				SkipOnlineSearch: true,
 			},
-			response: models.OutputResponseData{[]string{"Bodyguard"}, models.ORIGIN_NAME},
+			Response: ResponseData{[]string{"Bodyguard"}, ORIGIN_NAME},
 		},
 		{
-			request: models.OutputRequestData{
+			Request: RequestData{
 				Name:             "1922.1080p.[2017].x264",
 				Type:             "movie",
 				SkipOnlineSearch: true,
 			},
-			response: models.OutputResponseData{[]string{"1922"}, models.ORIGIN_NAME},
+			Response: ResponseData{[]string{"1922"}, ORIGIN_NAME},
 		},
 		{
-			request: models.OutputRequestData{
+			Request: RequestData{
 				Name:             "Game.Of.Thrones.s0e10",
 				Type:             "tv",
 				SkipOnlineSearch: true,
 			},
-			response: models.OutputResponseData{[]string{"Game Of Thrones"}, models.ORIGIN_NAME},
+			Response: ResponseData{[]string{"Game Of Thrones"}, ORIGIN_NAME},
 		},
 		{
-			request: models.OutputRequestData{
+			Request: RequestData{
 				Name:             "Acrimony.2018.1080p.WEB-DL.DD5.1.H264-FGT",
 				Type:             "movie",
 				SkipOnlineSearch: true,
 			},
-			response: models.OutputResponseData{[]string{"Acrimony (2018)"}, models.ORIGIN_NAME},
+			Response: ResponseData{[]string{"Acrimony (2018)"}, ORIGIN_NAME},
 		},
 		{
-			request: models.OutputRequestData{
+			Request: RequestData{
 				Name:             "Criminal.Minds.s01e01",
 				Type:             "tv",
 				SkipOnlineSearch: true,
 			},
-			response: models.OutputResponseData{[]string{"Criminal Minds"}, models.ORIGIN_NAME},
+			Response: ResponseData{[]string{"Criminal Minds"}, ORIGIN_NAME},
 		},
 		{
-			request: models.OutputRequestData{
+			Request: RequestData{
 				Name:             "Chicago.PD.S05E21.REPACK.HDTV.x264-KILLERS[rarbg]",
 				Type:             "tv",
 				SkipOnlineSearch: true,
 			},
-			response: models.OutputResponseData{[]string{"Chicago PD"}, models.ORIGIN_NAME},
+			Response: ResponseData{[]string{"Chicago PD"}, ORIGIN_NAME},
 		},
 		{
-			request: models.OutputRequestData{
+			Request: RequestData{
 				Name:             "House.of.Cards.S06.1080p.NF.WEBRip.DD5.1.x264-NTG[rartv]",
 				Type:             "tv",
 				SkipOnlineSearch: true,
 			},
-			response: models.OutputResponseData{[]string{"House Of Cards"}, models.ORIGIN_NAME},
+			Response: ResponseData{[]string{"House Of Cards"}, ORIGIN_NAME},
 		},
 		{
-			request: models.OutputRequestData{
+			Request: RequestData{
 				Name:             "House of Cards s06",
 				Type:             "tv",
 				SkipOnlineSearch: true,
 			},
-			response: models.OutputResponseData{[]string{"House Of Cards"}, models.ORIGIN_NAME},
+			Response: ResponseData{[]string{"House Of Cards"}, ORIGIN_NAME},
 		},
 		{
-			request: models.OutputRequestData{
+			Request: RequestData{
 				Name:             "Extras S02e01-06",
 				Type:             "tv",
 				SkipOnlineSearch: true,
 				DiskPath:         tmpPath,
 			},
-			response: models.OutputResponseData{[]string{"Extras (2005)"}, models.ORIGIN_DISK},
+			Response: ResponseData{[]string{"Extras (2005)"}, ORIGIN_DISK},
 		},
 		{
-			request: models.OutputRequestData{
+			Request: RequestData{
 				Name:      "Fight Club",
 				Type:      "movie",
 				SkipCache: true,
 			},
-			response: models.OutputResponseData{[]string{
+			Response: ResponseData{[]string{
 				"Fight Club (1999-10-15)",
-			}, models.ORIGIN_TMDB},
+			}, ORIGIN_TMDB},
 		},
 		{
-			request: models.OutputRequestData{
+			Request: RequestData{
 				Name:      "Game of Thrones",
 				Type:      "tv",
 				SkipCache: true,
 			},
-			response: models.OutputResponseData{[]string{
+			Response: ResponseData{[]string{
 				"Game of Thrones (2011)",
-			}, models.ORIGIN_TMDB},
+			}, ORIGIN_TMDB},
 		},
 		{
-			request: models.OutputRequestData{
+			Request: RequestData{
 				Name:             "Law.&.Order",
 				Type:             "tv",
 				SkipOnlineSearch: true,
 			},
-			response: models.OutputResponseData{[]string{"Law And Order"}, models.ORIGIN_NAME},
+			Response: ResponseData{[]string{"Law And Order"}, ORIGIN_NAME},
 		},
 	}
 
-	runActionTest(t, testData, OutputAction)
+	action.RunTestAction(t, testData, action.Retrieve("output"))
 }

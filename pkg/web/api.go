@@ -3,10 +3,15 @@ package web
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/lcserny/go-videosmover/pkg/handlers"
+	"errors"
+	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"net/http"
+	"strings"
+	"time"
 )
+
+const TIME_FORMAT = "2006-01-02 15:04:05"
 
 type TemplateController interface {
 	ServeTemplate(http.ResponseWriter, *http.Request) (string, interface{}, bool)
@@ -26,13 +31,13 @@ func generateActionRequest(action string, payload interface{}) (string, error) {
 	return string(jsonBytes), nil
 }
 
-func return500Error(tmpl string, err error, resp http.ResponseWriter) (string, interface{}, bool) {
+func Return500Error(tmpl string, err error, resp http.ResponseWriter) (string, interface{}, bool) {
 	resp.WriteHeader(http.StatusInternalServerError)
-	LogError(err)
+	goutils.LogError(err)
 	return tmpl, nil, false
 }
 
-func executeVideosMoverPOST(action string, payload interface{}, videosMoverAPI string) (string, error) {
+func ExecuteVideosMoverPOST(action string, payload interface{}, videosMoverAPI string) (string, error) {
 	apiReq, err := generateActionRequest(action, payload)
 	if err != nil {
 		return "", err
@@ -45,7 +50,7 @@ func executeVideosMoverPOST(action string, payload interface{}, videosMoverAPI s
 	defer apiResp.Body.Close()
 
 	apiBody, _ := ioutil.ReadAll(apiResp.Body)
-	var jsonResp handlers.ResponseJsonData
+	var jsonResp ResponseJsonData
 	if err = json.Unmarshal(apiBody, &jsonResp); err != nil {
 		return "", err
 	}
@@ -55,4 +60,38 @@ func executeVideosMoverPOST(action string, payload interface{}, videosMoverAPI s
 	}
 
 	return jsonResp.Body, nil
+}
+
+func getJsonResponseFromAsBytes(body, err string) []byte {
+	if strings.Contains(body, "ERROR") {
+		err = body
+		body = ""
+	}
+
+	code := 200
+	if len(err) > 0 {
+		code = 500
+	}
+
+	responseJsonData := &ResponseJsonData{
+		Code:  code,
+		Error: err,
+		Date:  time.Now().Format(TIME_FORMAT),
+		Body:  body,
+	}
+
+	jsonBytes, _ := json.Marshal(responseJsonData)
+	return jsonBytes
+}
+
+func getErrorJsonResponseAsBytes(err string) []byte {
+	responseJsonData := &ResponseJsonData{
+		Code:  500,
+		Error: err,
+		Date:  time.Now().Format(TIME_FORMAT),
+		Body:  "",
+	}
+
+	jsonBytes, _ := json.Marshal(responseJsonData)
+	return jsonBytes
 }

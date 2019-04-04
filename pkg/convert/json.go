@@ -3,72 +3,52 @@ package convert
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"os"
-	"strings"
-	"time"
+	"testing"
 )
 
-const TIME_FORMAT = "2006-01-02 15:04:05"
-
-func getJSONEncodedString(data interface{}) string {
+func GetJSONEncodedString(data interface{}) string {
 	resultBytes, err := json.Marshal(data)
-	LogError(err)
+	goutils.LogError(err)
 	return string(resultBytes)
 }
 
-func removeTmpStoredJsonPayload(tempJsonFile *os.File) {
-	err := tempJsonFile.Close()
-	LogErrorWithMessage(fmt.Sprintf("Couldn't close tmpFile: %s", tempJsonFile.Name()), err)
-
-	err = os.Remove(tempJsonFile.Name())
-	LogErrorWithMessage(fmt.Sprintf("Couldn't remove tmpFile: %s", tempJsonFile.Name()), err)
+func GetJSONBytesForTest(t *testing.T, data interface{}) []byte {
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		t.Fatalf("Couldn't decode request: %+v", err)
+	}
+	return bytes
 }
 
-func tmpStoreJsonPayload(jsonData interface{}) *os.File {
+func GetJSONStringForTest(t *testing.T, data interface{}) string {
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		t.Fatalf("Couldn't decode response: %+v", err)
+	}
+	return string(bytes)
+}
+
+func RemoveTmpStoredJsonPayload(tempJsonFile *os.File) {
+	err := tempJsonFile.Close()
+	goutils.LogErrorWithMessage(fmt.Sprintf("Couldn't close tmpFile: %s", tempJsonFile.Name()), err)
+
+	err = os.Remove(tempJsonFile.Name())
+	goutils.LogErrorWithMessage(fmt.Sprintf("Couldn't remove tmpFile: %s", tempJsonFile.Name()), err)
+}
+
+func TmpStoreJsonPayload(jsonData interface{}) *os.File {
 	tempFile, err := ioutil.TempFile(os.TempDir(), "vms-")
-	LogErrorWithMessage(fmt.Sprintf("Couldn't create tmpFile: %s", tempFile.Name()), err)
+	goutils.LogErrorWithMessage(fmt.Sprintf("Couldn't create tmpFile: %s", tempFile.Name()), err)
 
 	jsonString, err := json.Marshal(jsonData)
-	LogErrorWithMessage("Couldn't convert data to bytes", err)
+	goutils.LogErrorWithMessage("Couldn't convert data to bytes", err)
 	if err == nil {
 		_, err = tempFile.Write([]byte(jsonString))
 	}
-	LogErrorWithMessage(fmt.Sprintf("Couldn't write to tmpFile: %s", tempFile.Name()), err)
+	goutils.LogErrorWithMessage(fmt.Sprintf("Couldn't write to tmpFile: %s", tempFile.Name()), err)
 
 	return tempFile
-}
-
-func getJsonResponseFromAsBytes(body, err string) []byte {
-	if strings.Contains(body, "ERROR") {
-		err = body
-		body = ""
-	}
-
-	code := 200
-	if len(err) > 0 {
-		code = 500
-	}
-
-	responseJsonData := &ResponseJsonData{
-		Code:  code,
-		Error: err,
-		Date:  time.Now().Format(TIME_FORMAT),
-		Body:  body,
-	}
-
-	jsonBytes, _ := json.Marshal(responseJsonData)
-	return jsonBytes
-}
-
-func getErrorJsonResponseAsBytes(err string) []byte {
-	responseJsonData := &ResponseJsonData{
-		Code:  500,
-		Error: err,
-		Date:  time.Now().Format(TIME_FORMAT),
-		Body:  "",
-	}
-
-	jsonBytes, _ := json.Marshal(responseJsonData)
-	return jsonBytes
 }

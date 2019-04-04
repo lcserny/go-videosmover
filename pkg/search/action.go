@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/h2non/filetype"
 	"github.com/lcserny/go-videosmover/pkg/action"
-	. "github.com/lcserny/go-videosmover/pkg/models"
+	"github.com/lcserny/go-videosmover/pkg/convert"
 	. "github.com/lcserny/goutils"
 	"io"
 	"os"
@@ -19,8 +19,8 @@ func init() {
 type searchAction struct {
 }
 
-func (sa *searchAction) Execute(jsonPayload []byte, config *ActionConfig) (string, error) {
-	var request SearchRequestData
+func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
+	var request RequestData
 	err := json.Unmarshal(jsonPayload, &request)
 	LogError(err)
 	if err != nil {
@@ -33,7 +33,7 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *ActionConfig) (strin
 	}
 
 	realWalkRootPath, _ := filepath.EvalSymlinks(request.Path)
-	var resultList []SearchResponseData
+	var resultList []ResponseData
 	err = filepath.Walk(realWalkRootPath, func(path string, info os.FileInfo, err error) error {
 		// check path
 		for _, exPath := range config.SearchExcludePaths {
@@ -47,9 +47,9 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *ActionConfig) (strin
 			return nil
 		}
 
-		if !info.IsDir() && walkDepthIsAcceptable(realWalkRootPath, path, config.MaxSearchWalkDepth) {
+		if !info.IsDir() && action.WalkDepthIsAcceptable(realWalkRootPath, path, config.MaxSearchWalkDepth) {
 			if isVideo(path, info, config) {
-				resultList = append(resultList, SearchResponseData{path, findSubtitles(realWalkRootPath, path, config)})
+				resultList = append(resultList, ResponseData{path, findSubtitles(realWalkRootPath, path, config)})
 			}
 		}
 		return nil
@@ -63,10 +63,10 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *ActionConfig) (strin
 		return "", nil
 	}
 
-	return getJSONEncodedString(resultList), nil
+	return convert.GetJSONEncodedString(resultList), nil
 }
 
-func isVideo(path string, info os.FileInfo, config *ActionConfig) bool {
+func isVideo(path string, info os.FileInfo, config *action.Config) bool {
 	file, err := os.Open(path)
 	if err != nil {
 		LogError(err)
@@ -99,7 +99,7 @@ func isVideo(path string, info os.FileInfo, config *ActionConfig) bool {
 	return true
 }
 
-func findSubtitles(rootPath, path string, config *ActionConfig) []string {
+func findSubtitles(rootPath, path string, config *action.Config) []string {
 	subs := make([]string, 0)
 	pathDir := filepath.Dir(path)
 	if rootPath == pathDir {

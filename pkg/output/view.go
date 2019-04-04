@@ -2,27 +2,28 @@ package output
 
 import (
 	"encoding/json"
-	"github.com/lcserny/go-videosmover/pkg/models"
+	"github.com/lcserny/go-videosmover/pkg/action"
+	"github.com/lcserny/go-videosmover/pkg/web"
 	. "github.com/lcserny/goutils"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
-type AjaxOutputController struct {
-	config *models.WebviewConfig
+type AjaxController struct {
+	config *web.WebviewConfig
 }
 
-func NewAjaxOutputController(config *models.WebviewConfig) *AjaxOutputController {
-	return &AjaxOutputController{config: config}
+func NewAjaxController(config *web.WebviewConfig) *AjaxController {
+	return &AjaxController{config: config}
 }
 
-func (sc *AjaxOutputController) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
+func (sc *AjaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	resp.Header().Set("Content-Type", "application/json")
 	if strings.ToUpper(req.Method) == http.MethodPost {
 		// TODO: validate request
 		reqDataType := req.FormValue("type")
-		diskPath := getDiskPath(reqDataType, sc.config)
+		diskPath := action.GetDiskPath(reqDataType, sc.config)
 
 		reqDataSkipCache := req.FormValue("skipcache")
 		skipCache, err := strconv.ParseBool(reqDataSkipCache)
@@ -42,7 +43,7 @@ func (sc *AjaxOutputController) ServeHTTP(resp http.ResponseWriter, req *http.Re
 
 		reqDataName := req.FormValue("name")
 
-		jsonBody, err := executeVideosMoverPOST("output", &models.OutputRequestData{
+		jsonBody, err := web.ExecuteVideosMoverPOST("output", &RequestData{
 			Name:             reqDataName,
 			Type:             reqDataType,
 			SkipCache:        skipCache,
@@ -55,7 +56,7 @@ func (sc *AjaxOutputController) ServeHTTP(resp http.ResponseWriter, req *http.Re
 			return
 		}
 
-		var outputResponseData models.OutputResponseData
+		var outputResponseData ResponseData
 		if err = json.Unmarshal([]byte(jsonBody), &outputResponseData); err != nil {
 			LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)

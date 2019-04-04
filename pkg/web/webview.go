@@ -2,6 +2,8 @@ package web
 
 import (
 	"encoding/json"
+	"errors"
+	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"path/filepath"
 )
@@ -17,16 +19,16 @@ type WebviewConfig struct {
 	TvSeriesPath        string `json:"tvSeriesPath"`
 }
 
-func GenerateWebviewConfig(configsPath, configFile string) *models.WebviewConfig {
+func GenerateWebviewConfig(configsPath, configFile string) *WebviewConfig {
 	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
-	LogFatal(err)
+	goutils.LogFatal(err)
 
-	var config models.WebviewConfig
+	var config WebviewConfig
 	err = json.Unmarshal(configBytes, &config)
-	LogFatal(err)
+	goutils.LogFatal(err)
 
 	if config.Host == "" || config.Port == "" {
-		LogFatal(errors.New("No `host` and/or `port` configured"))
+		goutils.LogFatal(errors.New("No `host` and/or `port` configured"))
 	}
 
 	return &config

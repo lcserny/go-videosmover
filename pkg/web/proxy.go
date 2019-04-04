@@ -2,11 +2,13 @@ package web
 
 import (
 	"encoding/json"
+	"errors"
+	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"path/filepath"
 )
 
-type ProxyServerConfig struct {
+type ProxyConfig struct {
 	Host                       string `json:"host"`
 	Port                       string `json:"port"`
 	PathVideosMoverJava        string `json:"path.videosMover.java"`
@@ -15,16 +17,16 @@ type ProxyServerConfig struct {
 	PathVideosMoverBinConfigs  string `json:"path.videosMover.bin.configs"`
 }
 
-func GenerateServerConfig(configsPath, configFile string) *models.ProxyServerConfig {
-	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
-	LogFatal(err)
+func GenerateProxyConfig(path, file string) *ProxyConfig {
+	configBytes, err := ioutil.ReadFile(filepath.Join(path, file))
+	goutils.LogFatal(err)
 
-	var serverConfig models.ProxyServerConfig
+	var serverConfig ProxyConfig
 	err = json.Unmarshal(configBytes, &serverConfig)
-	LogFatal(err)
+	goutils.LogFatal(err)
 
 	if serverConfig.Host == "" || serverConfig.Port == "" {
-		LogFatal(errors.New("No `host` and/or `port` configured"))
+		goutils.LogFatal(errors.New("No `host` and/or `port` configured"))
 	}
 
 	return &serverConfig

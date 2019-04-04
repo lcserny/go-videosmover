@@ -2,7 +2,7 @@ package action
 
 import (
 	"errors"
-	"github.com/lcserny/go-videosmover/pkg/models"
+	"fmt"
 	"github.com/lcserny/goutils"
 	"strings"
 	"sync"
@@ -14,13 +14,13 @@ var (
 )
 
 type Action interface {
-	Execute([]byte, *models.ActionConfig) (string, error)
+	Execute([]byte, *Config) (string, error)
 }
 
 type unknownAction struct {
 }
 
-func (uc *unknownAction) Execute(json []byte, cfg *models.ActionConfig) (string, error) {
+func (uc *unknownAction) Execute(json []byte, cfg *Config) (string, error) {
 	return "", errors.New("Unknown action given")
 }
 
@@ -30,10 +30,13 @@ func Register(name string, a Action) {
 	if a == nil {
 		goutils.LogFatal(errors.New("No Action given to register"))
 	}
+	if _, dup := actions[name]; dup {
+		goutils.LogFatal(errors.New(fmt.Sprintf("Action `%s` already defined", name)))
+	}
 	actions[strings.ToLower(name)] = a
 }
 
-func Get(name string) Action {
+func Retrieve(name string) Action {
 	if a, ok := actions[strings.ToLower(name)]; ok {
 		return a
 	}

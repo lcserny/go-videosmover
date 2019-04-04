@@ -25,7 +25,7 @@ func main() {
 	InitFileLogger("vm-commander.log")
 
 	flag.Parse()
-	a := action.Get(*commanderActionFlag)
+	a := action.Retrieve(*commanderActionFlag)
 	c := action.NewConfig(*commanderConfigsFlag, "actions.json")
 
 	jsonBytes, err := ioutil.ReadFile(*commanderPayloadFileFlag)

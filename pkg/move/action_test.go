@@ -1,35 +1,35 @@
 package move
 
 import (
-	"github.com/lcserny/go-videosmover/pkg/models"
+	"github.com/lcserny/go-videosmover/pkg/action"
 	"path/filepath"
 	"testing"
 )
 
 func TestMoveAction(t *testing.T) {
-	fromPath, fromCleanup := setupTmpDir(t, "videosmover_move_test-FROM-")
+	fromPath, fromCleanup := action.SetupTestTmpDir(t, "videosmover_move_test-FROM-")
 	defer fromCleanup()
-	tvToPath, tvToCleanup := setupTmpDir(t, "videosmover_move_test-TV_TO-")
+	tvToPath, tvToCleanup := action.SetupTestTmpDir(t, "videosmover_move_test-TV_TO-")
 	defer tvToCleanup()
-	movieToPath, movieToCleanup := setupTmpDir(t, "videosmover_move_test-MOVIE_TO-")
+	movieToPath, movieToCleanup := action.SetupTestTmpDir(t, "videosmover_move_test-MOVIE_TO-")
 	defer movieToCleanup()
 
-	video1 := addVideo(t, fromPath, filepath.Join("Some Movie1", "someMovie.mp4"))
-	video2 := addVideo(t, fromPath, filepath.Join("Some Show2", "someShow.mp4"))
+	video1 := action.AddTestVideo(t, fromPath, filepath.Join("Some Movie1", "someMovie.mp4"))
+	video2 := action.AddTestVideo(t, fromPath, filepath.Join("Some Show2", "someShow.mp4"))
 
-	videoSeries1 := addVideo(t, fromPath, filepath.Join("six.feet.under.720p", "six.feet.under.s01e01.720p.mp4"))
-	videoSeries2 := addVideo(t, fromPath, filepath.Join("six.feet.under.720p", "six.feet.under.s01e02.720p.mp4"))
-	videoSeries3 := addVideo(t, fromPath, filepath.Join("six.feet.under.720p", "six.feet.under.s01e03.720p.mp4"))
+	videoSeries1 := action.AddTestVideo(t, fromPath, filepath.Join("six.feet.under.720p", "six.feet.under.s01e01.720p.mp4"))
+	videoSeries2 := action.AddTestVideo(t, fromPath, filepath.Join("six.feet.under.720p", "six.feet.under.s01e02.720p.mp4"))
+	videoSeries3 := action.AddTestVideo(t, fromPath, filepath.Join("six.feet.under.720p", "six.feet.under.s01e03.720p.mp4"))
 
-	video3 := addVideo(t, fromPath, filepath.Join("another.movie", "anotherMovie.avi"))
-	video3Subs := addSubtitles(t, video3, []string{"subtit.srt", filepath.Join("Sub", "anotherMovie.nfo")})
+	video3 := action.AddTestVideo(t, fromPath, filepath.Join("another.movie", "anotherMovie.avi"))
+	video3Subs := action.AddTestSubtitles(t, video3, []string{"subtit.srt", filepath.Join("Sub", "anotherMovie.nfo")})
 
-	video4 := addVideo(t, fromPath, filepath.Join("hello.movie", "hello.kmv"))
-	addFile(t, fromPath, filepath.Join("hello.movie", "hello.junk"), 5)
+	video4 := action.AddTestVideo(t, fromPath, filepath.Join("hello.movie", "hello.kmv"))
+	action.AddTestFile(t, fromPath, filepath.Join("hello.movie", "hello.junk"), 5)
 
-	testData := []testActionData{
+	testData := []action.TestActionData{
 		{
-			request: []models.MoveRequestData{
+			Request: []RequestData{
 				{
 					Video:    video1,
 					Type:     "movie",
@@ -37,10 +37,10 @@ func TestMoveAction(t *testing.T) {
 					OutName:  "Some Movie1",
 				},
 			},
-			response: []interface{}{},
+			Response: []interface{}{},
 		},
 		{
-			request: []models.MoveRequestData{
+			Request: []RequestData{
 				{
 					Video:    video2,
 					Type:     "tv",
@@ -48,10 +48,10 @@ func TestMoveAction(t *testing.T) {
 					OutName:  "Some Show2",
 				},
 			},
-			response: []interface{}{},
+			Response: []interface{}{},
 		},
 		{
-			request: []models.MoveRequestData{
+			Request: []RequestData{
 				{
 					Video:    videoSeries1,
 					Type:     "tv",
@@ -71,10 +71,10 @@ func TestMoveAction(t *testing.T) {
 					OutName:  "Six Feet Under",
 				},
 			},
-			response: []interface{}{},
+			Response: []interface{}{},
 		},
 		{
-			request: []models.MoveRequestData{
+			Request: []RequestData{
 				{
 					Video:    video3,
 					Type:     "movie",
@@ -83,10 +83,10 @@ func TestMoveAction(t *testing.T) {
 					OutName:  "Another Movie",
 				},
 			},
-			response: []interface{}{},
+			Response: []interface{}{},
 		},
 		{
-			request: []models.MoveRequestData{
+			Request: []RequestData{
 				{
 					Video:    video4,
 					Type:     "movie",
@@ -94,9 +94,9 @@ func TestMoveAction(t *testing.T) {
 					OutName:  "Movie With Junk Files",
 				},
 			},
-			response: []interface{}{},
+			Response: []interface{}{},
 		},
 	}
 
-	runActionTest(t, testData, MoveAction)
+	action.RunTestAction(t, testData, action.Retrieve("move"))
 }

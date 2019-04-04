@@ -1,7 +1,7 @@
 package action
 
 import (
-	"github.com/lcserny/go-videosmover/pkg/models"
+	"github.com/lcserny/go-videosmover/pkg/web"
 	"os"
 	"strings"
 )
@@ -14,7 +14,7 @@ const (
 	UNKNOWN = "unknown"
 )
 
-func pathRemovalIsRestricted(folder string, restrictedRemovePaths []string) bool {
+func PathRemovalIsRestricted(folder string, restrictedRemovePaths []string) bool {
 	for _, restrictedFolder := range restrictedRemovePaths {
 		if strings.HasSuffix(folder, restrictedFolder) {
 			return true
@@ -23,11 +23,11 @@ func pathRemovalIsRestricted(folder string, restrictedRemovePaths []string) bool
 	return false
 }
 
-func getDiskPath(videoType string, config *models.WebviewConfig) string {
+func GetDiskPath(videoType string, config *web.WebviewConfig) string {
 	loweredType := strings.ToLower(videoType)
-	if loweredType != models.UNKNOWN {
+	if loweredType != UNKNOWN {
 		diskPath := config.MoviesPath
-		if loweredType != models.MOVIE {
+		if loweredType != MOVIE {
 			diskPath = config.TvSeriesPath
 		}
 		return diskPath
@@ -35,7 +35,7 @@ func getDiskPath(videoType string, config *models.WebviewConfig) string {
 	return ""
 }
 
-func walkDepthIsAcceptable(rootPath string, path string, maxWalkDepth int) bool {
+func WalkDepthIsAcceptable(rootPath string, path string, maxWalkDepth int) bool {
 	trimmed := path[len(rootPath):]
 	separatorCount := 0
 	for _, char := range trimmed {

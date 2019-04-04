@@ -2,13 +2,14 @@ package search
 
 import (
 	"encoding/json"
-	"github.com/lcserny/go-videosmover/pkg/models"
+	"github.com/lcserny/go-videosmover/pkg/convert"
+	"github.com/lcserny/go-videosmover/pkg/web"
 	"net/http"
 	"path/filepath"
 	"strings"
 )
 
-type SearchResult struct {
+type Result struct {
 	Index            int
 	Name             string
 	FileName         string
@@ -16,19 +17,19 @@ type SearchResult struct {
 	EncodedSubsArray string
 }
 
-type SearchResultPageData struct {
-	Videos []SearchResult
+type ResultPageData struct {
+	Videos []Result
 }
 
-type SearchController struct {
-	config *models.WebviewConfig
+type Controller struct {
+	config *web.WebviewConfig
 }
 
-func NewSearchController(config *models.WebviewConfig) *SearchController {
-	return &SearchController{config: config}
+func NewController(config *web.WebviewConfig) *Controller {
+	return &Controller{config: config}
 }
 
-func (sc *SearchController) ServeTemplate(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
+func (sc *Controller) ServeTemplate(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
 	resp.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	switch strings.ToUpper(req.Method) {
@@ -39,27 +40,27 @@ func (sc *SearchController) ServeTemplate(resp http.ResponseWriter, req *http.Re
 	}
 }
 
-func (sc *SearchController) GET(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
+func (sc *Controller) GET(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
 	resp.WriteHeader(http.StatusOK)
 	return "search", nil, true
 }
 
-func (sc *SearchController) POST(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
-	jsonBody, err := executeVideosMoverPOST("search", &models.SearchRequestData{Path: sc.config.DownloadsPath}, sc.config.VideosMoverAPI)
+func (sc *Controller) POST(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
+	jsonBody, err := web.ExecuteVideosMoverPOST("search", &RequestData{Path: sc.config.DownloadsPath}, sc.config.VideosMoverAPI)
 	if err != nil {
-		return return500Error("search", err, resp)
+		return web.Return500Error("search", err, resp)
 	}
 
 	if jsonBody == "" {
 		return sc.GET(resp, req)
 	}
 
-	var searchResponseDataList []models.SearchResponseData
+	var searchResponseDataList []ResponseData
 	if err = json.Unmarshal([]byte(jsonBody), &searchResponseDataList); err != nil {
-		return return500Error("search", err, resp)
+		return web.Return500Error("search", err, resp)
 	}
 
-	pageData := SearchResultPageData{}
+	pageData := ResultPageData{}
 	for i, data := range searchResponseDataList {
 		fileName := filepath.Base(data.Path)
 		fileDir := filepath.Dir(data.Path)
@@ -68,12 +69,12 @@ func (sc *SearchController) POST(resp http.ResponseWriter, req *http.Request) (n
 			name = fileName
 		}
 
-		searchResult := SearchResult{
+		searchResult := Result{
 			Index:            i,
 			Name:             name,
 			FileName:         fileName,
 			VideoPath:        data.Path,
-			EncodedSubsArray: encodeToJSONArray(data.Subtitles),
+			EncodedSubsArray: convert.GetJSONEncodedString(data.Subtitles),
 		}
 		pageData.Videos = append(pageData.Videos, searchResult)
 	}

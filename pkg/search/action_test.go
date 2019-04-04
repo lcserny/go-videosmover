@@ -1,28 +1,28 @@
 package search
 
 import (
-	. "github.com/lcserny/go-videosmover/pkg/models"
+	"github.com/lcserny/go-videosmover/pkg/action"
 	"path/filepath"
 	"testing"
 )
 
 func TestSearchAction(t *testing.T) {
-	path, cleanup := setupTmpDir(t, "videosmover_search_test-")
+	path, cleanup := action.SetupTestTmpDir(t, "videosmover_search_test-")
 	defer cleanup()
-	video1 := addVideo(t, path, filepath.Join("Video1 Folder", "video.mp4"))
-	video1Subs := addSubtitles(t, video1, []string{filepath.Join("Sub", "subtitle.srt")})
-	video2 := addVideo(t, path, "video2.mp4")
-	_ = addSubtitles(t, video2, []string{"subtitle.srt"})
-	video3 := addVideo(t, path, filepath.Join("A-Video1", "video1.mp4"))
-	_ = addFile(t, path, "nonVideo.txt", 1)
-	hiddenVideo4 := addVideo(t, path, "HiddenVideo.txt")
-	_ = addFile(t, path, "bigEmptyFile.nfo", 300)
-	_ = addVideo(t, path, filepath.Join("Programming Stuff", "disallowedPathVideo.mp4"))
+	video1 := action.AddTestVideo(t, path, filepath.Join("Video1 Folder", "video.mp4"))
+	video1Subs := action.AddTestSubtitles(t, video1, []string{filepath.Join("Sub", "subtitle.srt")})
+	video2 := action.AddTestVideo(t, path, "video2.mp4")
+	_ = action.AddTestSubtitles(t, video2, []string{"subtitle.srt"})
+	video3 := action.AddTestVideo(t, path, filepath.Join("A-Video1", "video1.mp4"))
+	_ = action.AddTestFile(t, path, "nonVideo.txt", 1)
+	hiddenVideo4 := action.AddTestVideo(t, path, "HiddenVideo.txt")
+	_ = action.AddTestFile(t, path, "bigEmptyFile.nfo", 300)
+	_ = action.AddTestVideo(t, path, filepath.Join("Programming Stuff", "disallowedPathVideo.mp4"))
 
-	testData := []testActionData{
+	testData := []action.TestActionData{
 		{
-			request: SearchRequestData{path},
-			response: []SearchResponseData{
+			Request: RequestData{path},
+			Response: []ResponseData{
 				{video3, make([]string, 0)},
 				{hiddenVideo4, make([]string, 0)},
 				{video1, video1Subs},
@@ -31,5 +31,5 @@ func TestSearchAction(t *testing.T) {
 		},
 	}
 
-	runActionTest(t, testData, SearchAction)
+	action.RunTestAction(t, testData, action.Retrieve("search"))
 }

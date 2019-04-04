@@ -4,9 +4,10 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/lcserny/go-videosmover/pkg/handlers"
-	"github.com/lcserny/go-videosmover/pkg/models"
-	"github.com/lcserny/go-videosmover/pkg/view"
+	"github.com/lcserny/go-videosmover/pkg/move"
+	"github.com/lcserny/go-videosmover/pkg/output"
+	"github.com/lcserny/go-videosmover/pkg/search"
+	"github.com/lcserny/go-videosmover/pkg/web"
 	. "github.com/lcserny/goutils"
 	"github.com/pkg/browser"
 	"html/template"
@@ -33,7 +34,7 @@ func main() {
 	InitFileLogger("vm-webview.log")
 
 	flag.Parse()
-	config := handlers.GenerateWebviewConfig(*wvConfigsPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
+	config := web.GenerateWebviewConfig(*wvConfigsPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
 
 	webPath := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	handler := generateHandler(config)
@@ -42,7 +43,7 @@ func main() {
 	checkStopServer(server, config)
 }
 
-func checkStopServer(server *http.Server, config *models.WebviewConfig) {
+func checkStopServer(server *http.Server, config *web.WebviewConfig) {
 	for {
 		if (lastRunningPingTimestamp != 0) && (MakeTimestamp() > lastRunningPingTimestamp+config.ServerPingTimeoutMs) {
 			LogFatal(server.Shutdown(context.TODO()))
@@ -62,7 +63,7 @@ func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
 	return server
 }
 
-func generateHandler(config *models.WebviewConfig) *http.ServeMux {
+func generateHandler(config *web.WebviewConfig) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/running", func(writer http.ResponseWriter, request *http.Request) {
@@ -88,9 +89,9 @@ func generateHandler(config *models.WebviewConfig) *http.ServeMux {
 	return mux
 }
 
-func templateControllers(config *models.WebviewConfig) map[string]handlers.TemplateController {
-	templatesMap := make(map[string]handlers.TemplateController)
-	searchController := view.NewSearchController(config)
+func templateControllers(config *web.WebviewConfig) map[string]web.TemplateController {
+	templatesMap := make(map[string]web.TemplateController)
+	searchController := search.NewController(config)
 	templatesMap["/"] = searchController
 	templatesMap["/search"] = searchController
 	// TODO: add more if needed
@@ -98,10 +99,10 @@ func templateControllers(config *models.WebviewConfig) map[string]handlers.Templ
 	return templatesMap
 }
 
-func ajaxHandlers(config *models.WebviewConfig) map[string]http.Handler {
+func ajaxHandlers(config *web.WebviewConfig) map[string]http.Handler {
 	templatesMap := make(map[string]http.Handler)
-	templatesMap["/ajax/output"] = view.NewAjaxOutputController(config)
-	templatesMap["/ajax/move"] = view.NewAjaxMoveController(config)
+	templatesMap["/ajax/output"] = output.NewAjaxController(config)
+	templatesMap["/ajax/move"] = move.NewAjaxController(config)
 	// TODO: add more if needed
 
 	return templatesMap
