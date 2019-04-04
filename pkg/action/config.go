@@ -42,15 +42,10 @@ func NewConfig(path, file string) *Config {
 	}
 
 	if ac.NameTrimRegexes != nil {
-		ac.CompiledNameTrimRegexes = getRegexList(ac.NameTrimRegexes)
+		for _, pat := range ac.NameTrimRegexes {
+			ac.CompiledNameTrimRegexes = append(ac.CompiledNameTrimRegexes, regexp.MustCompile(fmt.Sprintf("(?i)(-?%s)", pat)))
+		}
 	}
 
 	return &ac
-}
-
-func getRegexList(patterns []string) (regxs []*regexp.Regexp) {
-	for _, pat := range patterns {
-		regxs = append(regxs, regexp.MustCompile(fmt.Sprintf("(?i)(-?%s)", pat)))
-	}
-	return regxs
 }
