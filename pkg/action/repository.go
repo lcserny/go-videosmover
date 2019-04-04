@@ -21,17 +21,17 @@ type unknownAction struct {
 }
 
 func (uc *unknownAction) Execute(json []byte, cfg *Config) (string, error) {
-	return "", errors.New("Unknown action given")
+	return "", errors.New("unknown action given")
 }
 
 func Register(name string, a Action) {
 	actionsMu.Lock()
 	defer actionsMu.Unlock()
 	if a == nil {
-		goutils.LogFatal(errors.New("No Action given to register"))
+		goutils.LogFatal(errors.New("no Action given to register"))
 	}
 	if _, dup := actions[name]; dup {
-		goutils.LogFatal(errors.New(fmt.Sprintf("Action `%s` already defined", name)))
+		goutils.LogFatal(errors.New(fmt.Sprintf("action `%s` already defined", name)))
 	}
 	actions[strings.ToLower(name)] = a
 }
