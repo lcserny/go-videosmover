@@ -34,6 +34,8 @@ function populateOutputDropdown(index, outputNames) {
 }
 
 function registerEventHandlers() {
+    let $loadingContainer = $("#loading-container");
+
     $(document).on("change", "input.js-videoSkipCacheInput", function () {
         addToRowData($(this).data("index"), "skipcache", $(this).is(":checked"));
     }).on("change", "input.js-videoSkipOnlineSearchInput", function () {
@@ -51,12 +53,14 @@ function registerEventHandlers() {
         if (rowType === "unknown") {
             populateOutputData(rowIndex, "");
         } else {
+            $loadingContainer.show();
             $.post("/ajax/output", {
                 name: rowData["name"],
                 type: rowData["type"],
                 skipcache: rowData["skipcache"],
                 skiponlinesearch: rowData["skiponlinesearch"],
             }, function (response) {
+                $loadingContainer.hide();
                 if (typeof response === 'undefined' || response.length < 1) {
                     response = "";
                     console.log("Output response invalid, check logs.");
@@ -68,7 +72,6 @@ function registerEventHandlers() {
     }).on("hidden.bs.modal", "#moveIssuesModal", function () {
         $("#searchVideos").submit();
     }).on("click", "#moveVideos", function () {
-        let $loadingContainer = $("#loading-container");
         $loadingContainer.show();
 
         let dataList = [];
