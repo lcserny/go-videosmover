@@ -9,7 +9,6 @@ import (
 )
 
 type WebviewConfig struct {
-	Host                string `json:"host"`
 	Port                string `json:"port"`
 	HtmlFilesPath       string `json:"htmlFilesPath"`
 	ServerPingTimeoutMs int64  `json:"serverPingTimeoutMs"`
@@ -27,8 +26,8 @@ func GenerateWebviewConfig(configsPath, configFile string) *WebviewConfig {
 	err = json.Unmarshal(configBytes, &config)
 	goutils.LogFatal(err)
 
-	if config.Host == "" || config.Port == "" {
-		goutils.LogFatal(errors.New("No `host` and/or `port` configured"))
+	if config.Port == "" {
+		goutils.LogFatal(errors.New("no port configured"))
 	}
 
 	return &config

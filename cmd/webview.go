@@ -15,7 +15,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"time"
 )
 
@@ -36,10 +35,10 @@ func main() {
 	flag.Parse()
 	config := web.GenerateWebviewConfig(*wvConfigsPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
 
-	webPath := fmt.Sprintf("%s:%s", config.Host, config.Port)
+	webPath := fmt.Sprintf("localhost:%s", config.Port)
 	handler := generateHandler(config)
 	server := startFileServer(webPath, handler)
-	go openBrowser(webPath)
+	go LogFatal(browser.OpenURL(fmt.Sprintf("http://%s", webPath)))
 	checkStopServer(server, config)
 }
 
@@ -106,11 +105,4 @@ func ajaxHandlers(config *web.WebviewConfig) map[string]http.Handler {
 	// TODO: add more if needed
 
 	return templatesMap
-}
-
-func openBrowser(webPath string) {
-	if !strings.HasPrefix(webPath, "http") {
-		webPath = fmt.Sprintf("http://%s", webPath)
-	}
-	LogFatal(browser.OpenURL(webPath))
 }

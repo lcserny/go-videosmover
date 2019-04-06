@@ -8,13 +8,15 @@ import (
 	"path/filepath"
 )
 
+type cmdHandlerConfig struct {
+	Uri        string `json:"uri"`
+	Path       string `json:"path"`
+	ConfigPath string `json:"cfgPath"`
+}
+
 type ProxyConfig struct {
-	Host                       string `json:"host"`
-	Port                       string `json:"port"`
-	PathVideosMoverJava        string `json:"path.videosMover.java"`
-	PathVideosMoverJavaConfigs string `json:"path.videosMover.java.configs"`
-	PathVideosMoverBin         string `json:"path.videosMover.bin"`
-	PathVideosMoverBinConfigs  string `json:"path.videosMover.bin.configs"`
+	Port string             `json:"port"`
+	Bin  []cmdHandlerConfig `json:"bin"`
 }
 
 func GenerateProxyConfig(path, file string) *ProxyConfig {
@@ -25,8 +27,8 @@ func GenerateProxyConfig(path, file string) *ProxyConfig {
 	err = json.Unmarshal(configBytes, &serverConfig)
 	goutils.LogFatal(err)
 
-	if serverConfig.Host == "" || serverConfig.Port == "" {
-		goutils.LogFatal(errors.New("No `host` and/or `port` configured"))
+	if serverConfig.Port == "" {
+		goutils.LogFatal(errors.New("no port configured"))
 	}
 
 	return &serverConfig

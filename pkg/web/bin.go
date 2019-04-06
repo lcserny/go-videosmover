@@ -12,15 +12,7 @@ import (
 )
 
 type BinJsonExecuteHandler struct {
-	videosMoverPath        string
-	videosMoverConfigsPath string
-}
-
-func NewBinJsonExecuteHandler(serverConfig *ProxyConfig) *BinJsonExecuteHandler {
-	return &BinJsonExecuteHandler{
-		videosMoverPath:        serverConfig.PathVideosMoverBin,
-		videosMoverConfigsPath: serverConfig.PathVideosMoverBinConfigs,
-	}
+	Cmd *cmdHandlerConfig
 }
 
 func (h *BinJsonExecuteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -63,7 +55,7 @@ func (h *BinJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request
 
 	var cmdOut bytes.Buffer
 	var cmdErr bytes.Buffer
-	cmd := exec.Command(h.videosMoverPath, "-configs="+h.videosMoverConfigsPath, "-action="+jsonData.Action, "-payloadFile="+tempJsonFile.Name())
+	cmd := exec.Command(h.Cmd.Path, "-configs="+h.Cmd.ConfigPath, "-action="+jsonData.Action, "-payloadFile="+tempJsonFile.Name())
 	cmd.Stdout = &cmdOut
 	cmd.Stderr = &cmdErr
 	err = cmd.Run()

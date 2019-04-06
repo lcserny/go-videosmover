@@ -1,8 +1,10 @@
 {
-  "host": "localhost",
   "port": "8077",
-  "path.videosMover.java": "./commander.jar",
-  "path.videosMover.java.configs": "/path/to/configs",
-  "path.videosMover.bin": "./commander",
-  "path.videosMover.bin.configs": "/path/to/configs"
+  "bin": [
+    {
+      "uri": "videos-mover",
+      "path": "./commander",
+      "cfgPath": "/path/to/configs"
+    }
+  ]
 }

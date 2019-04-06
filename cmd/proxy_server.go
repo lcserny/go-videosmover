@@ -22,12 +22,13 @@ func main() {
 	InitFileLogger("vm-proxyserver.log")
 
 	flag.Parse()
-	serverConfig := web.GenerateProxyConfig(*proxyServerConfigsPathFlag, fmt.Sprintf("config_%s.json", runtime.GOOS))
+	c := web.GenerateProxyConfig(*proxyServerConfigsPathFlag, fmt.Sprintf("config_%s.json", runtime.GOOS))
 
 	mux := http.NewServeMux()
-	mux.Handle("/exec-java/videos-mover", web.NewJavaJsonExecuteHandler(serverConfig))
-	mux.Handle("/exec-bin/videos-mover", web.NewBinJsonExecuteHandler(serverConfig))
+	for _, binCmd := range c.Bin {
+		mux.Handle(fmt.Sprintf("/exec-bin/%s", binCmd.Uri), &web.BinJsonExecuteHandler{&binCmd})
+	}
 
-	LogInfo(fmt.Sprintf("Started server on %s port %s...", serverConfig.Host, serverConfig.Port))
-	LogFatal(http.ListenAndServe(fmt.Sprintf("%s:%s", serverConfig.Host, serverConfig.Port), mux))
+	LogInfo(fmt.Sprintf("Started server on port %s...", c.Port))
+	LogFatal(http.ListenAndServe(fmt.Sprintf(":%s", c.Port), mux))
 }
