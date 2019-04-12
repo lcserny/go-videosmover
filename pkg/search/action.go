@@ -35,8 +35,7 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (stri
 	}
 
 	realWalkRootPath, _ := filepath.EvalSymlinks(request.Path)
-	var sortHelper sort.StringSlice
-	entries := make(map[string]ResponseData)
+	var resultList []ResponseData
 	err = godirwalk.Walk(realWalkRootPath, &godirwalk.Options{
 		Unsorted:            true,
 		FollowSymbolicLinks: false,
@@ -55,8 +54,7 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (stri
 
 			if !info.IsDir() && action.WalkDepthIsAcceptable(realWalkRootPath, path, config.MaxSearchWalkDepth) {
 				if isVideo(path, config) {
-					sortHelper = append(sortHelper, path)
-					entries[path] = ResponseData{path, findSubtitles(realWalkRootPath, path, config)}
+					resultList = append(resultList, ResponseData{path, findSubtitles(realWalkRootPath, path, config)})
 				}
 			}
 			return nil
@@ -67,15 +65,13 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (stri
 		return "", err
 	}
 
-	resultList := make([]ResponseData, sortHelper.Len())
-	sort.Sort(sortHelper)
-	for i, e := range sortHelper {
-		resultList[i] = entries[e]
-	}
-
 	if len(resultList) < 1 {
 		return "", nil
 	}
+
+	sort.Slice(resultList, func(i, j int) bool {
+		return resultList[i].Path < resultList[j].Path
+	})
 
 	return convert.GetJSONEncodedString(resultList), nil
 }
