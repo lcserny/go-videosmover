@@ -3,12 +3,14 @@ package search
 import (
 	"encoding/json"
 	"github.com/h2non/filetype"
+	"github.com/karrick/godirwalk"
 	"github.com/lcserny/go-videosmover/pkg/action"
 	"github.com/lcserny/go-videosmover/pkg/convert"
 	. "github.com/lcserny/goutils"
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -33,30 +35,42 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (stri
 	}
 
 	realWalkRootPath, _ := filepath.EvalSymlinks(request.Path)
-	var resultList []ResponseData
-	err = filepath.Walk(realWalkRootPath, func(path string, info os.FileInfo, err error) error {
-		// check path
-		for _, exPath := range config.SearchExcludePaths {
-			if strings.Contains(path, exPath) {
-				return filepath.SkipDir
+	var sortHelper sort.StringSlice
+	entries := make(map[string]ResponseData)
+	err = godirwalk.Walk(realWalkRootPath, &godirwalk.Options{
+		Unsorted:            true,
+		FollowSymbolicLinks: false,
+		Callback: func(path string, info *godirwalk.Dirent) error {
+			// check path
+			for _, exPath := range config.SearchExcludePaths {
+				if strings.Contains(path, exPath) {
+					return filepath.SkipDir
+				}
 			}
-		}
 
-		if err != nil {
-			LogError(err)
+			if err != nil {
+				LogError(err)
+				return nil
+			}
+
+			if !info.IsDir() && action.WalkDepthIsAcceptable(realWalkRootPath, path, config.MaxSearchWalkDepth) {
+				if isVideo(path, config) {
+					sortHelper = append(sortHelper, path)
+					entries[path] = ResponseData{path, findSubtitles(realWalkRootPath, path, config)}
+				}
+			}
 			return nil
-		}
-
-		if !info.IsDir() && action.WalkDepthIsAcceptable(realWalkRootPath, path, config.MaxSearchWalkDepth) {
-			if isVideo(path, info, config) {
-				resultList = append(resultList, ResponseData{path, findSubtitles(realWalkRootPath, path, config)})
-			}
-		}
-		return nil
+		},
 	})
 	LogError(err)
 	if err != nil {
 		return "", err
+	}
+
+	resultList := make([]ResponseData, sortHelper.Len())
+	sort.Sort(sortHelper)
+	for i, e := range sortHelper {
+		resultList[i] = entries[e]
 	}
 
 	if len(resultList) < 1 {
@@ -66,7 +80,7 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (stri
 	return convert.GetJSONEncodedString(resultList), nil
 }
 
-func isVideo(path string, info os.FileInfo, config *action.Config) bool {
+func isVideo(path string, config *action.Config) bool {
 	file, err := os.Open(path)
 	if err != nil {
 		LogError(err)
@@ -92,6 +106,11 @@ func isVideo(path string, info os.FileInfo, config *action.Config) bool {
 	}
 
 	// check size
+	info, err := os.Stat(path)
+	if err != nil {
+		LogError(err)
+		return false
+	}
 	if info.Size() < config.MinimumVideoSize {
 		return false
 	}
