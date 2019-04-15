@@ -1,0 +1,13 @@
+os:
+  - linux
+  - osx
+
+language: go
+go:
+- "1.10"
+
+addons:
+  apt:
+    update: true
+    packages:
+      - trash-cli
