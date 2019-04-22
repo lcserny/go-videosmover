@@ -22,18 +22,23 @@ The **webview** is the UI part and basically just opens a tab in your default br
 - launch server providing configsFolder path  
 
 JSON requests should be like (regardless of GET or POST usage):  
-`{  
-"action": action to give the executable (like "search")  
-"payload" : json data that will be serialized to tmp file, the path will be sent to jar/bin (file will be deleted after request is done)    
-}`  
+```
+{  
+  "action": action to give the executable (like "search")  
+  "payload" : json data that will be serialized to tmp file, 
+      the path will be sent to jar/bin (file will be deleted after request is done)    
+}
+```
 
-JSON response should be like:  
-`{  
-"code": 200 or 500 or whatever  
-"error" : "" if error not empty (errors might be, jar not found or such)  
-"date": "2019-02-20 20:15:85"  
-"body" : some JSON body response or empty if error  
-}`  
+JSON response should be like:
+```
+{  
+  "code": 200 or 500 or whatever  
+  "error" : "" if error not empty (errors might be, jar not found or such)  
+  "date": "2019-02-20 20:15:85"  
+  "body" : some JSON body response or empty if error  
+}
+```   
 
 ### Webview
 #### How to run:
@@ -42,9 +47,9 @@ JSON response should be like:
 - launch server providing configsFolder path  
 
 #### TODO:  
+- improve UI in general (improve html responsiveness, add CSS animations, hover move button and etc.)
 - improve tmdb results select UI (add poster, cast etc to dropdown select)
-- improve UI in general (improve html responsiveness, add CSS animations and etc.)
-- separate statics better (move from base to search.js and such)
+- switch js to `GopherJS`  
 
 ### Commander
 #### How to run:      
