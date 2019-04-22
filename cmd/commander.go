@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	. "github.com/lcserny/goutils"
+	utils "github.com/lcserny/goutils"
 	"io/ioutil"
 	"os"
 
@@ -27,7 +27,7 @@ func main() {
 		return
 	}
 
-	InitFileLogger("vm-commander.log")
+	utils.InitFileLogger("vm-commander.log")
 
 	flag.Parse()
 	a := action.Retrieve(*commanderActionFlag)
@@ -46,6 +46,6 @@ func main() {
 func stopOnError(err error) {
 	if err != nil {
 		_, err := fmt.Fprint(os.Stderr, err)
-		LogFatal(err)
+		utils.LogFatal(err)
 	}
 }

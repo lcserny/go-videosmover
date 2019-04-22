@@ -6,7 +6,7 @@ import (
 	"github.com/Bios-Marcel/wastebasket"
 	"github.com/lcserny/go-videosmover/pkg/action"
 	"github.com/lcserny/go-videosmover/pkg/convert"
-	. "github.com/lcserny/goutils"
+	utils "github.com/lcserny/goutils"
 )
 
 const COULDNT_MOVE_TO_TRASH = "Couldn't move folder '%s' to trash"
@@ -21,7 +21,7 @@ type deleteAction struct {
 func (da *deleteAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
 	var requests []RequestData
 	err := json.Unmarshal(jsonPayload, &requests)
-	LogError(err)
+	utils.LogError(err)
 	if err != nil {
 		return "", err
 	}
@@ -38,7 +38,7 @@ func (da *deleteAction) Execute(jsonPayload []byte, config *action.Config) (stri
 
 		err := wastebasket.Trash(req.Folder)
 		if err != nil {
-			LogError(err)
+			utils.LogError(err)
 			resultList = append(resultList, ResponseData{
 				req.Folder,
 				[]string{fmt.Sprintf(COULDNT_MOVE_TO_TRASH, req.Folder)},

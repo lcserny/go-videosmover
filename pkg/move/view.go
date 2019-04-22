@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/lcserny/go-videosmover/pkg/action"
 	"github.com/lcserny/go-videosmover/pkg/web"
-	. "github.com/lcserny/goutils"
+	utils "github.com/lcserny/goutils"
 	"net/http"
 	"strings"
 )
@@ -23,7 +23,7 @@ func (sc *AjaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request)
 		moveJsData := req.FormValue("movedata")
 		var moveReqDataList []RequestData
 		if err := json.Unmarshal([]byte(moveJsData), &moveReqDataList); err != nil {
-			LogError(err)
+			utils.LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -35,26 +35,26 @@ func (sc *AjaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request)
 
 		jsonBody, err := web.ExecuteVideosMoverPOST("move", &moveReqDataList, sc.config.VideosMoverAPI)
 		if err != nil {
-			LogError(err)
+			utils.LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		var moveResponseDataList []ResponseData
 		if err = json.Unmarshal([]byte(jsonBody), &moveResponseDataList); err != nil {
-			LogError(err)
+			utils.LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		responseBytes, err := json.Marshal(moveResponseDataList)
 		if err != nil {
-			LogError(err)
+			utils.LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		_, err = resp.Write(responseBytes)
-		LogError(err)
+		utils.LogError(err)
 	}
 }

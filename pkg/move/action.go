@@ -6,7 +6,7 @@ import (
 	"github.com/Bios-Marcel/wastebasket"
 	"github.com/lcserny/go-videosmover/pkg/action"
 	"github.com/lcserny/go-videosmover/pkg/convert"
-	. "github.com/lcserny/goutils"
+	utils "github.com/lcserny/goutils"
 	"os"
 	"path/filepath"
 	"strings"
@@ -53,7 +53,7 @@ func appendToUnmovedReasons(resultList *[]ResponseData, folder string, reason ..
 
 func (me *moveExecutor) canProceed(err error, reason string) bool {
 	if err != nil {
-		LogError(err)
+		utils.LogError(err)
 		appendToUnmovedReasons(me.resultList, me.folder, reason)
 		return false
 	}
@@ -104,7 +104,7 @@ func (me *moveExecutor) moveSubs() bool {
 		err := os.Rename(sub, subDest)
 		if err != nil {
 			unmovedSubs = true
-			LogError(err)
+			utils.LogError(err)
 			unmovedSubsReasons = append(unmovedSubsReasons, fmt.Sprintf(MOVING_PROBLEM_REASON, sub))
 			continue
 		}
@@ -127,7 +127,7 @@ func cleanFolders(cleaningSet []string, resultList *[]ResponseData, restrictedRe
 
 		err := wastebasket.Trash(folder)
 		if err != nil {
-			LogError(err)
+			utils.LogError(err)
 			appendToUnmovedReasons(resultList, folder, fmt.Sprintf(COULDNT_REMOVE_FOLDER_REASON, folder))
 		}
 	}
@@ -145,7 +145,7 @@ func addToCleanSet(cleaningSet *[]string, folder string) {
 func (ma *moveAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
 	var requests []RequestData
 	err := json.Unmarshal(jsonPayload, &requests)
-	LogError(err)
+	utils.LogError(err)
 	if err != nil {
 		return "", err
 	}

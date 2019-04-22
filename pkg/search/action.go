@@ -6,7 +6,7 @@ import (
 	"github.com/karrick/godirwalk"
 	"github.com/lcserny/go-videosmover/pkg/action"
 	"github.com/lcserny/go-videosmover/pkg/convert"
-	. "github.com/lcserny/goutils"
+	utils "github.com/lcserny/goutils"
 	"io"
 	"os"
 	"path/filepath"
@@ -24,13 +24,13 @@ type searchAction struct {
 func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
 	var request RequestData
 	err := json.Unmarshal(jsonPayload, &request)
-	LogError(err)
+	utils.LogError(err)
 	if err != nil {
 		return "", err
 	}
 
 	if _, err := os.Stat(request.Path); os.IsNotExist(err) {
-		LogError(err)
+		utils.LogError(err)
 		return "", err
 	}
 
@@ -48,7 +48,7 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (stri
 			}
 
 			if err != nil {
-				LogError(err)
+				utils.LogError(err)
 				return nil
 			}
 
@@ -60,7 +60,7 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (stri
 			return nil
 		},
 	})
-	LogError(err)
+	utils.LogError(err)
 	if err != nil {
 		return "", err
 	}
@@ -79,10 +79,10 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (stri
 func isVideo(path string, config *action.Config) bool {
 	file, err := os.Open(path)
 	if err != nil {
-		LogError(err)
+		utils.LogError(err)
 		return false
 	}
-	defer CloseFile(file)
+	defer utils.CloseFile(file)
 	head := make([]byte, config.HeaderBytesSize)
 	n, _ := io.ReadFull(file, head)
 	if n < config.HeaderBytesSize {
@@ -104,7 +104,7 @@ func isVideo(path string, config *action.Config) bool {
 	// check size
 	info, err := os.Stat(path)
 	if err != nil {
-		LogError(err)
+		utils.LogError(err)
 		return false
 	}
 	if info.Size() < config.MinimumVideoSize {
@@ -123,7 +123,7 @@ func findSubtitles(rootPath, path string, config *action.Config) []string {
 
 	err := filepath.Walk(pathDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			LogError(err)
+			utils.LogError(err)
 			return nil
 		}
 
@@ -133,7 +133,7 @@ func findSubtitles(rootPath, path string, config *action.Config) []string {
 
 		return nil
 	})
-	LogError(err)
+	utils.LogError(err)
 
 	return subs
 }

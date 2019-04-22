@@ -3,7 +3,7 @@ package action
 import (
 	"fmt"
 	"github.com/lcserny/go-videosmover/pkg/convert"
-	. "github.com/lcserny/goutils"
+	utils "github.com/lcserny/goutils"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -89,7 +89,7 @@ func AddTestFile(t *testing.T, path, file string, size int64) string {
 	if err != nil {
 		t.Fatalf("Couldn't create file %s, %+v", filePath, err)
 	}
-	defer CloseFile(newFile)
+	defer utils.CloseFile(newFile)
 
 	err = os.Truncate(filePath, size)
 	if err != nil {
@@ -114,7 +114,7 @@ func AddTestSubtitles(t *testing.T, videoPath string, subs []string) (subtitles 
 		if err != nil {
 			t.Fatalf("Couldn't create sub file %s, %+v", subPath, err)
 		}
-		CloseFile(subFile)
+		utils.CloseFile(subFile)
 
 		fmt.Println("Created subtitle", subPath)
 		subtitles = append(subtitles, subPath)

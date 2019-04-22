@@ -8,7 +8,7 @@ import (
 	"github.com/lcserny/go-videosmover/pkg/output"
 	"github.com/lcserny/go-videosmover/pkg/search"
 	"github.com/lcserny/go-videosmover/pkg/web"
-	. "github.com/lcserny/goutils"
+	utils "github.com/lcserny/goutils"
 	"github.com/pkg/browser"
 	"html/template"
 	"net/http"
@@ -30,7 +30,7 @@ func main() {
 		return
 	}
 
-	InitFileLogger("vm-webview.log")
+	utils.InitFileLogger("vm-webview.log")
 
 	flag.Parse()
 	config := web.GenerateWebviewConfig(*wvConfigsPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
@@ -38,14 +38,14 @@ func main() {
 	webPath := fmt.Sprintf("localhost:%s", config.Port)
 	handler := generateHandler(config)
 	server := startFileServer(webPath, handler)
-	go LogFatal(browser.OpenURL(fmt.Sprintf("http://%s", webPath)))
+	go utils.LogFatal(browser.OpenURL(fmt.Sprintf("http://%s", webPath)))
 	checkStopServer(server, config)
 }
 
 func checkStopServer(server *http.Server, config *web.WebviewConfig) {
 	for {
-		if (lastRunningPingTimestamp != 0) && (MakeTimestamp() > lastRunningPingTimestamp+config.ServerPingTimeoutMs) {
-			LogFatal(server.Shutdown(context.TODO()))
+		if (lastRunningPingTimestamp != 0) && (utils.MakeTimestamp() > lastRunningPingTimestamp+config.ServerPingTimeoutMs) {
+			utils.LogFatal(server.Shutdown(context.TODO()))
 		}
 		time.Sleep(time.Second)
 	}
@@ -55,7 +55,7 @@ func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
 	server := &http.Server{Addr: webPath, Handler: handler}
 	go func() {
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
-			LogFatal(err)
+			utils.LogFatal(err)
 		}
 		os.Exit(0)
 	}()
@@ -66,7 +66,7 @@ func generateHandler(config *web.WebviewConfig) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/running", func(writer http.ResponseWriter, request *http.Request) {
-		lastRunningPingTimestamp = MakeTimestamp()
+		lastRunningPingTimestamp = utils.MakeTimestamp()
 	})
 
 	staticServer := http.FileServer(http.Dir(filepath.Join(config.HtmlFilesPath, "static")))
@@ -76,7 +76,7 @@ func generateHandler(config *web.WebviewConfig) *http.ServeMux {
 	for pat, tmplController := range templateControllers(config) {
 		mux.HandleFunc(pat, func(resp http.ResponseWriter, req *http.Request) {
 			if tmplName, tmplData, renderTmpl := tmplController.ServeTemplate(resp, req); renderTmpl {
-				LogFatal(templates.ExecuteTemplate(resp, fmt.Sprintf("%s.gohtml", tmplName), tmplData))
+				utils.LogFatal(templates.ExecuteTemplate(resp, fmt.Sprintf("%s.gohtml", tmplName), tmplData))
 			}
 		})
 	}

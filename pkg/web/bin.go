@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/lcserny/go-videosmover/pkg/convert"
-	. "github.com/lcserny/goutils"
+	utils "github.com/lcserny/goutils"
 	"net/http"
 	"os/exec"
 	"strings"
@@ -24,17 +24,17 @@ func (h *BinJsonExecuteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		h.servePOST(w, r)
 		break
 	default:
-		LogWarning("Invalid http method. BinJsonExecuteHandler doesn't support: " + r.Method)
+		utils.LogWarning("Invalid http method. BinJsonExecuteHandler doesn't support: " + r.Method)
 		return
 	}
 }
 
 func (h *BinJsonExecuteHandler) serveGET(w http.ResponseWriter, r *http.Request) {
-	LogInfo("Entered in GET request")
+	utils.LogInfo("Entered in GET request")
 
 	time.Sleep(5 * time.Second)
 
-	LogInfo("Exited GET request")
+	utils.LogInfo("Exited GET request")
 }
 
 func (h *BinJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +46,7 @@ func (h *BinJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		errorMessage := "Couldn't decode JSON data provided"
 		_, _ = w.Write(getErrorJsonResponseAsBytes(errorMessage))
-		LogErrorWithMessage(errorMessage, err)
+		utils.LogErrorWithMessage(errorMessage, err)
 		return
 	}
 

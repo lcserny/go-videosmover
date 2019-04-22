@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/lcserny/go-videosmover/pkg/web"
-	. "github.com/lcserny/goutils"
+	utils "github.com/lcserny/goutils"
 	"net/http"
 	"os"
 	"runtime"
@@ -19,7 +19,7 @@ func main() {
 		return
 	}
 
-	InitFileLogger("vm-proxyserver.log")
+	utils.InitFileLogger("vm-proxyserver.log")
 
 	flag.Parse()
 	c := web.GenerateProxyConfig(*proxyServerConfigsPathFlag, fmt.Sprintf("config_%s.json", runtime.GOOS))
@@ -29,6 +29,6 @@ func main() {
 		mux.Handle(fmt.Sprintf("/exec-bin/%s", binCmd.Uri), &web.BinJsonExecuteHandler{&binCmd})
 	}
 
-	LogInfo(fmt.Sprintf("Started server on port %s...", c.Port))
-	LogFatal(http.ListenAndServe(fmt.Sprintf(":%s", c.Port), mux))
+	utils.LogInfo(fmt.Sprintf("Started server on port %s...", c.Port))
+	utils.LogFatal(http.ListenAndServe(fmt.Sprintf(":%s", c.Port), mux))
 }

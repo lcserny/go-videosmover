@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	. "github.com/lcserny/goutils"
+	utils "github.com/lcserny/goutils"
 	"net/http"
 	"net/url"
 	"os"
@@ -19,11 +19,11 @@ func main() {
 		return
 	}
 
-	InitFileLogger("vm-removeqtorrent.log")
+	utils.InitFileLogger("vm-removeqtorrent.log")
 
 	flag.Parse()
 	if err := executeRemoveTorrentRequest(); err != nil {
-		LogFatal(err)
+		utils.LogFatal(err)
 	}
 }
 
