@@ -30,5 +30,5 @@ func TestDeleteAction(t *testing.T) {
 		},
 	}
 
-	action.RunTestAction(t, testData, action.Retrieve("delete"))
+	action.RunTestAction(t, testData, NewAction())
 }

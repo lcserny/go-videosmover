@@ -98,5 +98,5 @@ func TestMoveAction(t *testing.T) {
 		},
 	}
 
-	action.RunTestAction(t, testData, action.Retrieve("move"))
+	action.RunTestAction(t, testData, NewAction())
 }

@@ -129,5 +129,5 @@ func TestOutputAction(t *testing.T) {
 		},
 	}
 
-	action.RunTestAction(t, testData, action.Retrieve("output"))
+	action.RunTestAction(t, testData, NewAction())
 }

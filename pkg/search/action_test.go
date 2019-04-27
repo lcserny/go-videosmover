@@ -31,5 +31,5 @@ func TestSearchAction(t *testing.T) {
 		},
 	}
 
-	action.RunTestAction(t, testData, action.Retrieve("search"))
+	action.RunTestAction(t, testData, NewAction())
 }
