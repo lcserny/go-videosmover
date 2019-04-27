@@ -3,21 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	utils "github.com/lcserny/goutils"
+	"github.com/lcserny/go-videosmover/pkg/action"
+	"github.com/lcserny/go-videosmover/pkg/delete"
+	"github.com/lcserny/go-videosmover/pkg/move"
+	"github.com/lcserny/go-videosmover/pkg/output"
+	"github.com/lcserny/go-videosmover/pkg/search"
+	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"os"
-
-	"github.com/lcserny/go-videosmover/pkg/action"
-	_ "github.com/lcserny/go-videosmover/pkg/delete"
-	_ "github.com/lcserny/go-videosmover/pkg/move"
-	_ "github.com/lcserny/go-videosmover/pkg/output"
-	_ "github.com/lcserny/go-videosmover/pkg/search"
-)
-
-var (
-	commanderConfigsFlag     = flag.String("configs", "", "configs folder path")
-	commanderActionFlag      = flag.String("action", "search", "action to execute")
-	commanderPayloadFileFlag = flag.String("payloadFile", "", "path to payload file")
 )
 
 func main() {
@@ -27,25 +20,32 @@ func main() {
 		return
 	}
 
-	utils.InitFileLogger("vm-commander.log")
+	goutils.InitFileLogger("vm-commander.log")
 
+	cmdConfig := flag.String("configs", "", "configs folder path")
+	cmdAction := flag.String("action", "search", "action to execute")
+	cmdPayload := flag.String("payloadFile", "", "path to payload file")
 	flag.Parse()
-	a := action.Retrieve(*commanderActionFlag)
-	c := action.NewConfig(*commanderConfigsFlag, "actions.json")
 
-	jsonBytes, err := ioutil.ReadFile(*commanderPayloadFileFlag)
-	stopOnError(err)
+	action.Register("delete", delete.NewAction())
+	action.Register("move", move.NewAction())
+	action.Register("output", output.NewAction())
+	action.Register("search", search.NewAction())
+
+	a := action.Retrieve(*cmdAction)
+	c := action.NewConfig(*cmdConfig, "actions.json")
+
+	jsonBytes, err := ioutil.ReadFile(*cmdPayload)
+	if err != nil {
+		fmt.Fprint(os.Stderr, err)
+		goutils.LogFatal(err)
+	}
 
 	response, err := a.Execute(jsonBytes, c)
-	stopOnError(err)
-
-	_, err = fmt.Fprint(os.Stdout, response)
-	stopOnError(err)
-}
-
-func stopOnError(err error) {
 	if err != nil {
-		_, err := fmt.Fprint(os.Stderr, err)
-		utils.LogFatal(err)
+		fmt.Fprint(os.Stderr, err)
+		goutils.LogFatal(err)
 	}
+
+	fmt.Fprint(os.Stdout, response)
 }

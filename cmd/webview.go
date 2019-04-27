@@ -8,7 +8,7 @@ import (
 	"github.com/lcserny/go-videosmover/pkg/output"
 	"github.com/lcserny/go-videosmover/pkg/search"
 	"github.com/lcserny/go-videosmover/pkg/web"
-	utils "github.com/lcserny/goutils"
+	"github.com/lcserny/goutils"
 	"github.com/pkg/browser"
 	"html/template"
 	"net/http"
@@ -18,91 +18,69 @@ import (
 	"time"
 )
 
-var (
-	wvConfigsPath            = flag.String("configPath", "", "path to webview config files")
-	lastRunningPingTimestamp int64
-)
-
 func main() {
+	// validate startup
 	args := os.Args[1:]
 	if len(args) != 1 {
 		_, _ = fmt.Fprintln(os.Stderr, "ERROR: Please provide `configPath` flag")
 		return
 	}
 
-	utils.InitFileLogger("vm-webview.log")
+	goutils.InitFileLogger("vm-webview.log")
 
+	cfgPath := flag.String("configPath", "", "path to webview config files")
 	flag.Parse()
-	config := web.GenerateWebviewConfig(*wvConfigsPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
 
+	var pingTimestamp int64
+	config := web.GenerateWebviewConfig(*cfgPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
 	webPath := fmt.Sprintf("localhost:%s", config.Port)
-	handler := generateHandler(config)
-	server := startFileServer(webPath, handler)
-	go utils.LogFatal(browser.OpenURL(fmt.Sprintf("http://%s", webPath)))
-	checkStopServer(server, config)
-}
 
-func checkStopServer(server *http.Server, config *web.WebviewConfig) {
-	for {
-		if (lastRunningPingTimestamp != 0) && (utils.MakeTimestamp() > lastRunningPingTimestamp+config.ServerPingTimeoutMs) {
-			utils.LogFatal(server.Shutdown(context.TODO()))
-		}
-		time.Sleep(time.Second)
-	}
-}
+	// define template controllers
+	tmplControllers := make(map[string]web.TemplateController)
+	searchController := search.NewController(config)
+	tmplControllers["/"] = searchController
+	tmplControllers["/search"] = searchController
 
-func startFileServer(webPath string, handler *http.ServeMux) *http.Server {
-	server := &http.Server{Addr: webPath, Handler: handler}
-	go func() {
-		if err := server.ListenAndServe(); err != http.ErrServerClosed {
-			utils.LogFatal(err)
-		}
-		os.Exit(0)
-	}()
-	return server
-}
+	// define AJAX handlers
+	ajaxHandlers := make(map[string]http.Handler)
+	ajaxHandlers["/ajax/output"] = output.NewAjaxController(config)
+	ajaxHandlers["/ajax/move"] = move.NewAjaxController(config)
 
-func generateHandler(config *web.WebviewConfig) *http.ServeMux {
+	// init web handler
 	mux := http.NewServeMux()
-
 	mux.HandleFunc("/running", func(writer http.ResponseWriter, request *http.Request) {
-		lastRunningPingTimestamp = utils.MakeTimestamp()
+		pingTimestamp = goutils.MakeTimestamp()
 	})
-
 	staticServer := http.FileServer(http.Dir(filepath.Join(config.HtmlFilesPath, "static")))
 	mux.Handle("/static/", http.StripPrefix("/static/", staticServer))
-
 	templates := template.Must(template.ParseGlob(filepath.Join(config.HtmlFilesPath, "*.gohtml")))
-	for pat, tmplController := range templateControllers(config) {
+	for pat, tmplController := range tmplControllers {
 		mux.HandleFunc(pat, func(resp http.ResponseWriter, req *http.Request) {
 			if tmplName, tmplData, renderTmpl := tmplController.ServeTemplate(resp, req); renderTmpl {
-				utils.LogFatal(templates.ExecuteTemplate(resp, fmt.Sprintf("%s.gohtml", tmplName), tmplData))
+				goutils.LogFatal(templates.ExecuteTemplate(resp, fmt.Sprintf("%s.gohtml", tmplName), tmplData))
 			}
 		})
 	}
-
-	for pat, controller := range ajaxHandlers(config) {
+	for pat, controller := range ajaxHandlers {
 		mux.Handle(pat, controller)
 	}
 
-	return mux
-}
+	// start server
+	server := &http.Server{Addr: webPath, Handler: mux}
+	go func() {
+		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+			goutils.LogFatal(err)
+		}
+		os.Exit(0)
+	}()
 
-func templateControllers(config *web.WebviewConfig) map[string]web.TemplateController {
-	templatesMap := make(map[string]web.TemplateController)
-	searchController := search.NewController(config)
-	templatesMap["/"] = searchController
-	templatesMap["/search"] = searchController
-	// TODO: add more if needed
+	// open browser
+	go goutils.LogFatal(browser.OpenURL(fmt.Sprintf("http://%s", webPath)))
 
-	return templatesMap
-}
-
-func ajaxHandlers(config *web.WebviewConfig) map[string]http.Handler {
-	templatesMap := make(map[string]http.Handler)
-	templatesMap["/ajax/output"] = output.NewAjaxController(config)
-	templatesMap["/ajax/move"] = move.NewAjaxController(config)
-	// TODO: add more if needed
-
-	return templatesMap
+	// check shutdown server
+	for range time.NewTicker(time.Second).C {
+		if (pingTimestamp != 0) && (goutils.MakeTimestamp() > pingTimestamp+config.ServerPingTimeoutMs) {
+			goutils.LogFatal(server.Shutdown(context.Background()))
+		}
+	}
 }

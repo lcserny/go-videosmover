@@ -3,14 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	utils "github.com/lcserny/goutils"
+	"github.com/lcserny/goutils"
 	"net/http"
 	"net/url"
 	"os"
 )
-
-var portFlag = flag.String("port", "", "the port of qBittorrent's webUI")
-var hashFlag = flag.String("hash", "", "the hash of the downloaded torrent to be removed")
 
 func main() {
 	args := os.Args[1:]
@@ -19,16 +16,15 @@ func main() {
 		return
 	}
 
-	utils.InitFileLogger("vm-removeqtorrent.log")
+	goutils.InitFileLogger("vm-removeqtorrent.log")
 
+	port := flag.String("port", "", "the port of qtorrent's webUI")
+	hash := flag.String("hash", "", "the hash of the downloaded torrent to be removed")
 	flag.Parse()
-	if err := executeRemoveTorrentRequest(); err != nil {
-		utils.LogFatal(err)
-	}
-}
 
-func executeRemoveTorrentRequest() error {
-	values := url.Values{"hashes": {*hashFlag}}
-	_, err := http.PostForm(fmt.Sprintf("http://localhost:%s/command/delete", *portFlag), values)
-	return err
+	values := url.Values{"hashes": {*hash}}
+	host := fmt.Sprintf("http://localhost:%s/command/delete", *port)
+	if _, err := http.PostForm(host, values); err != nil {
+		goutils.LogFatal(err)
+	}
 }
