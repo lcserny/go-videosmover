@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os/exec"
 	"strings"
-	"time"
 )
 
 type BinJsonExecuteHandler struct {
@@ -17,9 +16,6 @@ type BinJsonExecuteHandler struct {
 
 func (h *BinJsonExecuteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch strings.ToUpper(r.Method) {
-	case "GET":
-		h.serveGET(w, r)
-		break
 	case "POST":
 		h.servePOST(w, r)
 		break
@@ -27,14 +23,6 @@ func (h *BinJsonExecuteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		goutils.LogWarning("Invalid http method. BinJsonExecuteHandler doesn't support: " + r.Method)
 		return
 	}
-}
-
-func (h *BinJsonExecuteHandler) serveGET(w http.ResponseWriter, r *http.Request) {
-	goutils.LogInfo("Entered in GET request")
-
-	time.Sleep(5 * time.Second)
-
-	goutils.LogInfo("Exited GET request")
 }
 
 func (h *BinJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request) {
@@ -63,5 +51,5 @@ func (h *BinJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request
 		cmdErr.WriteString(err.Error())
 	}
 
-	_, _ = w.Write(getJsonResponseFromAsBytes(string(cmdOut.Bytes()), string(cmdErr.Bytes())))
+	w.Write(getJsonResponseFromAsBytes(string(cmdOut.Bytes()), string(cmdErr.Bytes())))
 }
