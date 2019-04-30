@@ -1,7 +1,7 @@
 package output
 
 import (
-	"github.com/lcserny/go-videosmover/pkg/action"
+	"go-videosmover/pkg/action"
 	"path/filepath"
 	"testing"
 )

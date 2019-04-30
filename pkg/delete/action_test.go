@@ -2,7 +2,7 @@ package delete
 
 import (
 	"fmt"
-	"github.com/lcserny/go-videosmover/pkg/action"
+	"go-videosmover/pkg/action"
 	"path/filepath"
 	"testing"
 )

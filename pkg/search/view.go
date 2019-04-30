@@ -2,8 +2,8 @@ package search
 
 import (
 	"encoding/json"
-	"github.com/lcserny/go-videosmover/pkg/convert"
-	"github.com/lcserny/go-videosmover/pkg/web"
+	"go-videosmover/pkg/convert"
+	"go-videosmover/pkg/web"
 	"net/http"
 	"path/filepath"
 	"strings"

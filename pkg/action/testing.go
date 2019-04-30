@@ -2,8 +2,8 @@ package action
 
 import (
 	"fmt"
-	"github.com/lcserny/go-videosmover/pkg/convert"
 	"github.com/lcserny/goutils"
+	"go-videosmover/pkg/convert"
 	"io/ioutil"
 	"os"
 	"path/filepath"

@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/lcserny/go-videosmover/pkg/web"
 	"github.com/lcserny/goutils"
+	"go-videosmover/pkg/web"
 	"net/http"
 	"os"
 	"runtime"

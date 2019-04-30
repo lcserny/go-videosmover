@@ -1,7 +1,7 @@
 package action
 
 import (
-	"github.com/lcserny/go-videosmover/pkg/web"
+	"go-videosmover/pkg/web"
 	"os"
 	"strings"
 )

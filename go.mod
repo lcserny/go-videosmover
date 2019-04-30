@@ -1,4 +1,4 @@
-module github.com/lcserny/go-videosmover
+module go-videosmover
 
 go 1.12
 

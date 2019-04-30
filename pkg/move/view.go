@@ -2,9 +2,9 @@ package move
 
 import (
 	"encoding/json"
-	"github.com/lcserny/go-videosmover/pkg/action"
-	"github.com/lcserny/go-videosmover/pkg/web"
 	"github.com/lcserny/goutils"
+	"go-videosmover/pkg/action"
+	"go-videosmover/pkg/web"
 	"net/http"
 	"strings"
 )

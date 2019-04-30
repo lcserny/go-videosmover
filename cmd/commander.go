@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/lcserny/go-videosmover/pkg/action"
-	"github.com/lcserny/go-videosmover/pkg/delete"
-	"github.com/lcserny/go-videosmover/pkg/move"
-	"github.com/lcserny/go-videosmover/pkg/output"
-	"github.com/lcserny/go-videosmover/pkg/search"
 	"github.com/lcserny/goutils"
+	"go-videosmover/pkg/action"
+	"go-videosmover/pkg/delete"
+	"go-videosmover/pkg/move"
+	"go-videosmover/pkg/output"
+	"go-videosmover/pkg/search"
 	"io/ioutil"
 	"os"
 )
