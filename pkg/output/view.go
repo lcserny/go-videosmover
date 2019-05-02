@@ -2,12 +2,12 @@ package output
 
 import (
 	"encoding/json"
-	"github.com/lcserny/go-videosmover/pkg/action"
-	"github.com/lcserny/go-videosmover/pkg/web"
 	"github.com/lcserny/goutils"
 	"net/http"
 	"strconv"
 	"strings"
+	"videosmover/pkg/action"
+	"videosmover/pkg/web"
 )
 
 type AjaxController struct {

@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Bios-Marcel/wastebasket"
-	"github.com/lcserny/go-videosmover/pkg/action"
-	"github.com/lcserny/go-videosmover/pkg/convert"
 	"github.com/lcserny/goutils"
 	"os"
 	"path/filepath"
 	"strings"
+	"videosmover/pkg/action"
+	"videosmover/pkg/convert"
 )
 
 const (

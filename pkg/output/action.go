@@ -4,8 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/lcserny/go-videosmover/pkg/action"
-	"github.com/lcserny/go-videosmover/pkg/convert"
 	"github.com/lcserny/goutils"
 	"github.com/pkg/errors"
 	"github.com/ryanbradynd05/go-tmdb"
@@ -15,6 +13,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"videosmover/pkg/action"
+	"videosmover/pkg/convert"
 )
 
 func NewAction() action.Action {

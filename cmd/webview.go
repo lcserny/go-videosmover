@@ -4,10 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/lcserny/go-videosmover/pkg/move"
-	"github.com/lcserny/go-videosmover/pkg/output"
-	"github.com/lcserny/go-videosmover/pkg/search"
-	"github.com/lcserny/go-videosmover/pkg/web"
 	"github.com/lcserny/goutils"
 	"github.com/pkg/browser"
 	"html/template"
@@ -16,6 +12,10 @@ import (
 	"path/filepath"
 	"runtime"
 	"time"
+	"videosmover/pkg/move"
+	"videosmover/pkg/output"
+	"videosmover/pkg/search"
+	"videosmover/pkg/web"
 )
 
 func main() {

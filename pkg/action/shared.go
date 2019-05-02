@@ -1,9 +1,9 @@
 package action
 
 import (
-	"github.com/lcserny/go-videosmover/pkg/web"
 	"os"
 	"strings"
+	"videosmover/pkg/web"
 )
 
 const (

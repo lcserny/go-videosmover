@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"github.com/h2non/filetype"
 	"github.com/karrick/godirwalk"
-	"github.com/lcserny/go-videosmover/pkg/action"
-	"github.com/lcserny/go-videosmover/pkg/convert"
 	"github.com/lcserny/goutils"
 	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"videosmover/pkg/action"
+	"videosmover/pkg/convert"
 )
 
 func NewAction() action.Action {

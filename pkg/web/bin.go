@@ -3,11 +3,11 @@ package web
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/lcserny/go-videosmover/pkg/convert"
 	"github.com/lcserny/goutils"
 	"net/http"
 	"os/exec"
 	"strings"
+	"videosmover/pkg/convert"
 )
 
 type BinJsonExecuteHandler struct {

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Bios-Marcel/wastebasket"
-	"github.com/lcserny/go-videosmover/pkg/action"
-	"github.com/lcserny/go-videosmover/pkg/convert"
 	"github.com/lcserny/goutils"
+	"videosmover/pkg/action"
+	"videosmover/pkg/convert"
 )
 
 const COULDNT_MOVE_TO_TRASH = "Couldn't move folder '%s' to trash"

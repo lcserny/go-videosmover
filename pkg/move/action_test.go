@@ -1,9 +1,9 @@
 package move
 
 import (
-	"github.com/lcserny/go-videosmover/pkg/action"
 	"path/filepath"
 	"testing"
+	"videosmover/pkg/action"
 )
 
 func TestMoveAction(t *testing.T) {

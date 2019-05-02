@@ -2,11 +2,11 @@ package search
 
 import (
 	"encoding/json"
-	"github.com/lcserny/go-videosmover/pkg/convert"
-	"github.com/lcserny/go-videosmover/pkg/web"
 	"net/http"
 	"path/filepath"
 	"strings"
+	"videosmover/pkg/convert"
+	"videosmover/pkg/web"
 )
 
 type Result struct {

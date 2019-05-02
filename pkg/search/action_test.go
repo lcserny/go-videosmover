@@ -1,9 +1,9 @@
 package search
 
 import (
-	"github.com/lcserny/go-videosmover/pkg/action"
 	"path/filepath"
 	"testing"
+	"videosmover/pkg/action"
 )
 
 func TestSearchAction(t *testing.T) {

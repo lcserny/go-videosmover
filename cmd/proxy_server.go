@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/lcserny/go-videosmover/pkg/web"
 	"github.com/lcserny/goutils"
 	"net/http"
 	"os"
 	"runtime"
+	"videosmover/pkg/web"
 )
 
 func main() {

@@ -2,12 +2,12 @@ package action
 
 import (
 	"fmt"
-	"github.com/lcserny/go-videosmover/pkg/convert"
 	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
+	"videosmover/pkg/convert"
 )
 
 type TestActionData struct {

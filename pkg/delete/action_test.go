@@ -2,9 +2,9 @@ package delete
 
 import (
 	"fmt"
-	"github.com/lcserny/go-videosmover/pkg/action"
 	"path/filepath"
 	"testing"
+	"videosmover/pkg/action"
 )
 
 func TestDeleteAction(t *testing.T) {
