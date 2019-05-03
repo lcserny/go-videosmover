@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ..
+cd ../..
 go build -o=../bin/commander cmd/commander.go
 go build -o=../bin/proxy_server cmd/proxy_server.go
 go build -o=../bin/webview cmd/webview.go

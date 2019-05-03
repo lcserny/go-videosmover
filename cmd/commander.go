@@ -6,6 +6,7 @@ import (
 	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"videosmover/pkg/action"
 	"videosmover/pkg/delete"
 	"videosmover/pkg/move"
@@ -33,7 +34,7 @@ func main() {
 	action.Register("search", search.NewAction())
 
 	a := action.Retrieve(*cmdAction)
-	c := action.NewConfig(*cmdConfig, "actions.json")
+	c := action.NewConfig(filepath.Join(*cmdConfig, "actions.json"))
 
 	jsonBytes, err := ioutil.ReadFile(*cmdPayload)
 	if err != nil {

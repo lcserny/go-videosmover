@@ -3,9 +3,11 @@ package action
 import (
 	"fmt"
 	"github.com/lcserny/goutils"
+	"github.com/ryanbradynd05/go-tmdb"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"testing"
 	"videosmover/pkg/convert"
 )
@@ -16,15 +18,29 @@ type TestActionData struct {
 }
 
 var (
-	cachedMP4VideoHeader   []byte
-	testSearchActionConfig *Config
+	cachedMP4VideoHeader []byte
+	testActionCfg        *Config
 )
 
 func getTestActionConfig() *Config {
-	if testSearchActionConfig == nil {
-		testSearchActionConfig = NewConfig("../../cfg/commander", "actions.test.json")
+	if testActionCfg == nil {
+		testActionCfg = &Config{
+			MinimumVideoSize: 256, SimilarityPercent: 80, MaxOutputWalkDepth: 2, MaxSearchWalkDepth: 4,
+			MaxTMDBResultCount: 1, OutTMDBCacheLimit: 100, HeaderBytesSize: 261,
+			NameTrimRegexes:       []string{".[sS](\\d{1,2})([-]?[eE](\\d{1,2}))?", "[\\.\\s][sS][0-9]{1,2}[\\.\\s]?", "1080p", "720p"},
+			RestrictedRemovePaths: []string{"Downloads"}, SearchExcludePaths: []string{"Programming Stuff"},
+			AllowedSubtitleExtensions: []string{".srt", ".sub"},
+			AllowedMIMETypes:          []string{"video/x-matroska", "video/x-msvideo", "video/mp4"},
+		}
+		if key, exists := os.LookupEnv("TMDB_API_KEY"); exists {
+			testActionCfg.TmdbAPI = tmdb.Init(tmdb.Config{key, false, nil})
+		}
+		for _, pat := range testActionCfg.NameTrimRegexes {
+			testActionCfg.CompiledNameTrimRegexes = append(testActionCfg.CompiledNameTrimRegexes,
+				regexp.MustCompile(fmt.Sprintf("(?i)(-?%s)", pat)))
+		}
 	}
-	return testSearchActionConfig
+	return testActionCfg
 }
 
 func RunTestAction(t *testing.T, slice []TestActionData, a Action) {

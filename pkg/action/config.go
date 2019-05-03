@@ -7,7 +7,6 @@ import (
 	"github.com/ryanbradynd05/go-tmdb"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"regexp"
 )
 
@@ -29,8 +28,8 @@ type Config struct {
 	CompiledNameTrimRegexes []*regexp.Regexp
 }
 
-func NewConfig(path, file string) *Config {
-	content, err := ioutil.ReadFile(filepath.Join(path, file))
+func NewConfig(cfgPath string) *Config {
+	content, err := ioutil.ReadFile(cfgPath)
 	goutils.LogFatal(err)
 
 	var ac Config

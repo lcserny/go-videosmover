@@ -51,8 +51,8 @@ func main() {
 	mux.HandleFunc("/running", func(writer http.ResponseWriter, request *http.Request) {
 		pingTimestamp = goutils.MakeTimestamp()
 	})
-	staticServer := http.FileServer(http.Dir(filepath.Join(config.HtmlFilesPath, "static")))
-	mux.Handle("/static/", http.StripPrefix("/static/", staticServer))
+	htmlServer := http.FileServer(http.Dir(config.HtmlFilesPath))
+	mux.Handle("/static/", http.StripPrefix("/static/", htmlServer))
 	templates := template.Must(template.ParseGlob(filepath.Join(config.HtmlFilesPath, "*.gohtml")))
 	for pat, tmplController := range tmplControllers {
 		mux.HandleFunc(pat, func(resp http.ResponseWriter, req *http.Request) {

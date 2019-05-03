@@ -1,12 +1,12 @@
-package testdata
+package main
 
 import (
 	"bufio"
 	"fmt"
-	"github.com/lcserny/goutils"
 	"math/rand"
 	"os"
 	"strings"
+	"time"
 )
 
 var (
@@ -20,13 +20,13 @@ var (
 func main() {
 	// generateCacheFiles()
 
-	bench("testdata/bench10.cache", "MOVIE;A text here of normalized name6;2009")
-	bench("testdata/bench100.cache", "TV;A text here of normalized name79;2018")
-	bench("testdata/bench1000.cache", "MOVIE;A text here of normalized name950;2008")
+	bench("bench10.cache", "MOVIE;A text here of normalized name6;2009")
+	bench("bench100.cache", "TV;A text here of normalized name79;2018")
+	bench("bench1000.cache", "MOVIE;A text here of normalized name950;2008")
 }
 
 func bench(fileName, prefix string) {
-	startNano := goutils.MakeTimestamp()
+	startTime := time.Now()
 	file, _ := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR, os.ModePerm)
 	scanner := bufio.NewScanner(file)
 	counter := 0
@@ -40,16 +40,16 @@ func bench(fileName, prefix string) {
 	println("Lines:", counter)
 	_ = file.Close()
 
-	endNano := goutils.MakeTimestamp() - startNano
-	println("It took (in ms):", endNano)
+	endTime := time.Since(startTime).Nanoseconds()
+	println("It took (in nanos):", endTime)
 }
 
 func generateCacheFiles() {
-	file1, _ := os.Create("testdata/bench10.cache")
+	file1, _ := os.Create("bench10.cache")
 	defer file1.Close()
-	file2, _ := os.Create("testdata/bench100.cache")
+	file2, _ := os.Create("bench100.cache")
 	defer file2.Close()
-	file3, _ := os.Create("testdata/bench1000.cache")
+	file3, _ := os.Create("bench1000.cache")
 	defer file3.Close()
 	for i := 0; i < 10; i++ {
 		_, _ = file1.WriteString(generateRandomCacheKey(i))
