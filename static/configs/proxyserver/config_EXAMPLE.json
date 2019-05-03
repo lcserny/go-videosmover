@@ -1,5 +1,4 @@
 {
-  "port": "8077",
   "bin": [
     {
       "uri": "videos-mover",

@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"path/filepath"
@@ -23,13 +22,9 @@ func GenerateProxyConfig(path, file string) *ProxyConfig {
 	configBytes, err := ioutil.ReadFile(filepath.Join(path, file))
 	goutils.LogFatal(err)
 
-	var serverConfig ProxyConfig
-	err = json.Unmarshal(configBytes, &serverConfig)
+	serverConfig := &ProxyConfig{Port: "8077"}
+	err = json.Unmarshal(configBytes, serverConfig)
 	goutils.LogFatal(err)
 
-	if serverConfig.Port == "" {
-		goutils.LogFatal(errors.New("no port configured"))
-	}
-
-	return &serverConfig
+	return serverConfig
 }

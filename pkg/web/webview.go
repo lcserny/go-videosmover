@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"path/filepath"
@@ -22,13 +21,14 @@ func GenerateWebviewConfig(configsPath, configFile string) *WebviewConfig {
 	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
 	goutils.LogFatal(err)
 
-	var config WebviewConfig
-	err = json.Unmarshal(configBytes, &config)
-	goutils.LogFatal(err)
-
-	if config.Port == "" {
-		goutils.LogFatal(errors.New("no port configured"))
+	config := &WebviewConfig{
+		Port:                "8079",
+		ServerPingTimeoutMs: int64(10000),
+		VideosMoverAPI:      "http://localhost:8077/exec-bin/videos-mover",
 	}
 
-	return &config
+	err = json.Unmarshal(configBytes, config)
+	goutils.LogFatal(err)
+
+	return config
 }
