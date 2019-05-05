@@ -1,4 +1,4 @@
-#!bash
+#!/bin/bash
 
 cd ../..
 go build -ldflags -H=windowsgui -o=../bin/commander.exe cmd/commander.go
