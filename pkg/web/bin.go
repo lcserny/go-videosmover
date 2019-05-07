@@ -2,13 +2,13 @@ package web
 
 import (
 	"bytes"
-	"encoding/json"
 	"github.com/lcserny/goutils"
+	"io/ioutil"
 	"net/http"
 	"os/exec"
 	"strings"
 	"videosmover/pkg/fs"
-	vmjson "videosmover/pkg/json"
+	"videosmover/pkg/json"
 )
 
 type BinJsonExecuteHandler struct {
@@ -29,28 +29,27 @@ func (h *BinJsonExecuteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 func (h *BinJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	decoder := json.NewDecoder(r.Body)
-	var jsonData RequestJsonData
-	err := decoder.Decode(&jsonData)
-	if err != nil {
+	bodyBytes, _ := ioutil.ReadAll(r.Body)
+	var requestData RequestData
+	if err := json.Decode(bodyBytes, &requestData); err != nil {
 		errorMessage := "Couldn't decode JSON data provided"
-		_, _ = w.Write(getErrorJsonResponseAsBytes(errorMessage))
+		_, _ = w.Write(getErrorResponseAsBytes(errorMessage))
 		goutils.LogErrorWithMessage(errorMessage, err)
 		return
 	}
 
-	tempJsonFile := fs.TmpStorePayload(vmjson.EncodeBytes(jsonData.Payload))
-	defer fs.RemoveTmpStoredPayload(tempJsonFile)
+	encodeBytes, _ := json.EncodeBytes(requestData.Payload)
+	tmpFile := fs.TmpStorePayload(encodeBytes)
+	defer fs.RemoveTmpStoredPayload(tmpFile)
 
 	var cmdOut bytes.Buffer
 	var cmdErr bytes.Buffer
-	cmd := exec.Command(h.Cmd.Path, "-configs="+h.Cmd.ConfigPath, "-action="+jsonData.Action, "-payloadFile="+tempJsonFile.Name())
+	cmd := exec.Command(h.Cmd.Path, "-configs="+h.Cmd.ConfigPath, "-action="+requestData.Action, "-payloadFile="+tmpFile.Name())
 	cmd.Stdout = &cmdOut
 	cmd.Stderr = &cmdErr
-	err = cmd.Run()
-	if err != nil {
+	if err := cmd.Run(); err != nil {
 		cmdErr.WriteString(err.Error())
 	}
 
-	w.Write(getJsonResponseFromAsBytes(string(cmdOut.Bytes()), string(cmdErr.Bytes())))
+	w.Write(getResponseFromAsBytes(string(cmdOut.Bytes()), string(cmdErr.Bytes())))
 }

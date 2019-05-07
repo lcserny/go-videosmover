@@ -1,7 +1,6 @@
 package move
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/Bios-Marcel/wastebasket"
 	"github.com/lcserny/goutils"
@@ -9,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"videosmover/pkg/action"
-	vmjson "videosmover/pkg/json"
+	"videosmover/pkg/json"
 )
 
 const (
@@ -144,9 +143,8 @@ func addToCleanSet(cleaningSet *[]string, folder string) {
 
 func (ma *moveAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
 	var requests []RequestData
-	err := json.Unmarshal(jsonPayload, &requests)
-	goutils.LogError(err)
-	if err != nil {
+	if err := json.Decode(jsonPayload, &requests); err != nil {
+		goutils.LogError(err)
 		return "", err
 	}
 
@@ -167,5 +165,5 @@ func (ma *moveAction) Execute(jsonPayload []byte, config *action.Config) (string
 	}
 	cleanFolders(cleaningSet, &resultList, config.RestrictedRemovePaths)
 
-	return vmjson.EncodeString(resultList), nil
+	return json.EncodeString(resultList)
 }

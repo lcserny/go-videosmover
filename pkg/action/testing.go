@@ -46,8 +46,14 @@ func getTestActionConfig() *Config {
 func RunTestAction(t *testing.T, slice []TestActionData, a Action) {
 	config := getTestActionConfig()
 	for _, td := range slice {
-		reqBytes := json.EncodeBytes(td.Request)
-		resString := json.EncodeString(td.Response)
+		reqBytes, err := json.EncodeBytes(td.Request)
+		if err != nil {
+			t.Fatalf("Couldn't decode request: %+v", err)
+		}
+		resString, err := json.EncodeString(td.Response)
+		if err != nil {
+			t.Fatalf("Couldn't decode response: %+v", err)
+		}
 
 		result, err := a.Execute(reqBytes, config)
 		if err != nil {

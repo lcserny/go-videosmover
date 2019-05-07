@@ -1,10 +1,10 @@
 package web
 
 import (
-	"encoding/json"
 	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"path/filepath"
+	"videosmover/pkg/json"
 )
 
 type WebviewConfig struct {
@@ -27,7 +27,7 @@ func GenerateWebviewConfig(configsPath, configFile string) *WebviewConfig {
 		VideosMoverAPI:      "http://localhost:8077/exec-bin/videos-mover",
 	}
 
-	err = json.Unmarshal(configBytes, config)
+	err = json.Decode(configBytes, config)
 	goutils.LogFatal(err)
 
 	return config

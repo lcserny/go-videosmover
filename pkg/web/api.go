@@ -2,13 +2,13 @@ package web
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
+	"videosmover/pkg/json"
 )
 
 const TIME_FORMAT = "2006-01-02 15:04:05"
@@ -24,11 +24,11 @@ type VideosMoverAPIRequest struct {
 
 func generateActionRequest(action string, payload interface{}) (string, error) {
 	apiRequest := VideosMoverAPIRequest{Action: action, Payload: payload}
-	jsonBytes, err := json.Marshal(apiRequest)
+	s, err := json.EncodeString(apiRequest)
 	if err != nil {
 		return "", err
 	}
-	return string(jsonBytes), nil
+	return s, nil
 }
 
 func Return500Error(tmpl string, err error, resp http.ResponseWriter) (string, interface{}, bool) {
@@ -50,19 +50,19 @@ func ExecuteVideosMoverPOST(action string, payload interface{}, videosMoverAPI s
 	defer apiResp.Body.Close()
 
 	apiBody, _ := ioutil.ReadAll(apiResp.Body)
-	var jsonResp ResponseJsonData
-	if err = json.Unmarshal(apiBody, &jsonResp); err != nil {
+	var responseData ResponseData
+	if err = json.Decode(apiBody, &responseData); err != nil {
 		return "", err
 	}
 
-	if apiResp.StatusCode != http.StatusOK || jsonResp.Code != http.StatusOK {
-		return "", errors.New(jsonResp.Error)
+	if apiResp.StatusCode != http.StatusOK || responseData.Code != http.StatusOK {
+		return "", errors.New(responseData.Error)
 	}
 
-	return jsonResp.Body, nil
+	return responseData.Body, nil
 }
 
-func getJsonResponseFromAsBytes(body, err string) []byte {
+func getResponseFromAsBytes(body, err string) []byte {
 	if strings.Contains(body, "ERROR") {
 		err = body
 		body = ""
@@ -73,25 +73,25 @@ func getJsonResponseFromAsBytes(body, err string) []byte {
 		code = 500
 	}
 
-	responseJsonData := &ResponseJsonData{
+	responseData := &ResponseData{
 		Code:  code,
 		Error: err,
 		Date:  time.Now().Format(TIME_FORMAT),
 		Body:  body,
 	}
 
-	jsonBytes, _ := json.Marshal(responseJsonData)
-	return jsonBytes
+	respBytes, _ := json.EncodeBytes(responseData)
+	return respBytes
 }
 
-func getErrorJsonResponseAsBytes(err string) []byte {
-	responseJsonData := &ResponseJsonData{
+func getErrorResponseAsBytes(err string) []byte {
+	responseData := &ResponseData{
 		Code:  500,
 		Error: err,
 		Date:  time.Now().Format(TIME_FORMAT),
 		Body:  "",
 	}
 
-	jsonBytes, _ := json.Marshal(responseJsonData)
-	return jsonBytes
+	respBytes, _ := json.EncodeBytes(responseData)
+	return respBytes
 }

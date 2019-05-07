@@ -1,7 +1,6 @@
 package search
 
 import (
-	"encoding/json"
 	"github.com/h2non/filetype"
 	"github.com/karrick/godirwalk"
 	"github.com/lcserny/goutils"
@@ -11,7 +10,7 @@ import (
 	"sort"
 	"strings"
 	"videosmover/pkg/action"
-	vmjson "videosmover/pkg/json"
+	"videosmover/pkg/json"
 )
 
 func NewAction() action.Action {
@@ -23,9 +22,8 @@ type searchAction struct {
 
 func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
 	var request RequestData
-	err := json.Unmarshal(jsonPayload, &request)
-	goutils.LogError(err)
-	if err != nil {
+	if err := json.Decode(jsonPayload, &request); err != nil {
+		goutils.LogError(err)
 		return "", err
 	}
 
@@ -36,7 +34,7 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (stri
 
 	realWalkRootPath, _ := filepath.EvalSymlinks(request.Path)
 	var resultList []ResponseData
-	err = godirwalk.Walk(realWalkRootPath, &godirwalk.Options{
+	err := godirwalk.Walk(realWalkRootPath, &godirwalk.Options{
 		Unsorted:            true,
 		FollowSymbolicLinks: false,
 		Callback: func(path string, info *godirwalk.Dirent) error {
@@ -45,11 +43,6 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (stri
 				if strings.Contains(path, exPath) {
 					return filepath.SkipDir
 				}
-			}
-
-			if err != nil {
-				goutils.LogError(err)
-				return nil
 			}
 
 			if !info.IsDir() && action.WalkDepthIsAcceptable(realWalkRootPath, path, config.MaxSearchWalkDepth) {
@@ -73,7 +66,7 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (stri
 		return resultList[i].Path < resultList[j].Path
 	})
 
-	return vmjson.EncodeString(resultList), nil
+	return json.EncodeString(resultList)
 }
 
 func isVideo(path string, config *action.Config) bool {

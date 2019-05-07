@@ -2,7 +2,6 @@ package output
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"github.com/lcserny/goutils"
 	"github.com/pkg/errors"
@@ -14,7 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"videosmover/pkg/action"
-	vmjson "videosmover/pkg/json"
+	"videosmover/pkg/json"
 )
 
 func NewAction() action.Action {
@@ -48,8 +47,7 @@ var (
 
 func (oa *outputAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
 	var request RequestData
-	err := json.Unmarshal(jsonPayload, &request)
-	if err != nil {
+	if err := json.Decode(jsonPayload, &request); err != nil {
 		goutils.LogError(err)
 		return "", err
 	}
@@ -57,7 +55,7 @@ func (oa *outputAction) Execute(jsonPayload []byte, config *action.Config) (stri
 	normalized, year := normalize(request.Name, config.CompiledNameTrimRegexes)
 	normalizedWithYear := appendYear(normalized, year)
 	if onDisk, found := findOnDisk(normalized, request.DiskPath, config.MaxOutputWalkDepth, config.SimilarityPercent); found {
-		return vmjson.EncodeString(ResponseData{onDisk, ORIGIN_DISK}), nil
+		return json.EncodeString(ResponseData{onDisk, ORIGIN_DISK})
 	}
 
 	if !request.SkipOnlineSearch && config.TmdbAPI != nil {
@@ -71,18 +69,18 @@ func (oa *outputAction) Execute(jsonPayload []byte, config *action.Config) (stri
 		if !request.SkipCache {
 			if _, err := os.Stat(outputTMDBCacheFile); !os.IsNotExist(err) {
 				if cachedTMDBNames, exist := getFromTMDBOutputCache(cacheKey, outputTMDBCacheFile); exist {
-					return vmjson.EncodeString(ResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE}), nil
+					return json.EncodeString(ResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE})
 				}
 			}
 		}
 
 		if tmdbNames, found := tmdbFunc(normalized, year, config.TmdbAPI, config.MaxTMDBResultCount); found {
 			saveInTMDBOutputCache(cacheKey, tmdbNames, outputTMDBCacheFile, config.OutTMDBCacheLimit)
-			return vmjson.EncodeString(ResponseData{tmdbNames, ORIGIN_TMDB}), nil
+			return json.EncodeString(ResponseData{tmdbNames, ORIGIN_TMDB})
 		}
 	}
 
-	return vmjson.EncodeString(ResponseData{[]string{normalizedWithYear}, ORIGIN_NAME}), nil
+	return json.EncodeString(ResponseData{[]string{normalizedWithYear}, ORIGIN_NAME})
 }
 
 func saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string, cacheLimit int) {

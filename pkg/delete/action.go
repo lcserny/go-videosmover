@@ -1,12 +1,11 @@
 package delete
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/Bios-Marcel/wastebasket"
 	"github.com/lcserny/goutils"
 	"videosmover/pkg/action"
-	vmjson "videosmover/pkg/json"
+	"videosmover/pkg/json"
 )
 
 const COULDNT_MOVE_TO_TRASH = "Couldn't move folder '%s' to trash"
@@ -20,9 +19,8 @@ type deleteAction struct {
 
 func (da *deleteAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
 	var requests []RequestData
-	err := json.Unmarshal(jsonPayload, &requests)
-	goutils.LogError(err)
-	if err != nil {
+	if err := json.Decode(jsonPayload, &requests); err != nil {
+		goutils.LogError(err)
 		return "", err
 	}
 
@@ -46,5 +44,5 @@ func (da *deleteAction) Execute(jsonPayload []byte, config *action.Config) (stri
 		}
 	}
 
-	return vmjson.EncodeString(resultList), nil
+	return json.EncodeString(resultList)
 }

@@ -1,11 +1,10 @@
 package search
 
 import (
-	"encoding/json"
 	"net/http"
 	"path/filepath"
 	"strings"
-	vmjson "videosmover/pkg/json"
+	"videosmover/pkg/json"
 	"videosmover/pkg/web"
 )
 
@@ -56,7 +55,7 @@ func (sc *Controller) POST(resp http.ResponseWriter, req *http.Request) (name st
 	}
 
 	var searchResponseDataList []ResponseData
-	if err = json.Unmarshal([]byte(jsonBody), &searchResponseDataList); err != nil {
+	if err = json.Decode([]byte(jsonBody), &searchResponseDataList); err != nil {
 		return web.Return500Error("search", err, resp)
 	}
 
@@ -69,12 +68,14 @@ func (sc *Controller) POST(resp http.ResponseWriter, req *http.Request) (name st
 			name = fileName
 		}
 
+		encodeString, _ := json.EncodeString(data.Subtitles)
+
 		searchResult := Result{
 			Index:            i,
 			Name:             name,
 			FileName:         fileName,
 			VideoPath:        data.Path,
-			EncodedSubsArray: vmjson.EncodeString(data.Subtitles),
+			EncodedSubsArray: encodeString,
 		}
 		pageData.Videos = append(pageData.Videos, searchResult)
 	}

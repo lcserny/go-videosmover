@@ -1,11 +1,11 @@
 package web
 
-type RequestJsonData struct {
+type RequestData struct {
 	Action  string      `json:"action"`
 	Payload interface{} `json:"payload,string"`
 }
 
-type ResponseJsonData struct {
+type ResponseData struct {
 	Code  int    `json:"code"`
 	Error string `json:"error"`
 	Date  string `json:"date"`

@@ -1,10 +1,10 @@
 package web
 
 import (
-	"encoding/json"
 	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"path/filepath"
+	"videosmover/pkg/json"
 )
 
 type cmdHandlerConfig struct {
@@ -23,7 +23,7 @@ func GenerateProxyConfig(path, file string) *ProxyConfig {
 	goutils.LogFatal(err)
 
 	serverConfig := &ProxyConfig{Port: "8077"}
-	err = json.Unmarshal(configBytes, serverConfig)
+	err = json.Decode(configBytes, serverConfig)
 	goutils.LogFatal(err)
 
 	return serverConfig
