@@ -1,11 +1,11 @@
 package move
 
 import (
-	"encoding/json"
 	"github.com/lcserny/goutils"
 	"net/http"
 	"strings"
 	"videosmover/pkg/action"
+	"videosmover/pkg/json"
 	"videosmover/pkg/web"
 )
 
@@ -22,7 +22,7 @@ func (sc *AjaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request)
 	if strings.ToUpper(req.Method) == http.MethodPost {
 		moveJsData := req.FormValue("movedata")
 		var moveReqDataList []RequestData
-		if err := json.Unmarshal([]byte(moveJsData), &moveReqDataList); err != nil {
+		if err := json.Decode([]byte(moveJsData), &moveReqDataList); err != nil {
 			goutils.LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)
 			return
@@ -41,13 +41,13 @@ func (sc *AjaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request)
 		}
 
 		var moveResponseDataList []ResponseData
-		if err = json.Unmarshal([]byte(jsonBody), &moveResponseDataList); err != nil {
+		if err = json.Decode([]byte(jsonBody), &moveResponseDataList); err != nil {
 			goutils.LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		responseBytes, err := json.Marshal(moveResponseDataList)
+		responseBytes, err := json.EncodeBytes(moveResponseDataList)
 		if err != nil {
 			goutils.LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)

@@ -1,12 +1,12 @@
 package output
 
 import (
-	"encoding/json"
 	"github.com/lcserny/goutils"
 	"net/http"
 	"strconv"
 	"strings"
 	"videosmover/pkg/action"
+	"videosmover/pkg/json"
 	"videosmover/pkg/web"
 )
 
@@ -57,13 +57,13 @@ func (sc *AjaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request)
 		}
 
 		var outputResponseData ResponseData
-		if err = json.Unmarshal([]byte(jsonBody), &outputResponseData); err != nil {
+		if err = json.Decode([]byte(jsonBody), &outputResponseData); err != nil {
 			goutils.LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		responseBytes, err := json.Marshal(outputResponseData)
+		responseBytes, err := json.EncodeBytes(outputResponseData)
 		if err != nil {
 			goutils.LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)

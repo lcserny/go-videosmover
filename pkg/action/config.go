@@ -1,13 +1,13 @@
 package action
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/lcserny/goutils"
 	"github.com/ryanbradynd05/go-tmdb"
 	"io/ioutil"
 	"os"
 	"regexp"
+	"videosmover/pkg/json"
 )
 
 type Config struct {
@@ -33,7 +33,7 @@ func NewConfig(cfgPath string) *Config {
 	goutils.LogFatal(err)
 
 	var ac Config
-	err = json.Unmarshal(content, &ac)
+	err = json.Decode(content, &ac)
 	goutils.LogFatal(err)
 
 	if key, exists := os.LookupEnv("TMDB_API_KEY"); exists {
