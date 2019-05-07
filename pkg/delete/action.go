@@ -6,7 +6,7 @@ import (
 	"github.com/Bios-Marcel/wastebasket"
 	"github.com/lcserny/goutils"
 	"videosmover/pkg/action"
-	"videosmover/pkg/convert"
+	vmjson "videosmover/pkg/json"
 )
 
 const COULDNT_MOVE_TO_TRASH = "Couldn't move folder '%s' to trash"
@@ -46,5 +46,5 @@ func (da *deleteAction) Execute(jsonPayload []byte, config *action.Config) (stri
 		}
 	}
 
-	return convert.GetJSONEncodedString(resultList), nil
+	return vmjson.EncodeString(resultList), nil
 }

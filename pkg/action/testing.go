@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"testing"
-	"videosmover/pkg/convert"
+	"videosmover/pkg/json"
 )
 
 type TestActionData struct {
@@ -46,8 +46,8 @@ func getTestActionConfig() *Config {
 func RunTestAction(t *testing.T, slice []TestActionData, a Action) {
 	config := getTestActionConfig()
 	for _, td := range slice {
-		reqBytes := convert.GetJSONBytesForTest(t, td.Request)
-		resString := convert.GetJSONStringForTest(t, td.Response)
+		reqBytes := json.EncodeBytes(td.Request)
+		resString := json.EncodeString(td.Response)
 
 		result, err := a.Execute(reqBytes, config)
 		if err != nil {

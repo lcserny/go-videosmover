@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"videosmover/pkg/action"
-	"videosmover/pkg/convert"
+	vmjson "videosmover/pkg/json"
 )
 
 const (
@@ -167,5 +167,5 @@ func (ma *moveAction) Execute(jsonPayload []byte, config *action.Config) (string
 	}
 	cleanFolders(cleaningSet, &resultList, config.RestrictedRemovePaths)
 
-	return convert.GetJSONEncodedString(resultList), nil
+	return vmjson.EncodeString(resultList), nil
 }

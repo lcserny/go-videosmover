@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"os/exec"
 	"strings"
-	"videosmover/pkg/convert"
+	"videosmover/pkg/fs"
+	vmjson "videosmover/pkg/json"
 )
 
 type BinJsonExecuteHandler struct {
@@ -38,8 +39,8 @@ func (h *BinJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	tempJsonFile := convert.TmpStoreJsonPayload(jsonData.Payload)
-	defer convert.RemoveTmpStoredJsonPayload(tempJsonFile)
+	tempJsonFile := fs.TmpStorePayload(vmjson.EncodeBytes(jsonData.Payload))
+	defer fs.RemoveTmpStoredPayload(tempJsonFile)
 
 	var cmdOut bytes.Buffer
 	var cmdErr bytes.Buffer

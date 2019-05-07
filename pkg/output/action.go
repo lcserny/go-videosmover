@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"videosmover/pkg/action"
-	"videosmover/pkg/convert"
+	vmjson "videosmover/pkg/json"
 )
 
 func NewAction() action.Action {
@@ -57,7 +57,7 @@ func (oa *outputAction) Execute(jsonPayload []byte, config *action.Config) (stri
 	normalized, year := normalize(request.Name, config.CompiledNameTrimRegexes)
 	normalizedWithYear := appendYear(normalized, year)
 	if onDisk, found := findOnDisk(normalized, request.DiskPath, config.MaxOutputWalkDepth, config.SimilarityPercent); found {
-		return convert.GetJSONEncodedString(ResponseData{onDisk, ORIGIN_DISK}), nil
+		return vmjson.EncodeString(ResponseData{onDisk, ORIGIN_DISK}), nil
 	}
 
 	if !request.SkipOnlineSearch && config.TmdbAPI != nil {
@@ -71,18 +71,18 @@ func (oa *outputAction) Execute(jsonPayload []byte, config *action.Config) (stri
 		if !request.SkipCache {
 			if _, err := os.Stat(outputTMDBCacheFile); !os.IsNotExist(err) {
 				if cachedTMDBNames, exist := getFromTMDBOutputCache(cacheKey, outputTMDBCacheFile); exist {
-					return convert.GetJSONEncodedString(ResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE}), nil
+					return vmjson.EncodeString(ResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE}), nil
 				}
 			}
 		}
 
 		if tmdbNames, found := tmdbFunc(normalized, year, config.TmdbAPI, config.MaxTMDBResultCount); found {
 			saveInTMDBOutputCache(cacheKey, tmdbNames, outputTMDBCacheFile, config.OutTMDBCacheLimit)
-			return convert.GetJSONEncodedString(ResponseData{tmdbNames, ORIGIN_TMDB}), nil
+			return vmjson.EncodeString(ResponseData{tmdbNames, ORIGIN_TMDB}), nil
 		}
 	}
 
-	return convert.GetJSONEncodedString(ResponseData{[]string{normalizedWithYear}, ORIGIN_NAME}), nil
+	return vmjson.EncodeString(ResponseData{[]string{normalizedWithYear}, ORIGIN_NAME}), nil
 }
 
 func saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string, cacheLimit int) {

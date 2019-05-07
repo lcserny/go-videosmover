@@ -11,7 +11,7 @@ import (
 	"sort"
 	"strings"
 	"videosmover/pkg/action"
-	"videosmover/pkg/convert"
+	vmjson "videosmover/pkg/json"
 )
 
 func NewAction() action.Action {
@@ -73,7 +73,7 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (stri
 		return resultList[i].Path < resultList[j].Path
 	})
 
-	return convert.GetJSONEncodedString(resultList), nil
+	return vmjson.EncodeString(resultList), nil
 }
 
 func isVideo(path string, config *action.Config) bool {

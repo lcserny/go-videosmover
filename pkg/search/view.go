@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
-	"videosmover/pkg/convert"
+	vmjson "videosmover/pkg/json"
 	"videosmover/pkg/web"
 )
 
@@ -74,7 +74,7 @@ func (sc *Controller) POST(resp http.ResponseWriter, req *http.Request) (name st
 			Name:             name,
 			FileName:         fileName,
 			VideoPath:        data.Path,
-			EncodedSubsArray: convert.GetJSONEncodedString(data.Subtitles),
+			EncodedSubsArray: vmjson.EncodeString(data.Subtitles),
 		}
 		pageData.Videos = append(pageData.Videos, searchResult)
 	}
