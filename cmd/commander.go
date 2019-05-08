@@ -30,8 +30,6 @@ func main() {
 	cmdPayload := flag.String("payloadFile", "", "path to payload file")
 	flag.Parse()
 
-	// TODO: move action in core
-	// TODO: move core actions (search, delete etc) in domain also?
 	codec := json.NewJsonCodec()
 	trashMover := wastebasket.NewTrashMover()
 	action.Register("delete", delete.NewAction(codec, trashMover))
