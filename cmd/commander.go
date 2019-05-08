@@ -41,7 +41,7 @@ func main() {
 
 	action.Register("delete", delete.NewAction(cfg, codec, trashMover))
 	action.Register("move", move.NewAction(cfg, codec, trashMover))
-	action.Register("output", output.NewAction(cfg, codec)) // TODO: abstract dependencies, do this after
+	action.Register("output", output.NewAction(cfg, codec)) // TODO: abstract tmdb
 	action.Register("search", search.NewAction(cfg, codec, mimeChecker, videoPathWalker))
 
 	b, err := ioutil.ReadFile(*cmdPayload)

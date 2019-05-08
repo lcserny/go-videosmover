@@ -55,7 +55,7 @@ func (c *controller) POST(resp http.ResponseWriter, req *http.Request) (name str
 		return c.GET(resp, req)
 	}
 
-	var searchResponseDataList []ResponseData
+	var searchResponseDataList []core.VideoSearchResult
 	if err = c.codec.Decode([]byte(jsonBody), &searchResponseDataList); err != nil {
 		return c.apiReqResProcessor.Return500("search", err, resp)
 	}

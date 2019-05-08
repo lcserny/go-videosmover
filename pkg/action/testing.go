@@ -3,16 +3,12 @@ package action
 import (
 	"fmt"
 	"github.com/lcserny/goutils"
-	"github.com/ryanbradynd05/go-tmdb"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"regexp"
 	"testing"
 	"videosmover/pkg"
 )
-
-// TODO: move this whole file better
 
 type TestActionData struct {
 	Request  interface{}
@@ -21,32 +17,24 @@ type TestActionData struct {
 
 var (
 	cachedMP4VideoHeader []byte
-	testActionCfg        *Config
+	testActionCfg        *core.ActionConfig
 )
 
-func getTestActionConfig() *Config {
+func GetTestActionConfig() *core.ActionConfig {
 	if testActionCfg == nil {
-		testActionCfg = &Config{
+		testActionCfg = &core.ActionConfig{
 			MinimumVideoSize: 256, SimilarityPercent: 80, MaxOutputWalkDepth: 2, MaxSearchWalkDepth: 4,
-			MaxTMDBResultCount: 1, OutTMDBCacheLimit: 100, HeaderBytesSize: 261,
+			MaxWebSearchResultCount: 1, OutWebSearchCacheLimit: 100, HeaderBytesSize: 261,
 			NameTrimRegexes:       []string{".[sS](\\d{1,2})([-]?[eE](\\d{1,2}))?", "[\\.\\s][sS][0-9]{1,2}[\\.\\s]?", "1080p", "720p"},
 			RestrictedRemovePaths: []string{"Downloads"}, SearchExcludePaths: []string{"Programming Stuff"},
 			AllowedSubtitleExtensions: []string{".srt", ".sub"},
 			AllowedMIMETypes:          []string{"video/x-matroska", "video/x-msvideo", "video/mp4"},
-		}
-		if key, exists := os.LookupEnv("TMDB_API_KEY"); exists {
-			testActionCfg.TmdbAPI = tmdb.Init(tmdb.Config{key, false, nil})
-		}
-		for _, pat := range testActionCfg.NameTrimRegexes {
-			testActionCfg.CompiledNameTrimRegexes = append(testActionCfg.CompiledNameTrimRegexes,
-				regexp.MustCompile(fmt.Sprintf("(?i)(-?%s)", pat)))
 		}
 	}
 	return testActionCfg
 }
 
 func RunTestAction(t *testing.T, slice []TestActionData, a Action, c core.Codec) {
-	config := getTestActionConfig()
 	for _, td := range slice {
 		reqBytes, err := c.EncodeBytes(td.Request)
 		if err != nil {
@@ -57,7 +45,7 @@ func RunTestAction(t *testing.T, slice []TestActionData, a Action, c core.Codec)
 			t.Fatalf("Couldn't decode response: %+v", err)
 		}
 
-		result, err := a.Execute(reqBytes, config)
+		result, err := a.Execute(reqBytes)
 		if err != nil {
 			t.Fatalf("Error occurred: %+v", err)
 		}

@@ -131,5 +131,5 @@ func TestOutputAction(t *testing.T) {
 	}
 
 	jsonCodec := json.NewJsonCodec()
-	action.RunTestAction(t, testData, NewAction(jsonCodec), jsonCodec)
+	action.RunTestAction(t, testData, NewAction(action.GetTestActionConfig(), jsonCodec), jsonCodec)
 }

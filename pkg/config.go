@@ -34,7 +34,4 @@ type ActionConfig struct {
 	SearchExcludePaths        []string `json:"searchExcludePaths"`
 	AllowedMIMETypes          []string `json:"allowedMIMETypes"`
 	AllowedSubtitleExtensions []string `json:"allowedSubtitleExtensions"`
-
-	/*	TmdbAPI                 *tmdb.TMDb
-		CompiledNameTrimRegexes []*regexp.Regexp*/
 }

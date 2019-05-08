@@ -101,5 +101,5 @@ func TestMoveAction(t *testing.T) {
 	}
 
 	jsonCodec := json.NewJsonCodec()
-	action.RunTestAction(t, testData, NewAction(jsonCodec, wastebasket.NewTrashMover()), jsonCodec)
+	action.RunTestAction(t, testData, NewAction(action.GetTestActionConfig(), jsonCodec, wastebasket.NewTrashMover()), jsonCodec)
 }

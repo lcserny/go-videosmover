@@ -16,15 +16,24 @@ import (
 	"videosmover/pkg/action"
 )
 
-// TODO: abstract TMDB everywhere...
-
 func NewAction(cfg *core.ActionConfig, c core.Codec) action.Action {
-	return &outputAction{config: cfg, codec: c}
+	oa := outputAction{config: cfg, codec: c}
+	if key, exists := os.LookupEnv("TMDB_API_KEY"); exists {
+		oa.tmdbAPI = tmdb.Init(tmdb.Config{key, false, nil})
+	}
+	if cfg.NameTrimRegexes != nil {
+		for _, pat := range cfg.NameTrimRegexes {
+			oa.namePatterns = append(oa.namePatterns, regexp.MustCompile(fmt.Sprintf("(?i)(-?%s)", pat)))
+		}
+	}
+	return &oa
 }
 
 type outputAction struct {
-	config *core.ActionConfig
-	codec  core.Codec
+	config       *core.ActionConfig
+	codec        core.Codec
+	tmdbAPI      *tmdb.TMDb
+	namePatterns []*regexp.Regexp
 }
 
 type searchTMDBFunc func(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMDBResultCount int) ([]string, bool)
@@ -56,13 +65,13 @@ func (oa outputAction) Execute(jsonPayload []byte) (string, error) {
 		return "", err
 	}
 
-	normalized, year := normalize(request.Name, oa.config.CompiledNameTrimRegexes)
+	normalized, year := normalize(request.Name, oa.namePatterns)
 	normalizedWithYear := appendYear(normalized, year)
 	if onDisk, found := findOnDisk(normalized, request.DiskPath, oa.config.MaxOutputWalkDepth, oa.config.SimilarityPercent); found {
 		return oa.codec.EncodeString(ResponseData{onDisk, ORIGIN_DISK})
 	}
 
-	if !request.SkipOnlineSearch && oa.config.TmdbAPI != nil {
+	if !request.SkipOnlineSearch && oa.tmdbAPI != nil {
 		tmdbFunc, err := getTMDBFunc(request.Type)
 		if err != nil {
 			goutils.LogError(err)
@@ -78,7 +87,7 @@ func (oa outputAction) Execute(jsonPayload []byte) (string, error) {
 			}
 		}
 
-		if tmdbNames, found := tmdbFunc(normalized, year, oa.config.TmdbAPI, oa.config.MaxWebSearchResultCount); found {
+		if tmdbNames, found := tmdbFunc(normalized, year, oa.tmdbAPI, oa.config.MaxWebSearchResultCount); found {
 			saveInTMDBOutputCache(cacheKey, tmdbNames, outputTMDBCacheFile, oa.config.OutWebSearchCacheLimit)
 			return oa.codec.EncodeString(ResponseData{tmdbNames, ORIGIN_TMDB})
 		}

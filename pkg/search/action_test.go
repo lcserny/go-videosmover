@@ -3,7 +3,10 @@ package search
 import (
 	"path/filepath"
 	"testing"
+	"videosmover/pkg"
 	"videosmover/pkg/action"
+	"videosmover/pkg/godirwalk"
+	"videosmover/pkg/h2non"
 	"videosmover/pkg/json"
 )
 
@@ -23,7 +26,7 @@ func TestSearchAction(t *testing.T) {
 	testData := []action.TestActionData{
 		{
 			Request: RequestData{path},
-			Response: []ResponseData{
+			Response: []core.VideoSearchResult{
 				{video3, make([]string, 0)},
 				{hiddenVideo4, make([]string, 0)},
 				{video1, video1Subs},
@@ -32,6 +35,9 @@ func TestSearchAction(t *testing.T) {
 		},
 	}
 
+	cfg := action.GetTestActionConfig()
 	jsonCodec := json.NewJsonCodec()
-	action.RunTestAction(t, testData, NewAction(jsonCodec), jsonCodec)
+	mimeChecker := h2non.NewVideoChecker(cfg)
+	videoPathWalker := godirwalk.NewVideoPathWalker(cfg)
+	action.RunTestAction(t, testData, NewAction(cfg, jsonCodec, mimeChecker, videoPathWalker), jsonCodec)
 }
