@@ -13,6 +13,7 @@ import (
 	"videosmover/pkg/move"
 	"videosmover/pkg/output"
 	"videosmover/pkg/search"
+	"videosmover/pkg/wastebasket"
 )
 
 func main() {
@@ -29,22 +30,25 @@ func main() {
 	cmdPayload := flag.String("payloadFile", "", "path to payload file")
 	flag.Parse()
 
-	jsonCodec := json.NewJsonCodec()
-	action.Register("delete", delete.NewAction(jsonCodec))
-	action.Register("move", move.NewAction(jsonCodec))
-	action.Register("output", output.NewAction(jsonCodec))
-	action.Register("search", search.NewAction(jsonCodec))
+	// TODO: move action in core
+	// TODO: move core actions (search, delete etc) in domain also?
+	codec := json.NewJsonCodec()
+	trashMover := wastebasket.NewTrashMover()
+	action.Register("delete", delete.NewAction(codec, trashMover))
+	action.Register("move", move.NewAction(codec, trashMover))
+	action.Register("output", output.NewAction(codec)) // TODO: abstract dependencies
+	action.Register("search", search.NewAction(codec)) // TODO: abstract dependencies
 
 	a := action.Retrieve(*cmdAction)
-	c := action.NewConfig(filepath.Join(*cmdConfig, "actions.json"), jsonCodec)
+	c := action.NewConfig(filepath.Join(*cmdConfig, "actions.json"), codec)
 
-	jsonBytes, err := ioutil.ReadFile(*cmdPayload)
+	b, err := ioutil.ReadFile(*cmdPayload)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
 		goutils.LogFatal(err)
 	}
 
-	response, err := a.Execute(jsonBytes, c)
+	response, err := a.Execute(b, c)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
 		goutils.LogFatal(err)

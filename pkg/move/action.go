@@ -2,7 +2,6 @@ package move
 
 import (
 	"fmt"
-	"github.com/Bios-Marcel/wastebasket"
 	"github.com/lcserny/goutils"
 	"os"
 	"path/filepath"
@@ -19,12 +18,13 @@ const (
 	COULDNT_REMOVE_FOLDER_REASON = "Couldn't remove video dir '%s'"
 )
 
-func NewAction(c core.Codec) action.Action {
-	return &moveAction{codec: c}
+func NewAction(c core.Codec, tm core.TrashMover) action.Action {
+	return &moveAction{codec: c, trashMover: tm}
 }
 
 type moveAction struct {
-	codec core.Codec
+	codec      core.Codec
+	trashMover core.TrashMover
 }
 
 type moveExecutor struct {
@@ -118,14 +118,14 @@ func (me *moveExecutor) moveSubs() bool {
 	return true
 }
 
-func cleanFolders(cleaningSet []string, resultList *[]ResponseData, restrictedRemovePaths []string) {
+func cleanFolders(cleaningSet []string, resultList *[]ResponseData, restrictedRemovePaths []string, tm core.TrashMover) {
 	for _, folder := range cleaningSet {
 		if restricted := action.PathRemovalIsRestricted(folder, restrictedRemovePaths); restricted {
 			appendToUnmovedReasons(resultList, folder, fmt.Sprintf(action.RESTRICTED_PATH_REASON, folder))
 			continue
 		}
 
-		err := wastebasket.Trash(folder)
+		err := tm.MoveToTrash(folder)
 		if err != nil {
 			goutils.LogError(err)
 			appendToUnmovedReasons(resultList, folder, fmt.Sprintf(COULDNT_REMOVE_FOLDER_REASON, folder))
@@ -164,7 +164,7 @@ func (ma *moveAction) Execute(jsonPayload []byte, config *action.Config) (string
 		}
 		addToCleanSet(&cleaningSet, moveExecutor.folder)
 	}
-	cleanFolders(cleaningSet, &resultList, config.RestrictedRemovePaths)
+	cleanFolders(cleaningSet, &resultList, config.RestrictedRemovePaths, ma.trashMover)
 
 	return ma.codec.EncodeString(resultList)
 }

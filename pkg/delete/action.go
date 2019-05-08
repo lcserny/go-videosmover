@@ -2,7 +2,6 @@ package delete
 
 import (
 	"fmt"
-	"github.com/Bios-Marcel/wastebasket"
 	"github.com/lcserny/goutils"
 	"videosmover/pkg"
 	"videosmover/pkg/action"
@@ -11,11 +10,12 @@ import (
 const COULDNT_MOVE_TO_TRASH = "Couldn't move folder '%s' to trash"
 
 type deleteAction struct {
-	codec core.Codec
+	codec      core.Codec
+	trashMover core.TrashMover
 }
 
-func NewAction(c core.Codec) action.Action {
-	return &deleteAction{codec: c}
+func NewAction(c core.Codec, tm core.TrashMover) action.Action {
+	return &deleteAction{codec: c, trashMover: tm}
 }
 
 func (da *deleteAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
@@ -35,8 +35,7 @@ func (da *deleteAction) Execute(jsonPayload []byte, config *action.Config) (stri
 			continue
 		}
 
-		err := wastebasket.Trash(req.Folder)
-		if err != nil {
+		if err := da.trashMover.MoveToTrash(req.Folder); err != nil {
 			goutils.LogError(err)
 			resultList = append(resultList, ResponseData{
 				req.Folder,
