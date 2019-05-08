@@ -15,6 +15,8 @@ import (
 	"videosmover/pkg/action"
 )
 
+// TODO: improve this
+
 func NewAction(cfg *core.ActionConfig, c core.Codec, ws core.VideoWebSearcher) action.Action {
 	oa := outputAction{config: cfg, codec: c, webSearcher: ws}
 	if cfg.NameTrimRegexes != nil {
