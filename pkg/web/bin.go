@@ -2,9 +2,12 @@ package web
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/lcserny/goutils"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 	"videosmover/pkg"
@@ -44,8 +47,8 @@ func (be binExecutor) servePOST(w http.ResponseWriter, r *http.Request) {
 	}
 
 	encodeBytes, _ := be.codec.EncodeBytes(requestData.Payload)
-	tmpFile := core.TmpStorePayload(encodeBytes)
-	defer core.RemoveTmpStoredPayload(tmpFile)
+	tmpFile := be.tmpStorePayload(encodeBytes)
+	defer be.removeTmpStoredPayload(tmpFile)
 
 	var cmdOut bytes.Buffer
 	var cmdErr bytes.Buffer
@@ -57,4 +60,22 @@ func (be binExecutor) servePOST(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(be.wrp.ProcessBody(string(cmdOut.Bytes()), string(cmdErr.Bytes())))
+}
+
+func (be binExecutor) removeTmpStoredPayload(tempFile *os.File) {
+	err := tempFile.Close()
+	goutils.LogErrorWithMessage(fmt.Sprintf("Couldn't close tmpFile: %s", tempFile.Name()), err)
+
+	err = os.Remove(tempFile.Name())
+	goutils.LogErrorWithMessage(fmt.Sprintf("Couldn't remove tmpFile: %s", tempFile.Name()), err)
+}
+
+func (be binExecutor) tmpStorePayload(bytes []byte) *os.File {
+	tempFile, err := ioutil.TempFile(os.TempDir(), "vms-")
+	goutils.LogError(errors.Wrap(err, "Couldn't create tmpFile"))
+
+	_, err = tempFile.Write(bytes)
+	goutils.LogErrorWithMessage(fmt.Sprintf("Couldn't write to tmpFile: %s", tempFile.Name()), err)
+
+	return tempFile
 }
