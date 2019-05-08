@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"strings"
 	"videosmover/pkg"
-	"videosmover/pkg/fs"
 )
 
 type binExecutor struct {
@@ -45,8 +44,8 @@ func (be binExecutor) servePOST(w http.ResponseWriter, r *http.Request) {
 	}
 
 	encodeBytes, _ := be.codec.EncodeBytes(requestData.Payload)
-	tmpFile := fs.TmpStorePayload(encodeBytes)
-	defer fs.RemoveTmpStoredPayload(tmpFile)
+	tmpFile := core.TmpStorePayload(encodeBytes)
+	defer core.RemoveTmpStoredPayload(tmpFile)
 
 	var cmdOut bytes.Buffer
 	var cmdErr bytes.Buffer
