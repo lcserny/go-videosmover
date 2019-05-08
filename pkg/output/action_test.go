@@ -5,6 +5,7 @@ import (
 	"testing"
 	"videosmover/pkg/action"
 	"videosmover/pkg/json"
+	"videosmover/pkg/tmdb"
 )
 
 func TestOutputAction(t *testing.T) {
@@ -131,5 +132,6 @@ func TestOutputAction(t *testing.T) {
 	}
 
 	jsonCodec := json.NewJsonCodec()
-	action.RunTestAction(t, testData, NewAction(action.GetTestActionConfig(), jsonCodec), jsonCodec)
+	videoWebSearcher := tmdb.NewVideoWebSearcher()
+	action.RunTestAction(t, testData, NewAction(action.GetTestActionConfig(), jsonCodec, videoWebSearcher), jsonCodec)
 }

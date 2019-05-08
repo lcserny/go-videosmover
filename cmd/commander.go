@@ -16,6 +16,7 @@ import (
 	"videosmover/pkg/move"
 	"videosmover/pkg/output"
 	"videosmover/pkg/search"
+	"videosmover/pkg/tmdb"
 	"videosmover/pkg/wastebasket"
 )
 
@@ -38,10 +39,11 @@ func main() {
 	cfg := config.NewActionConfig(filepath.Join(*cmdConfig, "actions.json"), codec)
 	mimeChecker := h2non.NewVideoChecker(cfg)
 	videoPathWalker := godirwalk.NewVideoPathWalker(cfg)
+	videoWebSearcher := tmdb.NewVideoWebSearcher()
 
 	action.Register("delete", delete.NewAction(cfg, codec, trashMover))
 	action.Register("move", move.NewAction(cfg, codec, trashMover))
-	action.Register("output", output.NewAction(cfg, codec)) // TODO: abstract tmdb
+	action.Register("output", output.NewAction(cfg, codec, videoWebSearcher))
 	action.Register("search", search.NewAction(cfg, codec, mimeChecker, videoPathWalker))
 
 	b, err := ioutil.ReadFile(*cmdPayload)

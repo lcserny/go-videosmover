@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/lcserny/goutils"
 	"github.com/pkg/errors"
-	"github.com/ryanbradynd05/go-tmdb"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -16,11 +15,8 @@ import (
 	"videosmover/pkg/action"
 )
 
-func NewAction(cfg *core.ActionConfig, c core.Codec) action.Action {
-	oa := outputAction{config: cfg, codec: c}
-	if key, exists := os.LookupEnv("TMDB_API_KEY"); exists {
-		oa.tmdbAPI = tmdb.Init(tmdb.Config{key, false, nil})
-	}
+func NewAction(cfg *core.ActionConfig, c core.Codec, ws core.VideoWebSearcher) action.Action {
+	oa := outputAction{config: cfg, codec: c, webSearcher: ws}
 	if cfg.NameTrimRegexes != nil {
 		for _, pat := range cfg.NameTrimRegexes {
 			oa.namePatterns = append(oa.namePatterns, regexp.MustCompile(fmt.Sprintf("(?i)(-?%s)", pat)))
@@ -32,11 +28,11 @@ func NewAction(cfg *core.ActionConfig, c core.Codec) action.Action {
 type outputAction struct {
 	config       *core.ActionConfig
 	codec        core.Codec
-	tmdbAPI      *tmdb.TMDb
+	webSearcher  core.VideoWebSearcher
 	namePatterns []*regexp.Regexp
 }
 
-type searchTMDBFunc func(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMDBResultCount int) ([]string, bool)
+type videoSearchFunc func(normalizedName string, year int, webSearcher core.VideoWebSearcher, maxAccepted int) ([]string, bool)
 
 type diskResult struct {
 	name        string
@@ -52,7 +48,7 @@ var (
 	spaceMergeRegex                   = regexp.MustCompile(`\s{2,}`)
 	yearRegex                         = regexp.MustCompile(`\s\d{4}$`)
 	releaseDateRegex                  = regexp.MustCompile(`\s+\(\d{4}(-\d{2}-\d{2})?\)$`)
-	tmdbFuncMap                       = map[string]searchTMDBFunc{
+	tmdbFuncMap                       = map[string]videoSearchFunc{
 		action.MOVIE: movieTMDBSearch,
 		action.TV:    tvSeriesTMDBSearch,
 	}
@@ -71,7 +67,7 @@ func (oa outputAction) Execute(jsonPayload []byte) (string, error) {
 		return oa.codec.EncodeString(ResponseData{onDisk, ORIGIN_DISK})
 	}
 
-	if !request.SkipOnlineSearch && oa.tmdbAPI != nil {
+	if !request.SkipOnlineSearch && oa.webSearcher != nil {
 		tmdbFunc, err := getTMDBFunc(request.Type)
 		if err != nil {
 			goutils.LogError(err)
@@ -87,7 +83,7 @@ func (oa outputAction) Execute(jsonPayload []byte) (string, error) {
 			}
 		}
 
-		if tmdbNames, found := tmdbFunc(normalized, year, oa.tmdbAPI, oa.config.MaxWebSearchResultCount); found {
+		if tmdbNames, found := tmdbFunc(normalized, year, oa.webSearcher, oa.config.MaxWebSearchResultCount); found {
 			saveInTMDBOutputCache(cacheKey, tmdbNames, outputTMDBCacheFile, oa.config.OutWebSearchCacheLimit)
 			return oa.codec.EncodeString(ResponseData{tmdbNames, ORIGIN_TMDB})
 		}
@@ -177,7 +173,7 @@ func appendYear(normalizedName string, year int) string {
 	return normalizedName
 }
 
-func getTMDBFunc(itemType string) (searchTMDBFunc, error) {
+func getTMDBFunc(itemType string) (videoSearchFunc, error) {
 	if tmdbFunc, found := tmdbFuncMap[strings.ToLower(itemType)]; found {
 		return tmdbFunc, nil
 	}
@@ -268,28 +264,23 @@ func trimReleaseDate(nameWithReleaseDate string) string {
 	return releaseDateRegex.ReplaceAllString(nameWithReleaseDate, "")
 }
 
-func movieTMDBSearch(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMDBResultCount int) (searchedList []string, found bool) {
-	options := map[string]string{"page": "1", "language": "en"}
-	if year > 0 {
-		options["year"] = string(year)
-	}
-
-	results, err := tmdbAPI.SearchMovie(normalizedName, options)
+func movieTMDBSearch(normalizedName string, year int, webSearcher core.VideoWebSearcher, maxAccepted int) (searchedList []string, found bool) {
+	results, err := webSearcher.SearchMovies(normalizedName, year)
 	if err != nil {
 		goutils.LogError(err)
 		return searchedList, false
 	}
 
-	if len(results.Results) < 1 {
+	if len(results) < 1 {
 		return searchedList, false
 	}
 
-	for i := 0; i < goutils.MinInt(maxTMDBResultCount, len(results.Results)); i++ {
-		movie := results.Results[i]
-		outName := replaceSpecialChars(movie.Title)
+	for i := 0; i < goutils.MinInt(maxAccepted, len(results)); i++ {
+		video := results[i]
+		outName := replaceSpecialChars(video.Title)
 		outName = specialCharsRegex.ReplaceAllString(outName, "")
-		if movie.ReleaseDate != "" {
-			outName += " (" + movie.ReleaseDate + ")"
+		if video.ReleaseDate != "" {
+			outName += " (" + video.ReleaseDate + ")"
 		}
 		searchedList = append(searchedList, outName)
 	}
@@ -297,28 +288,23 @@ func movieTMDBSearch(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMD
 	return searchedList, true
 }
 
-func tvSeriesTMDBSearch(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMDBResultCount int) (searchedList []string, found bool) {
-	options := map[string]string{"page": "1", "language": "en"}
-	if year > 0 {
-		options["first_air_date_year"] = string(year)
-	}
-
-	results, err := tmdbAPI.SearchTv(normalizedName, options)
+func tvSeriesTMDBSearch(normalizedName string, year int, webSearcher core.VideoWebSearcher, maxAccepted int) (searchedList []string, found bool) {
+	results, err := webSearcher.SearchTVSeries(normalizedName, year)
 	if err != nil {
 		goutils.LogError(err)
 		return searchedList, false
 	}
 
-	if len(results.Results) < 1 {
+	if len(results) < 1 {
 		return searchedList, false
 	}
 
-	for i := 0; i < goutils.MinInt(maxTMDBResultCount, len(results.Results)); i++ {
-		tvShow := results.Results[i]
-		outName := replaceSpecialChars(tvShow.Name)
+	for i := 0; i < goutils.MinInt(maxAccepted, len(results)); i++ {
+		video := results[i]
+		outName := replaceSpecialChars(video.Title)
 		outName = specialCharsRegex.ReplaceAllString(outName, "")
-		if tvShow.FirstAirDate != "" {
-			outName += " (" + tvShow.FirstAirDate[0:4] + ")"
+		if video.ReleaseDate != "" {
+			outName += " (" + video.ReleaseDate[0:4] + ")"
 		}
 		searchedList = append(searchedList, outName)
 	}

@@ -25,3 +25,13 @@ type WebApiReqResProcessor interface {
 	WebAPIRequester
 	WebResponseProcessor
 }
+
+type VideoWebResult struct {
+	Title       string
+	ReleaseDate string
+}
+
+type VideoWebSearcher interface {
+	SearchMovies(name string, year int) ([]*VideoWebResult, error)
+	SearchTVSeries(name string, year int) ([]*VideoWebResult, error)
+}
