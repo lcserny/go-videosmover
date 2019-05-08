@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"videosmover/pkg/action"
+	"videosmover/pkg/config"
 	"videosmover/pkg/delete"
 	"videosmover/pkg/json"
 	"videosmover/pkg/move"
@@ -38,7 +39,7 @@ func main() {
 	action.Register("search", search.NewAction(codec)) // TODO: abstract dependencies
 
 	a := action.Retrieve(*cmdAction)
-	c := action.NewConfig(filepath.Join(*cmdConfig, "actions.json"), codec)
+	c := config.NewActionConfig(filepath.Join(*cmdConfig, "actions.json"), codec)
 
 	b, err := ioutil.ReadFile(*cmdPayload)
 	if err != nil {

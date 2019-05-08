@@ -36,3 +36,24 @@ func GenerateWebviewConfig(configsPath, configFile string, codec core.Codec) *co
 
 	return config
 }
+
+func NewActionConfig(cfgPath string, codec core.Codec) *core.ActionConfig {
+	content, err := ioutil.ReadFile(cfgPath)
+	goutils.LogFatal(err)
+
+	var ac core.ActionConfig
+	err = codec.Decode(content, &ac)
+	goutils.LogFatal(err)
+
+	/*	if key, exists := os.LookupEnv("TMDB_API_KEY"); exists {
+			ac.TmdbAPI = tmdb.Init(tmdb.Config{key, false, nil})
+		}
+
+		if ac.NameTrimRegexes != nil {
+			for _, pat := range ac.NameTrimRegexes {
+				ac.CompiledNameTrimRegexes = append(ac.CompiledNameTrimRegexes, regexp.MustCompile(fmt.Sprintf("(?i)(-?%s)", pat)))
+			}
+		}*/
+
+	return &ac
+}
