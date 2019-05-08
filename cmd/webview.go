@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"time"
+	"videosmover/pkg"
+	"videosmover/pkg/json"
 	"videosmover/pkg/move"
 	"videosmover/pkg/output"
 	"videosmover/pkg/search"
@@ -32,19 +34,22 @@ func main() {
 	flag.Parse()
 
 	var pingTimestamp int64
-	config := web.GenerateWebviewConfig(*cfgPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
+	cfgFileName := fmt.Sprintf("config_%s.json", runtime.GOOS)
+	jsonCodec := json.NewJsonCodec()
+	apiRequester := web.NewApiRequester(jsonCodec)
+	config := web.GenerateWebviewConfig(*cfgPath, cfgFileName, jsonCodec)
 	webPath := fmt.Sprintf("localhost:%s", config.Port)
 
 	// define template controllers
-	tmplControllers := make(map[string]web.TemplateController)
-	searchController := search.NewController(config)
+	tmplControllers := make(map[string]core.WebTemplateController)
+	searchController := search.NewController(config, jsonCodec, apiRequester)
 	tmplControllers["/"] = searchController
 	tmplControllers["/search"] = searchController
 
 	// define AJAX handlers
 	ajaxHandlers := make(map[string]http.Handler)
-	ajaxHandlers["/ajax/output"] = output.NewAjaxController(config)
-	ajaxHandlers["/ajax/move"] = move.NewAjaxController(config)
+	ajaxHandlers["/ajax/output"] = output.NewAjaxController(config, jsonCodec, apiRequester)
+	ajaxHandlers["/ajax/move"] = move.NewAjaxController(config, jsonCodec, apiRequester)
 
 	// init web handler
 	mux := http.NewServeMux()

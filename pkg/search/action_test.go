@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 	"videosmover/pkg/action"
+	"videosmover/pkg/json"
 )
 
 func TestSearchAction(t *testing.T) {
@@ -31,5 +32,6 @@ func TestSearchAction(t *testing.T) {
 		},
 	}
 
-	action.RunTestAction(t, testData, NewAction())
+	jsonCodec := json.NewJsonCodec()
+	action.RunTestAction(t, testData, NewAction(jsonCodec), jsonCodec)
 }

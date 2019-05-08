@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"videosmover/pkg"
 	"videosmover/pkg/action"
-	"videosmover/pkg/json"
 )
 
 const (
@@ -19,11 +19,12 @@ const (
 	COULDNT_REMOVE_FOLDER_REASON = "Couldn't remove video dir '%s'"
 )
 
-func NewAction() action.Action {
-	return &moveAction{}
+func NewAction(c core.Codec) action.Action {
+	return &moveAction{codec: c}
 }
 
 type moveAction struct {
+	codec core.Codec
 }
 
 type moveExecutor struct {
@@ -143,7 +144,7 @@ func addToCleanSet(cleaningSet *[]string, folder string) {
 
 func (ma *moveAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
 	var requests []RequestData
-	if err := json.Decode(jsonPayload, &requests); err != nil {
+	if err := ma.codec.Decode(jsonPayload, &requests); err != nil {
 		goutils.LogError(err)
 		return "", err
 	}
@@ -165,5 +166,5 @@ func (ma *moveAction) Execute(jsonPayload []byte, config *action.Config) (string
 	}
 	cleanFolders(cleaningSet, &resultList, config.RestrictedRemovePaths)
 
-	return json.EncodeString(resultList)
+	return ma.codec.EncodeString(resultList)
 }

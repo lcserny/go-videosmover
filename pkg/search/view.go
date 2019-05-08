@@ -21,12 +21,13 @@ type ResultPageData struct {
 }
 
 type controller struct {
-	config *web.WebviewConfig
-	codec  core.Codec
+	config             *web.WebviewConfig
+	codec              core.Codec
+	apiReqResProcessor core.WebApiReqResProcessor
 }
 
-func NewController(cfg *web.WebviewConfig, codec core.Codec) web.TemplateController {
-	return &controller{config: cfg, codec: codec}
+func NewController(cfg *web.WebviewConfig, codec core.Codec, apiReqResProcessor core.WebApiReqResProcessor) core.WebTemplateController {
+	return &controller{config: cfg, codec: codec, apiReqResProcessor: apiReqResProcessor}
 }
 
 func (c *controller) ServeTemplate(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
@@ -46,9 +47,9 @@ func (c *controller) GET(resp http.ResponseWriter, req *http.Request) (name stri
 }
 
 func (c *controller) POST(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
-	jsonBody, err := web.ExecuteVideosMoverPOST("search", &RequestData{Path: c.config.DownloadsPath}, c.config.VideosMoverAPI)
+	jsonBody, err := c.apiReqResProcessor.ExecutePOST("search", &RequestData{Path: c.config.DownloadsPath}, c.config.VideosMoverAPI)
 	if err != nil {
-		return web.Return500Error("search", err, resp)
+		return c.apiReqResProcessor.Return500("search", err, resp)
 	}
 
 	if jsonBody == "" {
@@ -57,7 +58,7 @@ func (c *controller) POST(resp http.ResponseWriter, req *http.Request) (name str
 
 	var searchResponseDataList []ResponseData
 	if err = c.codec.Decode([]byte(jsonBody), &searchResponseDataList); err != nil {
-		return web.Return500Error("search", err, resp)
+		return c.apiReqResProcessor.Return500("search", err, resp)
 	}
 
 	pageData := ResultPageData{}

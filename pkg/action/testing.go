@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"testing"
-	"videosmover/pkg/json"
+	"videosmover/pkg"
 )
 
 type TestActionData struct {
@@ -43,14 +43,14 @@ func getTestActionConfig() *Config {
 	return testActionCfg
 }
 
-func RunTestAction(t *testing.T, slice []TestActionData, a Action) {
+func RunTestAction(t *testing.T, slice []TestActionData, a Action, c core.Codec) {
 	config := getTestActionConfig()
 	for _, td := range slice {
-		reqBytes, err := json.EncodeBytes(td.Request)
+		reqBytes, err := c.EncodeBytes(td.Request)
 		if err != nil {
 			t.Fatalf("Couldn't decode request: %+v", err)
 		}
-		resString, err := json.EncodeString(td.Response)
+		resString, err := c.EncodeString(td.Response)
 		if err != nil {
 			t.Fatalf("Couldn't decode response: %+v", err)
 		}

@@ -9,20 +9,21 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"videosmover/pkg"
 	"videosmover/pkg/action"
-	"videosmover/pkg/json"
 )
 
-func NewAction() action.Action {
-	return &searchAction{}
+func NewAction(c core.Codec) action.Action {
+	return &searchAction{codec: c}
 }
 
 type searchAction struct {
+	codec core.Codec
 }
 
 func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
 	var request RequestData
-	if err := json.Decode(jsonPayload, &request); err != nil {
+	if err := sa.codec.Decode(jsonPayload, &request); err != nil {
 		goutils.LogError(err)
 		return "", err
 	}
@@ -66,7 +67,7 @@ func (sa *searchAction) Execute(jsonPayload []byte, config *action.Config) (stri
 		return resultList[i].Path < resultList[j].Path
 	})
 
-	return json.EncodeString(resultList)
+	return sa.codec.EncodeString(resultList)
 }
 
 func isVideo(path string, config *action.Config) bool {

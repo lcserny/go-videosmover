@@ -10,12 +10,13 @@ import (
 )
 
 type ajaxController struct {
-	config *web.WebviewConfig
-	codec  core.Codec
+	config       *web.WebviewConfig
+	codec        core.Codec
+	apiRequester core.WebAPIRequester
 }
 
-func NewAjaxController(config *web.WebviewConfig, codec core.Codec) http.Handler {
-	return &ajaxController{config: config, codec: codec}
+func NewAjaxController(config *web.WebviewConfig, codec core.Codec, apiRequester core.WebAPIRequester) http.Handler {
+	return &ajaxController{config: config, codec: codec, apiRequester: apiRequester}
 }
 
 func (c *ajaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
@@ -34,7 +35,7 @@ func (c *ajaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request) 
 			moveReqDataList[i] = ele
 		}
 
-		jsonBody, err := web.ExecuteVideosMoverPOST("move", &moveReqDataList, c.config.VideosMoverAPI)
+		jsonBody, err := c.apiRequester.ExecutePOST("move", &moveReqDataList, c.config.VideosMoverAPI)
 		if err != nil {
 			goutils.LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)

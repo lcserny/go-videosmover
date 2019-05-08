@@ -8,37 +8,35 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"videosmover/pkg/json"
+	"videosmover/pkg"
 )
 
-const TIME_FORMAT = "2006-01-02 15:04:05"
-
-type TemplateController interface {
-	ServeTemplate(http.ResponseWriter, *http.Request) (string, interface{}, bool)
+type apiRequester struct {
+	timeFormat string
+	codec      core.Codec
 }
 
-type VideosMoverAPIRequest struct {
-	Action  string      `json:"action"`
-	Payload interface{} `json:"payload"`
+func NewApiRequester(codec core.Codec) core.WebApiReqResProcessor {
+	return &apiRequester{timeFormat: "2006-01-02 15:04:05", codec: codec}
 }
 
-func generateActionRequest(action string, payload interface{}) (string, error) {
-	apiRequest := VideosMoverAPIRequest{Action: action, Payload: payload}
-	s, err := json.EncodeString(apiRequest)
+func (ar apiRequester) generateActionRequest(action string, payload interface{}) (string, error) {
+	apiRequest := core.WebAPIRequest{Action: action, Payload: payload}
+	s, err := ar.codec.EncodeString(apiRequest)
 	if err != nil {
 		return "", err
 	}
 	return s, nil
 }
 
-func Return500Error(tmpl string, err error, resp http.ResponseWriter) (string, interface{}, bool) {
+func (ar apiRequester) Return500(tmpl string, err error, resp http.ResponseWriter) (string, interface{}, bool) {
 	resp.WriteHeader(http.StatusInternalServerError)
 	goutils.LogError(err)
 	return tmpl, nil, false
 }
 
-func ExecuteVideosMoverPOST(action string, payload interface{}, videosMoverAPI string) (string, error) {
-	apiReq, err := generateActionRequest(action, payload)
+func (ar apiRequester) ExecutePOST(action string, payload interface{}, videosMoverAPI string) (string, error) {
+	apiReq, err := ar.generateActionRequest(action, payload)
 	if err != nil {
 		return "", err
 	}
@@ -51,7 +49,7 @@ func ExecuteVideosMoverPOST(action string, payload interface{}, videosMoverAPI s
 
 	apiBody, _ := ioutil.ReadAll(apiResp.Body)
 	var responseData ResponseData
-	if err = json.Decode(apiBody, &responseData); err != nil {
+	if err = ar.codec.Decode(apiBody, &responseData); err != nil {
 		return "", err
 	}
 
@@ -62,10 +60,10 @@ func ExecuteVideosMoverPOST(action string, payload interface{}, videosMoverAPI s
 	return responseData.Body, nil
 }
 
-func getResponseFromAsBytes(body, err string) []byte {
-	if strings.Contains(body, "ERROR") {
-		err = body
-		body = ""
+func (ar apiRequester) ProcessBody(content, err string) []byte {
+	if strings.Contains(content, "ERROR") {
+		err = content
+		content = ""
 	}
 
 	code := 200
@@ -76,22 +74,22 @@ func getResponseFromAsBytes(body, err string) []byte {
 	responseData := &ResponseData{
 		Code:  code,
 		Error: err,
-		Date:  time.Now().Format(TIME_FORMAT),
-		Body:  body,
+		Date:  time.Now().Format(ar.timeFormat),
+		Body:  content,
 	}
 
-	respBytes, _ := json.EncodeBytes(responseData)
+	respBytes, _ := ar.codec.EncodeBytes(responseData)
 	return respBytes
 }
 
-func getErrorResponseAsBytes(err string) []byte {
+func (ar apiRequester) ProcessError(err string) []byte {
 	responseData := &ResponseData{
 		Code:  500,
 		Error: err,
-		Date:  time.Now().Format(TIME_FORMAT),
+		Date:  time.Now().Format(ar.timeFormat),
 		Body:  "",
 	}
 
-	respBytes, _ := json.EncodeBytes(responseData)
+	respBytes, _ := ar.codec.EncodeBytes(responseData)
 	return respBytes
 }

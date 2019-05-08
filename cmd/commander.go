@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"videosmover/pkg/action"
 	"videosmover/pkg/delete"
+	"videosmover/pkg/json"
 	"videosmover/pkg/move"
 	"videosmover/pkg/output"
 	"videosmover/pkg/search"
@@ -28,13 +29,14 @@ func main() {
 	cmdPayload := flag.String("payloadFile", "", "path to payload file")
 	flag.Parse()
 
-	action.Register("delete", delete.NewAction())
-	action.Register("move", move.NewAction())
-	action.Register("output", output.NewAction())
-	action.Register("search", search.NewAction())
+	jsonCodec := json.NewJsonCodec()
+	action.Register("delete", delete.NewAction(jsonCodec))
+	action.Register("move", move.NewAction(jsonCodec))
+	action.Register("output", output.NewAction(jsonCodec))
+	action.Register("search", search.NewAction(jsonCodec))
 
 	a := action.Retrieve(*cmdAction)
-	c := action.NewConfig(filepath.Join(*cmdConfig, "actions.json"))
+	c := action.NewConfig(filepath.Join(*cmdConfig, "actions.json"), jsonCodec)
 
 	jsonBytes, err := ioutil.ReadFile(*cmdPayload)
 	if err != nil {

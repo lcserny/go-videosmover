@@ -12,15 +12,16 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"videosmover/pkg"
 	"videosmover/pkg/action"
-	"videosmover/pkg/json"
 )
 
-func NewAction() action.Action {
-	return &outputAction{}
+func NewAction(c core.Codec) action.Action {
+	return &outputAction{codec: c}
 }
 
 type outputAction struct {
+	codec core.Codec
 }
 
 type searchTMDBFunc func(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMDBResultCount int) ([]string, bool)
@@ -47,7 +48,7 @@ var (
 
 func (oa *outputAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
 	var request RequestData
-	if err := json.Decode(jsonPayload, &request); err != nil {
+	if err := oa.codec.Decode(jsonPayload, &request); err != nil {
 		goutils.LogError(err)
 		return "", err
 	}
@@ -55,7 +56,7 @@ func (oa *outputAction) Execute(jsonPayload []byte, config *action.Config) (stri
 	normalized, year := normalize(request.Name, config.CompiledNameTrimRegexes)
 	normalizedWithYear := appendYear(normalized, year)
 	if onDisk, found := findOnDisk(normalized, request.DiskPath, config.MaxOutputWalkDepth, config.SimilarityPercent); found {
-		return json.EncodeString(ResponseData{onDisk, ORIGIN_DISK})
+		return oa.codec.EncodeString(ResponseData{onDisk, ORIGIN_DISK})
 	}
 
 	if !request.SkipOnlineSearch && config.TmdbAPI != nil {
@@ -69,18 +70,18 @@ func (oa *outputAction) Execute(jsonPayload []byte, config *action.Config) (stri
 		if !request.SkipCache {
 			if _, err := os.Stat(outputTMDBCacheFile); !os.IsNotExist(err) {
 				if cachedTMDBNames, exist := getFromTMDBOutputCache(cacheKey, outputTMDBCacheFile); exist {
-					return json.EncodeString(ResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE})
+					return oa.codec.EncodeString(ResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE})
 				}
 			}
 		}
 
 		if tmdbNames, found := tmdbFunc(normalized, year, config.TmdbAPI, config.MaxTMDBResultCount); found {
 			saveInTMDBOutputCache(cacheKey, tmdbNames, outputTMDBCacheFile, config.OutTMDBCacheLimit)
-			return json.EncodeString(ResponseData{tmdbNames, ORIGIN_TMDB})
+			return oa.codec.EncodeString(ResponseData{tmdbNames, ORIGIN_TMDB})
 		}
 	}
 
-	return json.EncodeString(ResponseData{[]string{normalizedWithYear}, ORIGIN_NAME})
+	return oa.codec.EncodeString(ResponseData{[]string{normalizedWithYear}, ORIGIN_NAME})
 }
 
 func saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string, cacheLimit int) {

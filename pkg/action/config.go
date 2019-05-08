@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
-	"videosmover/pkg/json"
+	"videosmover/pkg"
 )
 
 type Config struct {
@@ -28,12 +28,12 @@ type Config struct {
 	CompiledNameTrimRegexes []*regexp.Regexp
 }
 
-func NewConfig(cfgPath string) *Config {
+func NewConfig(cfgPath string, codec core.Codec) *Config {
 	content, err := ioutil.ReadFile(cfgPath)
 	goutils.LogFatal(err)
 
 	var ac Config
-	err = json.Decode(content, &ac)
+	err = codec.Decode(content, &ac)
 	goutils.LogFatal(err)
 
 	if key, exists := os.LookupEnv("TMDB_API_KEY"); exists {

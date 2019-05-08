@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"videosmover/pkg/json"
 	"videosmover/pkg/web"
 )
 
@@ -22,11 +23,14 @@ func main() {
 	cfgPath := flag.String("configPath", "", "path to proxy server configs folder")
 	flag.Parse()
 
-	c := web.GenerateProxyConfig(*cfgPath, fmt.Sprintf("config_%s.json", runtime.GOOS))
+	jsonCodec := json.NewJsonCodec()
+	cfgFileName := fmt.Sprintf("config_%s.json", runtime.GOOS)
+	apiRequester := web.NewApiRequester(jsonCodec)
+	c := web.GenerateProxyConfig(*cfgPath, cfgFileName, jsonCodec)
 
 	mux := http.NewServeMux()
 	for _, binCmd := range c.Bin {
-		mux.Handle(fmt.Sprintf("/exec-bin/%s", binCmd.Uri), &web.BinJsonExecuteHandler{&binCmd})
+		mux.Handle(fmt.Sprintf("/exec-bin/%s", binCmd.Uri), web.NewBinExecutor(&binCmd, jsonCodec, apiRequester))
 	}
 
 	goutils.LogInfo(fmt.Sprintf("Started server on port %s...", c.Port))

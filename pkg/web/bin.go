@@ -7,18 +7,24 @@ import (
 	"net/http"
 	"os/exec"
 	"strings"
+	"videosmover/pkg"
 	"videosmover/pkg/fs"
-	"videosmover/pkg/json"
 )
 
-type BinJsonExecuteHandler struct {
-	Cmd *cmdHandlerConfig
+type binExecutor struct {
+	cmd   *cmdHandlerConfig
+	codec core.Codec
+	wrp   core.WebResponseProcessor
 }
 
-func (h *BinJsonExecuteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func NewBinExecutor(cmd *cmdHandlerConfig, codec core.Codec, processor core.WebResponseProcessor) http.Handler {
+	return &binExecutor{cmd: cmd, codec: codec, wrp: processor}
+}
+
+func (be binExecutor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch strings.ToUpper(r.Method) {
 	case "POST":
-		h.servePOST(w, r)
+		be.servePOST(w, r)
 		break
 	default:
 		goutils.LogWarning("Invalid http method. BinJsonExecuteHandler doesn't support: " + r.Method)
@@ -26,30 +32,30 @@ func (h *BinJsonExecuteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func (h *BinJsonExecuteHandler) servePOST(w http.ResponseWriter, r *http.Request) {
+func (be binExecutor) servePOST(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	bodyBytes, _ := ioutil.ReadAll(r.Body)
 	var requestData RequestData
-	if err := json.Decode(bodyBytes, &requestData); err != nil {
+	if err := be.codec.Decode(bodyBytes, &requestData); err != nil {
 		errorMessage := "Couldn't decode JSON data provided"
-		_, _ = w.Write(getErrorResponseAsBytes(errorMessage))
+		_, _ = w.Write(be.wrp.ProcessError(errorMessage))
 		goutils.LogErrorWithMessage(errorMessage, err)
 		return
 	}
 
-	encodeBytes, _ := json.EncodeBytes(requestData.Payload)
+	encodeBytes, _ := be.codec.EncodeBytes(requestData.Payload)
 	tmpFile := fs.TmpStorePayload(encodeBytes)
 	defer fs.RemoveTmpStoredPayload(tmpFile)
 
 	var cmdOut bytes.Buffer
 	var cmdErr bytes.Buffer
-	cmd := exec.Command(h.Cmd.Path, "-configs="+h.Cmd.ConfigPath, "-action="+requestData.Action, "-payloadFile="+tmpFile.Name())
+	cmd := exec.Command(be.cmd.Path, "-configs="+be.cmd.ConfigPath, "-action="+requestData.Action, "-payloadFile="+tmpFile.Name())
 	cmd.Stdout = &cmdOut
 	cmd.Stderr = &cmdErr
 	if err := cmd.Run(); err != nil {
 		cmdErr.WriteString(err.Error())
 	}
 
-	w.Write(getResponseFromAsBytes(string(cmdOut.Bytes()), string(cmdErr.Bytes())))
+	w.Write(be.wrp.ProcessBody(string(cmdOut.Bytes()), string(cmdErr.Bytes())))
 }

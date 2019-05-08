@@ -11,12 +11,13 @@ import (
 )
 
 type ajaxController struct {
-	config *web.WebviewConfig
-	codec  core.Codec
+	config       *web.WebviewConfig
+	codec        core.Codec
+	apiRequester core.WebAPIRequester
 }
 
-func NewAjaxController(config *web.WebviewConfig, codec core.Codec) http.Handler {
-	return &ajaxController{config: config, codec: codec}
+func NewAjaxController(config *web.WebviewConfig, codec core.Codec, apiRequester core.WebAPIRequester) http.Handler {
+	return &ajaxController{config: config, codec: codec, apiRequester: apiRequester}
 }
 
 func (c ajaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
@@ -44,7 +45,7 @@ func (c ajaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 
 		reqDataName := req.FormValue("name")
 
-		jsonBody, err := web.ExecuteVideosMoverPOST("output", &RequestData{
+		jsonBody, err := c.apiRequester.ExecutePOST("output", &RequestData{
 			Name:             reqDataName,
 			Type:             reqDataType,
 			SkipCache:        skipCache,

@@ -4,22 +4,23 @@ import (
 	"fmt"
 	"github.com/Bios-Marcel/wastebasket"
 	"github.com/lcserny/goutils"
+	"videosmover/pkg"
 	"videosmover/pkg/action"
-	"videosmover/pkg/json"
 )
 
 const COULDNT_MOVE_TO_TRASH = "Couldn't move folder '%s' to trash"
 
-func NewAction() action.Action {
-	return &deleteAction{}
+type deleteAction struct {
+	codec core.Codec
 }
 
-type deleteAction struct {
+func NewAction(c core.Codec) action.Action {
+	return &deleteAction{codec: c}
 }
 
 func (da *deleteAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
 	var requests []RequestData
-	if err := json.Decode(jsonPayload, &requests); err != nil {
+	if err := da.codec.Decode(jsonPayload, &requests); err != nil {
 		goutils.LogError(err)
 		return "", err
 	}
@@ -44,5 +45,5 @@ func (da *deleteAction) Execute(jsonPayload []byte, config *action.Config) (stri
 		}
 	}
 
-	return json.EncodeString(resultList)
+	return da.codec.EncodeString(resultList)
 }

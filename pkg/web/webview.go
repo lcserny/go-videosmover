@@ -4,7 +4,7 @@ import (
 	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"path/filepath"
-	"videosmover/pkg/json"
+	core "videosmover/pkg"
 )
 
 type WebviewConfig struct {
@@ -17,7 +17,7 @@ type WebviewConfig struct {
 	TvSeriesPath        string `json:"tvSeriesPath"`
 }
 
-func GenerateWebviewConfig(configsPath, configFile string) *WebviewConfig {
+func GenerateWebviewConfig(configsPath, configFile string, codec core.Codec) *WebviewConfig {
 	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
 	goutils.LogFatal(err)
 
@@ -27,7 +27,7 @@ func GenerateWebviewConfig(configsPath, configFile string) *WebviewConfig {
 		VideosMoverAPI:      "http://localhost:8077/exec-bin/videos-mover",
 	}
 
-	err = json.Decode(configBytes, config)
+	err = codec.Decode(configBytes, config)
 	goutils.LogFatal(err)
 
 	return config
