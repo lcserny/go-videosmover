@@ -33,13 +33,12 @@ func main() {
 
 	codec := json.NewJsonCodec()
 	trashMover := wastebasket.NewTrashMover()
-	action.Register("delete", delete.NewAction(codec, trashMover))
-	action.Register("move", move.NewAction(codec, trashMover))
-	action.Register("output", output.NewAction(codec)) // TODO: abstract dependencies
-	action.Register("search", search.NewAction(codec)) // TODO: abstract dependencies
+	cfg := config.NewActionConfig(filepath.Join(*cmdConfig, "actions.json"), codec)
 
-	a := action.Retrieve(*cmdAction)
-	c := config.NewActionConfig(filepath.Join(*cmdConfig, "actions.json"), codec)
+	action.Register("delete", delete.NewAction(cfg, codec, trashMover))
+	action.Register("move", move.NewAction(cfg, codec, trashMover))
+	action.Register("output", output.NewAction(cfg, codec)) // TODO: abstract dependencies, do this after
+	action.Register("search", search.NewAction(cfg, codec)) // TODO: abstract dependencies, do this first
 
 	b, err := ioutil.ReadFile(*cmdPayload)
 	if err != nil {
@@ -47,7 +46,8 @@ func main() {
 		goutils.LogFatal(err)
 	}
 
-	response, err := a.Execute(b, c)
+	a := action.Retrieve(*cmdAction)
+	response, err := a.Execute(b)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
 		goutils.LogFatal(err)

@@ -16,12 +16,15 @@ import (
 	"videosmover/pkg/action"
 )
 
-func NewAction(c core.Codec) action.Action {
-	return &outputAction{codec: c}
+// TODO: abstract TMDB everywhere...
+
+func NewAction(cfg *core.ActionConfig, c core.Codec) action.Action {
+	return &outputAction{config: cfg, codec: c}
 }
 
 type outputAction struct {
-	codec core.Codec
+	config *core.ActionConfig
+	codec  core.Codec
 }
 
 type searchTMDBFunc func(normalizedName string, year int, tmdbAPI *tmdb.TMDb, maxTMDBResultCount int) ([]string, bool)
@@ -46,20 +49,20 @@ var (
 	}
 )
 
-func (oa *outputAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
+func (oa outputAction) Execute(jsonPayload []byte) (string, error) {
 	var request RequestData
 	if err := oa.codec.Decode(jsonPayload, &request); err != nil {
 		goutils.LogError(err)
 		return "", err
 	}
 
-	normalized, year := normalize(request.Name, config.CompiledNameTrimRegexes)
+	normalized, year := normalize(request.Name, oa.config.CompiledNameTrimRegexes)
 	normalizedWithYear := appendYear(normalized, year)
-	if onDisk, found := findOnDisk(normalized, request.DiskPath, config.MaxOutputWalkDepth, config.SimilarityPercent); found {
+	if onDisk, found := findOnDisk(normalized, request.DiskPath, oa.config.MaxOutputWalkDepth, oa.config.SimilarityPercent); found {
 		return oa.codec.EncodeString(ResponseData{onDisk, ORIGIN_DISK})
 	}
 
-	if !request.SkipOnlineSearch && config.TmdbAPI != nil {
+	if !request.SkipOnlineSearch && oa.config.TmdbAPI != nil {
 		tmdbFunc, err := getTMDBFunc(request.Type)
 		if err != nil {
 			goutils.LogError(err)
@@ -75,8 +78,8 @@ func (oa *outputAction) Execute(jsonPayload []byte, config *action.Config) (stri
 			}
 		}
 
-		if tmdbNames, found := tmdbFunc(normalized, year, config.TmdbAPI, config.MaxTMDBResultCount); found {
-			saveInTMDBOutputCache(cacheKey, tmdbNames, outputTMDBCacheFile, config.OutTMDBCacheLimit)
+		if tmdbNames, found := tmdbFunc(normalized, year, oa.config.TmdbAPI, oa.config.MaxWebSearchResultCount); found {
+			saveInTMDBOutputCache(cacheKey, tmdbNames, outputTMDBCacheFile, oa.config.OutWebSearchCacheLimit)
 			return oa.codec.EncodeString(ResponseData{tmdbNames, ORIGIN_TMDB})
 		}
 	}

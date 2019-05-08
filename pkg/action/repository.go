@@ -14,13 +14,13 @@ var (
 )
 
 type Action interface {
-	Execute([]byte, *Config) (string, error)
+	Execute([]byte) (string, error)
 }
 
 type unknownAction struct {
 }
 
-func (uc *unknownAction) Execute(json []byte, cfg *Config) (string, error) {
+func (uc *unknownAction) Execute(json []byte) (string, error) {
 	return "", errors.New("unknown action given")
 }
 

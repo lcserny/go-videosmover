@@ -18,11 +18,12 @@ const (
 	COULDNT_REMOVE_FOLDER_REASON = "Couldn't remove video dir '%s'"
 )
 
-func NewAction(c core.Codec, tm core.TrashMover) action.Action {
-	return &moveAction{codec: c, trashMover: tm}
+func NewAction(cfg *core.ActionConfig, c core.Codec, tm core.TrashMover) action.Action {
+	return &moveAction{config: cfg, codec: c, trashMover: tm}
 }
 
 type moveAction struct {
+	config     *core.ActionConfig
 	codec      core.Codec
 	trashMover core.TrashMover
 }
@@ -142,7 +143,7 @@ func addToCleanSet(cleaningSet *[]string, folder string) {
 	*cleaningSet = append(*cleaningSet, folder)
 }
 
-func (ma *moveAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
+func (ma moveAction) Execute(jsonPayload []byte) (string, error) {
 	var requests []RequestData
 	if err := ma.codec.Decode(jsonPayload, &requests); err != nil {
 		goutils.LogError(err)
@@ -164,7 +165,7 @@ func (ma *moveAction) Execute(jsonPayload []byte, config *action.Config) (string
 		}
 		addToCleanSet(&cleaningSet, moveExecutor.folder)
 	}
-	cleanFolders(cleaningSet, &resultList, config.RestrictedRemovePaths, ma.trashMover)
+	cleanFolders(cleaningSet, &resultList, ma.config.RestrictedRemovePaths, ma.trashMover)
 
 	return ma.codec.EncodeString(resultList)
 }

@@ -12,6 +12,8 @@ import (
 	"videosmover/pkg"
 )
 
+// TODO: move this whole file better
+
 type TestActionData struct {
 	Request  interface{}
 	Response interface{}

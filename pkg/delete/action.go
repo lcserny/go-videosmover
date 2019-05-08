@@ -10,15 +10,16 @@ import (
 const COULDNT_MOVE_TO_TRASH = "Couldn't move folder '%s' to trash"
 
 type deleteAction struct {
+	config     *core.ActionConfig
 	codec      core.Codec
 	trashMover core.TrashMover
 }
 
-func NewAction(c core.Codec, tm core.TrashMover) action.Action {
-	return &deleteAction{codec: c, trashMover: tm}
+func NewAction(cfg *core.ActionConfig, c core.Codec, tm core.TrashMover) action.Action {
+	return &deleteAction{config: cfg, codec: c, trashMover: tm}
 }
 
-func (da *deleteAction) Execute(jsonPayload []byte, config *action.Config) (string, error) {
+func (da deleteAction) Execute(jsonPayload []byte) (string, error) {
 	var requests []RequestData
 	if err := da.codec.Decode(jsonPayload, &requests); err != nil {
 		goutils.LogError(err)
@@ -27,7 +28,7 @@ func (da *deleteAction) Execute(jsonPayload []byte, config *action.Config) (stri
 
 	resultList := make([]ResponseData, 0)
 	for _, req := range requests {
-		if restricted := action.PathRemovalIsRestricted(req.Folder, config.RestrictedRemovePaths); restricted {
+		if restricted := action.PathRemovalIsRestricted(req.Folder, da.config.RestrictedRemovePaths); restricted {
 			resultList = append(resultList, ResponseData{
 				req.Folder,
 				[]string{fmt.Sprintf(action.RESTRICTED_PATH_REASON, req.Folder)},

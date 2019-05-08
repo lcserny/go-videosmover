@@ -26,8 +26,8 @@ type ActionConfig struct {
 	SimilarityPercent         int      `json:"similarityPercent"`
 	MaxOutputWalkDepth        int      `json:"maxOutputWalkDepth"`
 	MaxSearchWalkDepth        int      `json:"maxSearchWalkDepth"`
-	MaxTMDBResultCount        int      `json:"maxTMDBResultCount"`
-	OutTMDBCacheLimit         int      `json:"outTMDBCacheLimit"`
+	MaxWebSearchResultCount   int      `json:"maxWebSearchResultCount"`
+	OutWebSearchCacheLimit    int      `json:"outWebSearchCacheLimit"`
 	HeaderBytesSize           int      `json:"headerBytesSize"`
 	RestrictedRemovePaths     []string `json:"restrictedRemovePaths"`
 	NameTrimRegexes           []string `json:"nameTrimRegexes"`
