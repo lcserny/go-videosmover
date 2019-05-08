@@ -34,7 +34,7 @@ func (sa searchAction) Execute(jsonPayload []byte) (string, error) {
 	}
 
 	realWalkRootPath, _ := filepath.EvalSymlinks(request.Path)
-	resultList, err := sa.walker.Walk(realWalkRootPath, sa.isVideo, sa.findSubtitles) // FIXME: list is a pointer now
+	resultList, err := sa.walker.Walk(realWalkRootPath, sa.isVideo, sa.findSubtitles)
 
 	goutils.LogError(err)
 	if err != nil {
