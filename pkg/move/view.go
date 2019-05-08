@@ -6,16 +6,15 @@ import (
 	"strings"
 	"videosmover/pkg"
 	"videosmover/pkg/action"
-	"videosmover/pkg/web"
 )
 
 type ajaxController struct {
-	config       *web.WebviewConfig
+	config       *core.WebviewConfig
 	codec        core.Codec
 	apiRequester core.WebAPIRequester
 }
 
-func NewAjaxController(config *web.WebviewConfig, codec core.Codec, apiRequester core.WebAPIRequester) http.Handler {
+func NewAjaxController(config *core.WebviewConfig, codec core.Codec, apiRequester core.WebAPIRequester) http.Handler {
 	return &ajaxController{config: config, codec: codec, apiRequester: apiRequester}
 }
 

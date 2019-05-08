@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"strings"
 	"videosmover/pkg"
-	"videosmover/pkg/web"
 )
 
 type Result struct {
@@ -21,12 +20,12 @@ type ResultPageData struct {
 }
 
 type controller struct {
-	config             *web.WebviewConfig
+	config             *core.WebviewConfig
 	codec              core.Codec
 	apiReqResProcessor core.WebApiReqResProcessor
 }
 
-func NewController(cfg *web.WebviewConfig, codec core.Codec, apiReqResProcessor core.WebApiReqResProcessor) core.WebTemplateController {
+func NewController(cfg *core.WebviewConfig, codec core.Codec, apiReqResProcessor core.WebApiReqResProcessor) core.WebTemplateController {
 	return &controller{config: cfg, codec: codec, apiReqResProcessor: apiReqResProcessor}
 }
 

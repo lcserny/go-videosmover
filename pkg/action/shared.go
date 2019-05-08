@@ -3,7 +3,7 @@ package action
 import (
 	"os"
 	"strings"
-	"videosmover/pkg/web"
+	"videosmover/pkg"
 )
 
 const (
@@ -23,7 +23,7 @@ func PathRemovalIsRestricted(folder string, restrictedRemovePaths []string) bool
 	return false
 }
 
-func GetDiskPath(videoType string, config *web.WebviewConfig) string {
+func GetDiskPath(videoType string, config *core.WebviewConfig) string {
 	loweredType := strings.ToLower(videoType)
 	if loweredType != UNKNOWN {
 		diskPath := config.MoviesPath

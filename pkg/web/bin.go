@@ -14,12 +14,12 @@ import (
 )
 
 type binExecutor struct {
-	cmd   *cmdHandlerConfig
+	cmd   *core.CmdHandlerConfig
 	codec core.Codec
 	wrp   core.WebResponseProcessor
 }
 
-func NewBinExecutor(cmd *cmdHandlerConfig, codec core.Codec, processor core.WebResponseProcessor) http.Handler {
+func NewBinExecutor(cmd *core.CmdHandlerConfig, codec core.Codec, processor core.WebResponseProcessor) http.Handler {
 	return &binExecutor{cmd: cmd, codec: codec, wrp: processor}
 }
 

@@ -13,6 +13,7 @@ import (
 	"runtime"
 	"time"
 	"videosmover/pkg"
+	"videosmover/pkg/config"
 	"videosmover/pkg/json"
 	"videosmover/pkg/move"
 	"videosmover/pkg/output"
@@ -37,28 +38,28 @@ func main() {
 	cfgFileName := fmt.Sprintf("config_%s.json", runtime.GOOS)
 	jsonCodec := json.NewJsonCodec()
 	apiRequester := web.NewApiRequester(jsonCodec)
-	config := web.GenerateWebviewConfig(*cfgPath, cfgFileName, jsonCodec)
-	webPath := fmt.Sprintf("localhost:%s", config.Port)
+	cfg := config.GenerateWebviewConfig(*cfgPath, cfgFileName, jsonCodec)
+	webPath := fmt.Sprintf("localhost:%s", cfg.Port)
 
 	// define template controllers
 	tmplControllers := make(map[string]core.WebTemplateController)
-	searchController := search.NewController(config, jsonCodec, apiRequester)
+	searchController := search.NewController(cfg, jsonCodec, apiRequester)
 	tmplControllers["/"] = searchController
 	tmplControllers["/search"] = searchController
 
 	// define AJAX handlers
 	ajaxHandlers := make(map[string]http.Handler)
-	ajaxHandlers["/ajax/output"] = output.NewAjaxController(config, jsonCodec, apiRequester)
-	ajaxHandlers["/ajax/move"] = move.NewAjaxController(config, jsonCodec, apiRequester)
+	ajaxHandlers["/ajax/output"] = output.NewAjaxController(cfg, jsonCodec, apiRequester)
+	ajaxHandlers["/ajax/move"] = move.NewAjaxController(cfg, jsonCodec, apiRequester)
 
 	// init web handler
 	mux := http.NewServeMux()
 	mux.HandleFunc("/running", func(writer http.ResponseWriter, request *http.Request) {
 		pingTimestamp = goutils.MakeTimestamp()
 	})
-	htmlServer := http.FileServer(http.Dir(config.HtmlFilesPath))
+	htmlServer := http.FileServer(http.Dir(cfg.HtmlFilesPath))
 	mux.Handle("/static/", http.StripPrefix("/static/", htmlServer))
-	templates := template.Must(template.ParseGlob(filepath.Join(config.HtmlFilesPath, "*.gohtml")))
+	templates := template.Must(template.ParseGlob(filepath.Join(cfg.HtmlFilesPath, "*.gohtml")))
 	for pat, tmplController := range tmplControllers {
 		mux.HandleFunc(pat, func(resp http.ResponseWriter, req *http.Request) {
 			if tmplName, tmplData, renderTmpl := tmplController.ServeTemplate(resp, req); renderTmpl {
@@ -84,7 +85,7 @@ func main() {
 
 	// check shutdown server
 	for range time.NewTicker(time.Second).C {
-		if (pingTimestamp != 0) && (goutils.MakeTimestamp() > pingTimestamp+config.ServerPingTimeoutMs) {
+		if (pingTimestamp != 0) && (goutils.MakeTimestamp() > pingTimestamp+cfg.ServerPingTimeoutMs) {
 			goutils.LogFatal(server.Shutdown(context.Background()))
 		}
 	}

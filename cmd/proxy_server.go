@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"videosmover/pkg/config"
 	"videosmover/pkg/json"
 	"videosmover/pkg/web"
 )
@@ -26,7 +27,7 @@ func main() {
 	jsonCodec := json.NewJsonCodec()
 	cfgFileName := fmt.Sprintf("config_%s.json", runtime.GOOS)
 	apiRequester := web.NewApiRequester(jsonCodec)
-	c := web.GenerateProxyConfig(*cfgPath, cfgFileName, jsonCodec)
+	c := config.GenerateProxyConfig(*cfgPath, cfgFileName, jsonCodec)
 
 	mux := http.NewServeMux()
 	for _, binCmd := range c.Bin {
