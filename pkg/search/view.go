@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
-	"videosmover/pkg/json"
+	"videosmover/pkg"
 	"videosmover/pkg/web"
 )
 
@@ -20,42 +20,43 @@ type ResultPageData struct {
 	Videos []Result
 }
 
-type Controller struct {
+type controller struct {
 	config *web.WebviewConfig
+	codec  core.Codec
 }
 
-func NewController(config *web.WebviewConfig) *Controller {
-	return &Controller{config: config}
+func NewController(cfg *web.WebviewConfig, codec core.Codec) web.TemplateController {
+	return &controller{config: cfg, codec: codec}
 }
 
-func (sc *Controller) ServeTemplate(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
+func (c *controller) ServeTemplate(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
 	resp.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	switch strings.ToUpper(req.Method) {
 	case http.MethodPost:
-		return sc.POST(resp, req)
+		return c.POST(resp, req)
 	default:
-		return sc.GET(resp, req)
+		return c.GET(resp, req)
 	}
 }
 
-func (sc *Controller) GET(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
+func (c *controller) GET(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
 	resp.WriteHeader(http.StatusOK)
 	return "search", nil, true
 }
 
-func (sc *Controller) POST(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
-	jsonBody, err := web.ExecuteVideosMoverPOST("search", &RequestData{Path: sc.config.DownloadsPath}, sc.config.VideosMoverAPI)
+func (c *controller) POST(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
+	jsonBody, err := web.ExecuteVideosMoverPOST("search", &RequestData{Path: c.config.DownloadsPath}, c.config.VideosMoverAPI)
 	if err != nil {
 		return web.Return500Error("search", err, resp)
 	}
 
 	if jsonBody == "" {
-		return sc.GET(resp, req)
+		return c.GET(resp, req)
 	}
 
 	var searchResponseDataList []ResponseData
-	if err = json.Decode([]byte(jsonBody), &searchResponseDataList); err != nil {
+	if err = c.codec.Decode([]byte(jsonBody), &searchResponseDataList); err != nil {
 		return web.Return500Error("search", err, resp)
 	}
 
@@ -64,11 +65,11 @@ func (sc *Controller) POST(resp http.ResponseWriter, req *http.Request) (name st
 		fileName := filepath.Base(data.Path)
 		fileDir := filepath.Dir(data.Path)
 		name := filepath.Base(fileDir)
-		if fileDir == filepath.Clean(sc.config.DownloadsPath) {
+		if fileDir == filepath.Clean(c.config.DownloadsPath) {
 			name = fileName
 		}
 
-		encodeString, _ := json.EncodeString(data.Subtitles)
+		encodeString, _ := c.codec.EncodeString(data.Subtitles)
 
 		searchResult := Result{
 			Index:            i,

@@ -5,25 +5,26 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"videosmover/pkg"
 	"videosmover/pkg/action"
-	"videosmover/pkg/json"
 	"videosmover/pkg/web"
 )
 
-type AjaxController struct {
+type ajaxController struct {
 	config *web.WebviewConfig
+	codec  core.Codec
 }
 
-func NewAjaxController(config *web.WebviewConfig) *AjaxController {
-	return &AjaxController{config: config}
+func NewAjaxController(config *web.WebviewConfig, codec core.Codec) http.Handler {
+	return &ajaxController{config: config, codec: codec}
 }
 
-func (sc *AjaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
+func (c ajaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	resp.Header().Set("Content-Type", "application/json")
 	if strings.ToUpper(req.Method) == http.MethodPost {
 		// TODO: validate request
 		reqDataType := req.FormValue("type")
-		diskPath := action.GetDiskPath(reqDataType, sc.config)
+		diskPath := action.GetDiskPath(reqDataType, c.config)
 
 		reqDataSkipCache := req.FormValue("skipcache")
 		skipCache, err := strconv.ParseBool(reqDataSkipCache)
@@ -49,7 +50,7 @@ func (sc *AjaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request)
 			SkipCache:        skipCache,
 			SkipOnlineSearch: skipOnlineSearch,
 			DiskPath:         diskPath,
-		}, sc.config.VideosMoverAPI)
+		}, c.config.VideosMoverAPI)
 		if err != nil {
 			goutils.LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)
@@ -57,13 +58,13 @@ func (sc *AjaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request)
 		}
 
 		var outputResponseData ResponseData
-		if err = json.Decode([]byte(jsonBody), &outputResponseData); err != nil {
+		if err = c.codec.Decode([]byte(jsonBody), &outputResponseData); err != nil {
 			goutils.LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		responseBytes, err := json.EncodeBytes(outputResponseData)
+		responseBytes, err := c.codec.EncodeBytes(outputResponseData)
 		if err != nil {
 			goutils.LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)
