@@ -10,6 +10,8 @@ import (
 	"videosmover/pkg/action"
 	"videosmover/pkg/config"
 	"videosmover/pkg/delete"
+	"videosmover/pkg/godirwalk"
+	"videosmover/pkg/h2non"
 	"videosmover/pkg/json"
 	"videosmover/pkg/move"
 	"videosmover/pkg/output"
@@ -34,11 +36,13 @@ func main() {
 	codec := json.NewJsonCodec()
 	trashMover := wastebasket.NewTrashMover()
 	cfg := config.NewActionConfig(filepath.Join(*cmdConfig, "actions.json"), codec)
+	mimeChecker := h2non.NewVideoChecker(cfg)
+	videoPathWalker := godirwalk.NewVideoPathWalker(cfg)
 
 	action.Register("delete", delete.NewAction(cfg, codec, trashMover))
 	action.Register("move", move.NewAction(cfg, codec, trashMover))
 	action.Register("output", output.NewAction(cfg, codec)) // TODO: abstract dependencies, do this after
-	action.Register("search", search.NewAction(cfg, codec)) // TODO: abstract dependencies, do this first
+	action.Register("search", search.NewAction(cfg, codec, mimeChecker, videoPathWalker))
 
 	b, err := ioutil.ReadFile(*cmdPayload)
 	if err != nil {
