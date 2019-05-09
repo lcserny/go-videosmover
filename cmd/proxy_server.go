@@ -6,7 +6,6 @@ import (
 	"github.com/lcserny/goutils"
 	"net/http"
 	"os"
-	"runtime"
 	"videosmover/pkg/config"
 	"videosmover/pkg/ext/json"
 	"videosmover/pkg/web"
@@ -21,13 +20,12 @@ func main() {
 
 	goutils.InitFileLogger("vm-proxyserver.log")
 
-	cfgPath := flag.String("configPath", "", "path to proxy server configs folder")
+	cfgPath := flag.String("config", "", "path to proxy server config")
 	flag.Parse()
 
 	jsonCodec := json.NewJsonCodec()
-	cfgFileName := fmt.Sprintf("config_%s.json", runtime.GOOS)
 	apiRequester := web.NewApiRequester(jsonCodec)
-	c := config.GenerateProxyConfig(*cfgPath, cfgFileName, jsonCodec)
+	c := config.GenerateProxyConfig(*cfgPath, jsonCodec)
 
 	mux := http.NewServeMux()
 	for _, binCmd := range c.Bin {

@@ -3,7 +3,7 @@
     {
       "uri": "videos-mover",
       "path": "./commander",
-      "cfgPath": "/path/to/configs"
+      "cfgPath": "/path/to/actions/config"
     }
   ]
 }

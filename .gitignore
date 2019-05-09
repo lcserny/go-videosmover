@@ -2,9 +2,6 @@
 .idea
 *.iml
 *.log
-static/configs/*/*windows*
-static/configs/*/*linux*
-static/configs/*/*darwin*
 *.cache
 bin
 !testdata/*.cache

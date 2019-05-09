@@ -52,7 +52,7 @@ func (be binExecutor) servePOST(w http.ResponseWriter, r *http.Request) {
 
 	var cmdOut bytes.Buffer
 	var cmdErr bytes.Buffer
-	cmd := exec.Command(be.cmd.Path, "-configs="+be.cmd.ConfigPath, "-action="+requestData.Action, "-payloadFile="+tmpFile.Name())
+	cmd := exec.Command(be.cmd.Path, "-config="+be.cmd.ConfigPath, "-action="+requestData.Action, "-payloadFile="+tmpFile.Name())
 	cmd.Stdout = &cmdOut
 	cmd.Stderr = &cmdErr
 	if err := cmd.Run(); err != nil {

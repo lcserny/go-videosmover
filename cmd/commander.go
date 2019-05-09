@@ -6,7 +6,6 @@ import (
 	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"videosmover/pkg/action"
 	"videosmover/pkg/config"
 	"videosmover/pkg/delete"
@@ -29,14 +28,14 @@ func main() {
 
 	goutils.InitFileLogger("vm-commander.log")
 
-	cmdConfig := flag.String("configs", "", "configs folder path")
+	cmdConfig := flag.String("config", "", "actions config file path")
 	cmdAction := flag.String("action", "search", "action to execute")
 	cmdPayload := flag.String("payloadFile", "", "path to payload file")
 	flag.Parse()
 
 	codec := json.NewJsonCodec()
 	trashMover := wastebasket.NewTrashMover()
-	cfg := config.NewActionConfig(filepath.Join(*cmdConfig, "actions.json"), codec)
+	cfg := config.NewActionConfig(*cmdConfig, codec)
 	mimeChecker := h2non.NewVideoChecker(cfg)
 	videoPathWalker := godirwalk.NewVideoPathWalker(cfg)
 	videoWebSearcher := tmdb.NewVideoWebSearcher()

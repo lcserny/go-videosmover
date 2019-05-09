@@ -17,7 +17,7 @@ The **webview** is the UI part and basically just opens a tab in your default br
 
 ### Proxy Server
 #### How to run Server:  
-- make a config from example one for your OS  
+- make a config from example  
 - from root of project `go build cmd/proxy_server.go` NOTE (windows): add `-ldflags -H=windowsgui`  
 - launch server providing configsFolder path  
 
@@ -42,7 +42,7 @@ JSON response should be like:
 
 ### Webview
 #### How to run:
-- make a config from example one for your OS  
+- make a config from example  
 - from root of project `go build cmd/webview.go` NOTE (windows): add `-ldflags -H=windowsgui`  
 - launch server providing configsFolder path  
 

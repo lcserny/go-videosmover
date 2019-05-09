@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"runtime"
 	"time"
 	"videosmover/pkg"
 	"videosmover/pkg/config"
@@ -31,14 +30,13 @@ func main() {
 
 	goutils.InitFileLogger("vm-webview.log")
 
-	cfgPath := flag.String("configPath", "", "path to webview config files")
+	cfgPath := flag.String("config", "", "path to webview config")
 	flag.Parse()
 
 	var pingTimestamp int64
-	cfgFileName := fmt.Sprintf("config_%s.json", runtime.GOOS)
 	jsonCodec := json.NewJsonCodec()
 	apiRequester := web.NewApiRequester(jsonCodec)
-	cfg := config.GenerateWebviewConfig(*cfgPath, cfgFileName, jsonCodec)
+	cfg := config.GenerateWebviewConfig(*cfgPath, jsonCodec)
 	webPath := fmt.Sprintf("localhost:%s", cfg.Port)
 
 	// define template controllers

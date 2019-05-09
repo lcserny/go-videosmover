@@ -3,12 +3,11 @@ package config
 import (
 	"github.com/lcserny/goutils"
 	"io/ioutil"
-	"path/filepath"
 	"videosmover/pkg"
 )
 
-func GenerateProxyConfig(path, file string, codec core.Codec) *core.ProxyConfig {
-	configBytes, err := ioutil.ReadFile(filepath.Join(path, file))
+func GenerateProxyConfig(configFile string, codec core.Codec) *core.ProxyConfig {
+	configBytes, err := ioutil.ReadFile(configFile)
 	goutils.LogFatal(err)
 
 	// defaults
@@ -20,8 +19,8 @@ func GenerateProxyConfig(path, file string, codec core.Codec) *core.ProxyConfig 
 	return serverConfig
 }
 
-func GenerateWebviewConfig(configsPath, configFile string, codec core.Codec) *core.WebviewConfig {
-	configBytes, err := ioutil.ReadFile(filepath.Join(configsPath, configFile))
+func GenerateWebviewConfig(configFile string, codec core.Codec) *core.WebviewConfig {
+	configBytes, err := ioutil.ReadFile(configFile)
 	goutils.LogFatal(err)
 
 	// defaults
