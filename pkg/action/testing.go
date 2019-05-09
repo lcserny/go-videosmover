@@ -10,6 +10,8 @@ import (
 	"videosmover/pkg"
 )
 
+// TODO: improve this
+
 type TestActionData struct {
 	Request  interface{}
 	Response interface{}

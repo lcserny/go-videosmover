@@ -69,7 +69,7 @@ func (oa outputAction) Execute(jsonPayload []byte) (string, error) {
 		return oa.codec.EncodeString(ResponseData{onDisk, ORIGIN_DISK})
 	}
 
-	if !request.SkipOnlineSearch && oa.webSearcher != nil {
+	if !request.SkipOnlineSearch && oa.webSearcher.CanSearch() {
 		tmdbFunc, err := getTMDBFunc(request.Type)
 		if err != nil {
 			goutils.LogError(err)

@@ -19,6 +19,10 @@ func NewVideoWebSearcher() core.VideoWebSearcher {
 	return &vws
 }
 
+func (vws videoWebSearcher) CanSearch() bool {
+	return vws.tmdbAPI != nil
+}
+
 func (vws videoWebSearcher) SearchMovies(name string, year int) ([]*core.VideoWebResult, error) {
 	options := map[string]string{"page": "1", "language": "en"}
 	if year > 0 {

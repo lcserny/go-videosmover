@@ -32,6 +32,7 @@ type VideoWebResult struct {
 }
 
 type VideoWebSearcher interface {
+	CanSearch() bool
 	SearchMovies(name string, year int) ([]*VideoWebResult, error)
 	SearchTVSeries(name string, year int) ([]*VideoWebResult, error)
 }
