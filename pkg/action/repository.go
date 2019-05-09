@@ -15,7 +15,7 @@ type actionRepository struct {
 }
 
 func NewActionRepository() core.ActionRepository {
-	return &actionRepository{}
+	return &actionRepository{actions: make(map[string]core.Action)}
 }
 
 type unknownAction struct {
