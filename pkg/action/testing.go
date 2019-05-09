@@ -36,7 +36,7 @@ func GetTestActionConfig() *core.ActionConfig {
 	return testActionCfg
 }
 
-func RunTestAction(t *testing.T, slice []TestActionData, a Action, c core.Codec) {
+func RunTestAction(t *testing.T, slice []TestActionData, a core.Action, c core.Codec) {
 	for _, td := range slice {
 		reqBytes, err := c.EncodeBytes(td.Request)
 		if err != nil {

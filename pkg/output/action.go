@@ -17,7 +17,7 @@ import (
 
 // TODO: improve this
 
-func NewAction(cfg *core.ActionConfig, c core.Codec, ws core.VideoWebSearcher) action.Action {
+func NewAction(cfg *core.ActionConfig, c core.Codec, ws core.VideoWebSearcher) core.Action {
 	oa := outputAction{config: cfg, codec: c, webSearcher: ws}
 	if cfg.NameTrimRegexes != nil {
 		for _, pat := range cfg.NameTrimRegexes {

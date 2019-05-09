@@ -15,7 +15,7 @@ type deleteAction struct {
 	trashMover core.TrashMover
 }
 
-func NewAction(cfg *core.ActionConfig, c core.Codec, tm core.TrashMover) action.Action {
+func NewAction(cfg *core.ActionConfig, c core.Codec, tm core.TrashMover) core.Action {
 	return &deleteAction{config: cfg, codec: c, trashMover: tm}
 }
 

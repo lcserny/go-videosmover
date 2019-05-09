@@ -18,7 +18,7 @@ const (
 	COULDNT_REMOVE_FOLDER_REASON = "Couldn't remove video dir '%s'"
 )
 
-func NewAction(cfg *core.ActionConfig, c core.Codec, tm core.TrashMover) action.Action {
+func NewAction(cfg *core.ActionConfig, c core.Codec, tm core.TrashMover) core.Action {
 	return &moveAction{config: cfg, codec: c, trashMover: tm}
 }
 

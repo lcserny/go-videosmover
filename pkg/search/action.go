@@ -7,10 +7,9 @@ import (
 	"path/filepath"
 	"sort"
 	"videosmover/pkg"
-	"videosmover/pkg/action"
 )
 
-func NewAction(cfg *core.ActionConfig, c core.Codec, mc core.VideoChecker, pw core.VideoPathWalker) action.Action {
+func NewAction(cfg *core.ActionConfig, c core.Codec, mc core.VideoChecker, pw core.VideoPathWalker) core.Action {
 	return &searchAction{config: cfg, codec: c, mimeChecker: mc, walker: pw}
 }
 

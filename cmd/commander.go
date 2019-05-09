@@ -41,10 +41,11 @@ func main() {
 	videoPathWalker := godirwalk.NewVideoPathWalker(cfg)
 	videoWebSearcher := tmdb.NewVideoWebSearcher()
 
-	action.Register("delete", delete.NewAction(cfg, codec, trashMover))
-	action.Register("move", move.NewAction(cfg, codec, trashMover))
-	action.Register("output", output.NewAction(cfg, codec, videoWebSearcher))
-	action.Register("search", search.NewAction(cfg, codec, mimeChecker, videoPathWalker))
+	actionRepo := action.NewActionRepository()
+	actionRepo.Register("delete", delete.NewAction(cfg, codec, trashMover))
+	actionRepo.Register("move", move.NewAction(cfg, codec, trashMover))
+	actionRepo.Register("output", output.NewAction(cfg, codec, videoWebSearcher))
+	actionRepo.Register("search", search.NewAction(cfg, codec, mimeChecker, videoPathWalker))
 
 	b, err := ioutil.ReadFile(*cmdPayload)
 	if err != nil {
@@ -52,7 +53,7 @@ func main() {
 		goutils.LogFatal(err)
 	}
 
-	a := action.Retrieve(*cmdAction)
+	a := actionRepo.Retrieve(*cmdAction)
 	response, err := a.Execute(b)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
