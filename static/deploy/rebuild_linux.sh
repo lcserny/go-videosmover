@@ -7,7 +7,7 @@ go test -v videosmover/pkg/delete
 go test -v videosmover/pkg/search
 go test -v videosmover/pkg/output
 
-go build -o=../bin/commander cmd/commander.go
-go build -o=../bin/proxy_server cmd/proxy_server.go
-go build -o=../bin/webview cmd/webview.go
-go build -o=../bin/remove_from_qtorrent cmd/remove_from_qtorrent.go
+go install cmd/commander.go
+go install cmd/proxy_server.go
+go install cmd/webview.go
+go install cmd/remove_from_qtorrent.go

@@ -7,7 +7,7 @@ go test -v videosmover/pkg/delete
 go test -v videosmover/pkg/search
 go test -v videosmover/pkg/output
 
-go build -ldflags -H=windowsgui -o=../bin/commander.exe cmd/commander.go
-go build -ldflags -H=windowsgui -o=../bin/proxy_server.exe cmd/proxy_server.go
-go build -ldflags -H=windowsgui -o=../bin/webview.exe cmd/webview.go
-go build -ldflags -H=windowsgui -o=../bin/remove_from_qtorrent.exe cmd/remove_from_qtorrent.go
+go install -ldflags -H=windowsgui cmd/commander.go
+go install -ldflags -H=windowsgui cmd/proxy_server.go
+go install -ldflags -H=windowsgui cmd/webview.go
+go install -ldflags -H=windowsgui cmd/remove_from_qtorrent.go
