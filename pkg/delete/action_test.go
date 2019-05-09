@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 	"videosmover/pkg/action"
-	"videosmover/pkg/json"
-	"videosmover/pkg/wastebasket"
+	"videosmover/pkg/ext/json"
+	"videosmover/pkg/ext/wastebasket"
 )
 
 func TestDeleteAction(t *testing.T) {

@@ -10,14 +10,14 @@ import (
 	"videosmover/pkg/action"
 	"videosmover/pkg/config"
 	"videosmover/pkg/delete"
-	"videosmover/pkg/godirwalk"
-	"videosmover/pkg/h2non"
-	"videosmover/pkg/json"
+	"videosmover/pkg/ext/godirwalk"
+	"videosmover/pkg/ext/h2non"
+	"videosmover/pkg/ext/json"
+	"videosmover/pkg/ext/tmdb"
+	"videosmover/pkg/ext/wastebasket"
 	"videosmover/pkg/move"
 	"videosmover/pkg/output"
 	"videosmover/pkg/search"
-	"videosmover/pkg/tmdb"
-	"videosmover/pkg/wastebasket"
 )
 
 func main() {

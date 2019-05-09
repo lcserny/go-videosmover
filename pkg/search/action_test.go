@@ -5,9 +5,9 @@ import (
 	"testing"
 	"videosmover/pkg"
 	"videosmover/pkg/action"
-	"videosmover/pkg/godirwalk"
-	"videosmover/pkg/h2non"
-	"videosmover/pkg/json"
+	"videosmover/pkg/ext/godirwalk"
+	"videosmover/pkg/ext/h2non"
+	"videosmover/pkg/ext/json"
 )
 
 func TestSearchAction(t *testing.T) {

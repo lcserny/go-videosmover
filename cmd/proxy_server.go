@@ -8,7 +8,7 @@ import (
 	"os"
 	"runtime"
 	"videosmover/pkg/config"
-	"videosmover/pkg/json"
+	"videosmover/pkg/ext/json"
 	"videosmover/pkg/web"
 )
 

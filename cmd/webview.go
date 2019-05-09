@@ -14,7 +14,7 @@ import (
 	"time"
 	"videosmover/pkg"
 	"videosmover/pkg/config"
-	"videosmover/pkg/json"
+	"videosmover/pkg/ext/json"
 	"videosmover/pkg/move"
 	"videosmover/pkg/output"
 	"videosmover/pkg/search"

@@ -4,8 +4,8 @@ import (
 	"path/filepath"
 	"testing"
 	"videosmover/pkg/action"
-	"videosmover/pkg/json"
-	"videosmover/pkg/tmdb"
+	"videosmover/pkg/ext/json"
+	"videosmover/pkg/ext/tmdb"
 )
 
 func TestOutputAction(t *testing.T) {
