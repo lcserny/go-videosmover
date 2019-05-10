@@ -4,7 +4,7 @@ function addToRowData(index, key, val) {
     return data;
 }
 
-function populateOutputData(index, data) {
+function populateOutputData(index, data, itemClass) {
     let videoRowData = $("#js-videoRow" + index).data();
     let outputVal = data;
 
@@ -16,61 +16,154 @@ function populateOutputData(index, data) {
         outputVal = data["names"][0];
         addToRowData(index, "outputnames", data["names"]);
         addToRowData(index, "outputorigin", data["origin"]);
-        populateOutputDropdown(index, data["names"]);
+        populateOutputDropdown(index, data["names"], itemClass);
     }
     addToRowData(index, "output", outputVal);
 
     $("#videoOutput" + index).val(outputVal);
 }
 
-function populateOutputDropdown(index, outputNames) {
+function populateOutputDropdown(index, outputNames, itemClass) {
     let $dropdownContainer = $("#js-videoOutputDropdown" + index);
     let dropdownContent = "";
     for (let i = 0; i < outputNames.length; i++) {
-        dropdownContent += "<a class=\"js-videoOutputDropdownItem dropdown-item\" data-index=\""
+        dropdownContent += "<a class=\"" + itemClass + " dropdown-item\" data-index=\""
             + index + "\" href=\"#\">" + outputNames[i] + "</a>";
     }
     $dropdownContainer.html(dropdownContent);
 }
 
+function getListOfCheckmarkedVideoMultiEdit() {
+    let list = [];
+    $("input.js-videoMultiEdit").each(function () {
+        if ($(this).prop("checked")) {
+            list.push($(this));
+        }
+    });
+    return list;
+}
+
+function handleVideoTypeChange(index, type, itemClass, $loadingContainer) {
+    let data = addToRowData(index, "type", type);
+    let $row = $("tr#js-videoRow" + index);
+
+    if (type === "unknown") {
+        populateOutputData(index, "", itemClass);
+        $row.removeClass("highlight-row")
+    } else {
+        $loadingContainer.show();
+        $.post("/ajax/output", {
+            name: data["name"],
+            type: data["type"],
+            skipcache: data["skipcache"],
+            skiponlinesearch: data["skiponlinesearch"],
+        }, function (response) {
+            $loadingContainer.hide();
+            if (typeof response === 'undefined' || response.length < 1) {
+                response = "";
+                console.log("Output response invalid, check logs.");
+                $row.removeClass("highlight-row")
+            }
+            $("#moveVideos").show();
+            populateOutputData(index, response, itemClass);
+            $row.addClass("highlight-row")
+        });
+    }
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// TODO: move each handler better in functions
 function registerEventHandlers() {
     let $loadingContainer = $("#loading-container");
 
     $(document).on("change", "input.js-videoSkipCacheInput", function () {
         addToRowData($(this).data("index"), "skipcache", $(this).is(":checked"));
+    }).on("change", "input.js-videoGroupSkipCacheInput", function () {
+        let groupEditList = getListOfCheckmarkedVideoMultiEdit();
+        for (let i = 0; i < groupEditList.length; i++) {
+            let $ge = groupEditList[i];
+            let rowIndex = $ge.data("index");
+            addToRowData(rowIndex, "skipcache", $(this).is(":checked"));
+            $("#videoSkipCache" + rowIndex).prop("checked", $(this).prop("checked")).trigger("change");
+        }
     }).on("change", "input.js-videoSkipOnlineSearchInput", function () {
         addToRowData($(this).data("index"), "skiponlinesearch", $(this).is(":checked"));
+    }).on("change", "input.js-videoGroupSkipOnlineSearchInput", function () {
+        let groupEditList = getListOfCheckmarkedVideoMultiEdit();
+        for (let i = 0; i < groupEditList.length; i++) {
+            let $ge = groupEditList[i];
+            let rowIndex = $ge.data("index");
+            addToRowData(rowIndex, "skiponlinesearch", $(this).is(":checked"));
+            $("#videoSkipOnlineSearch" + rowIndex).prop("checked", $(this).prop("checked")).trigger("change");
+        }
     }).on("keyup", "input.js-videoOutputInput", function () {
-        populateOutputData($(this).data("index"), $(this).val());
+        populateOutputData($(this).data("index"), $(this).val(), "js-videoOutputDropdownItem");
+    }).on("keyup", "input.js-videoGroupOutputInput", function () {
+        let groupEditList = getListOfCheckmarkedVideoMultiEdit();
+        for (let i = 0; i < groupEditList.length; i++) {
+            let $ge = groupEditList[i];
+            let rowIndex = $ge.data("index");
+            populateOutputData(rowIndex, $(this).val(), "js-videoGroupOutputDropdownItem");
+        }
     }).on("click", "a.js-videoOutputDropdownItem", function (event) {
-        populateOutputData($(this).data("index"), $(this).text());
+        populateOutputData($(this).data("index"), $(this).text(), "js-videoOutputDropdownItem");
         event.preventDefault();
-    }).on("change", "input.js-videoTypeInput", function () {
-        let rowIndex = $(this).data("index");
-        let rowType = $(this).val();
-        let rowData = addToRowData(rowIndex, "type", rowType);
-
-        if (rowType === "unknown") {
-            populateOutputData(rowIndex, "");
+    }).on("click", "a.js-videoGroupOutputDropdownItem", function (event) {
+        let groupEditList = getListOfCheckmarkedVideoMultiEdit();
+        for (let i = 0; i < groupEditList.length; i++) {
+            let $ge = groupEditList[i];
+            let rowIndex = $ge.data("index");
+            populateOutputData(rowIndex, $(this).text(), "js-videoGroupOutputDropdownItem");
+        }
+        event.preventDefault();
+    }).on("click", "button#groupEdit", function () {
+        $("#groupEditModal").modal("show");
+    }).on("click", "input.js-videoMultiEdit", function () {
+        let groupEditListSize = getListOfCheckmarkedVideoMultiEdit().length;
+        if (groupEditListSize > 0) {
+            $("#groupEditCount").text("(" + groupEditListSize + ")");
+        }
+        let $groupEditButton = $("#groupEdit");
+        if (groupEditListSize > 0) {
+            $groupEditButton.show();
         } else {
-            $loadingContainer.show();
-            $.post("/ajax/output", {
-                name: rowData["name"],
-                type: rowData["type"],
-                skipcache: rowData["skipcache"],
-                skiponlinesearch: rowData["skiponlinesearch"],
-            }, function (response) {
-                $loadingContainer.hide();
-                if (typeof response === 'undefined' || response.length < 1) {
-                    response = "";
-                    console.log("Output response invalid, check logs.");
-                }
-                $("#moveVideos").show();
-                populateOutputData(rowIndex, response);
-            });
+            $groupEditButton.hide();
+        }
+
+        let rowIndex = $(this).data("index");
+        let $row = $("tr#js-videoRow" + rowIndex);
+        if ($(this).prop("checked")) {
+            $row.addClass("highlight-border")
+        } else {
+            $row.removeClass("highlight-border")
+        }
+    }).on("change", "input.js-videoTypeInput", function () {
+        handleVideoTypeChange($(this).data("index"), $(this).val(), "js-videoOutputDropdownItem", $loadingContainer);
+    }).on("change", "input.js-videoGroupTypeInput", function () {
+        let groupEditList = getListOfCheckmarkedVideoMultiEdit();
+        for (let i = 0; i < groupEditList.length; i++) {
+            let $ge = groupEditList[i];
+            let rowIndex = $ge.data("index");
+            handleVideoTypeChange(rowIndex, $(this).val(), "js-videoGroupOutputDropdownItem", $loadingContainer);
+            $("#videoType" + capitalizeFirstLetter($(this).val()) + rowIndex).prop("checked", $(this).prop("checked")).trigger("change");
         }
     }).on("hidden.bs.modal", "#moveIssuesModal", function () {
         $("#searchVideos").submit();
+    }).on("hidden.bs.modal", "#groupEditModal", function () {
+        let groupEditList = getListOfCheckmarkedVideoMultiEdit();
+        for (let i = 0; i < groupEditList.length; i++) {
+            let $ge = groupEditList[i];
+            $ge.trigger("click");
+        }
+
+        $(".js-videoGroupTypeInput").prop("checked", false).trigger("change");
+        $(".js-videoGroupSkipCacheInput").prop("checked", false).trigger("change");
+        $(".js-videoGroupSkipOnlineSearchInput").prop("checked", false).trigger("change");
+        $(".js-videoGroupOutputInput").val("").trigger("change");
+        $(".js-videoGroupOutputDropdown").html("").trigger("change");
     }).on("click", "#moveVideos", function () {
         $loadingContainer.show();
 

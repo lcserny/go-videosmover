@@ -6,6 +6,11 @@ body {
 /*
  * Custom translucent site header
  */
+#header-logo {
+    width: 50px;
+    height: 50px;
+}
+
 .site-header {
     background-color: rgba(0, 0, 0, .85);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
@@ -20,6 +25,14 @@ body {
 .site-header a:hover {
     color: #fff;
     text-decoration: none;
+}
+
+.site-header-item {
+    margin: auto 0;
+}
+
+#content-header {
+    background-color: #f6f6f6;
 }
 
 /*
@@ -54,4 +67,54 @@ body {
     top: calc(50% - 128px); /* adjust as needed for size of loading gif */
     left: calc(50% - 128px); /* adjust as needed for size of loading gif */
     display: none; /* trigger show from JS */
+}
+
+.btn-flat {
+    font-family: "Lato Light", sans-serif;
+    font-size: 20px;
+    border-radius: 0;
+    box-shadow: 4px 4px 10px 0 #aaaaaa;
+}
+
+.btn-flat:hover {
+    box-shadow: 4px 4px 5px 0 #aaaaaa;
+}
+
+.btn-big {
+    padding: 10px 50px;
+}
+
+.btn-green {
+    background-color: #0cc100;
+    color: white;
+}
+
+.btn-green:hover {
+    color: white;
+}
+
+.btn-orange {
+    background-color: #ef8800;
+    color: white;
+}
+
+.btn-orange:hover {
+    color: white;
+}
+
+.btn-blue {
+    background-color: #0091ef;
+    color: white;
+}
+
+.btn-blue:hover {
+    color: white;
+}
+
+.highlight-row {
+    background-color: #ef880040 !important;
+}
+
+.highlight-border {
+    border: 3px solid #0091ef;
 }

@@ -6,19 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
+    <link rel="stylesheet" href="/static/fonts/Lato/Lato-Regular.ttf">
+    <link rel="stylesheet" href="/static/fonts/Lato/Lato-Light.ttf">
     <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/static/css/base.css">
     {{block "additionalStyles" .}}{{end}}
 </head>
 <body>
-<nav class="site-header sticky-top py-1">
-    <div class="container d-flex flex-column flex-md-row justify-content-between">
-        <a class="py-2" href="/search"><b>Videos Mover</b></a>
-        <a class="py-2 d-none d-md-inline-block" href="/search">Search</a>
+<div class="sticky-top">
+    <nav class="site-header sticky-top py-1">
+        <div class="container d-flex flex-column flex-md-row justify-content-between">
+            <a class="py-2" href="/search">
+                <img id="header-logo" src="/static/img/application.png" alt="logo"/>
+                <b class="site-header-item">Videos Mover</b>
+            </a>
+            <a class="site-header-item py-2 d-none d-md-inline-block" href="/search">Search</a>
+        </div>
+    </nav>
+
+    <div id="content-header">
+        {{block "contentHeader" .}}{{end}}
     </div>
-</nav>
+</div>
 
 {{block "content" .}}No content{{end}}
+<div id="content-footer" class="row">
+    {{block "contentFooter" .}}{{end}}
+</div>
 
 <div id="loading-container"><img src="/static/img/loading.gif" alt=""></div>
 <script src="/static/js/jquery.min.js"></script>
