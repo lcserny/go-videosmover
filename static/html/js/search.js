@@ -1,3 +1,5 @@
+// TODO: refactor functions
+
 function addToRowData(index, key, val) {
     let data = $("#js-videoRow" + index).data();
     data[key] = val;
@@ -33,16 +35,6 @@ function populateOutputDropdown(index, outputNames, itemClass) {
     $dropdownContainer.html(dropdownContent);
 }
 
-function getListOfCheckmarkedVideoMultiEdit() {
-    let list = [];
-    $("input.js-videoMultiEdit").each(function () {
-        if ($(this).prop("checked")) {
-            list.push($(this));
-        }
-    });
-    return list;
-}
-
 function handleVideoTypeChange(index, type, itemClass, $loadingContainer) {
     let data = addToRowData(index, "type", type);
     let $row = $("tr#js-videoRow" + index);
@@ -71,6 +63,16 @@ function handleVideoTypeChange(index, type, itemClass, $loadingContainer) {
     }
 }
 
+function getListOfCheckmarkedVideoMultiEdit() {
+    let list = [];
+    $("input.js-videoMultiEdit").each(function () {
+        if ($(this).prop("checked")) {
+            list.push($(this));
+        }
+    });
+    return list;
+}
+
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -89,6 +91,7 @@ function registerEventHandlers() {
             addToRowData(rowIndex, "skipcache", $(this).is(":checked"));
             $("#videoSkipCache" + rowIndex).prop("checked", $(this).prop("checked")).trigger("change");
         }
+        // TODO: populate also this popup input.js-videoGroupSkipCacheInput
     }).on("change", "input.js-videoSkipOnlineSearchInput", function () {
         addToRowData($(this).data("index"), "skiponlinesearch", $(this).is(":checked"));
     }).on("change", "input.js-videoGroupSkipOnlineSearchInput", function () {
@@ -99,6 +102,7 @@ function registerEventHandlers() {
             addToRowData(rowIndex, "skiponlinesearch", $(this).is(":checked"));
             $("#videoSkipOnlineSearch" + rowIndex).prop("checked", $(this).prop("checked")).trigger("change");
         }
+        // TODO: populate also this popup input.js-videoGroupSkipOnlineSearchInput
     }).on("keyup", "input.js-videoOutputInput", function () {
         populateOutputData($(this).data("index"), $(this).val(), "js-videoOutputDropdownItem");
     }).on("keyup", "input.js-videoGroupOutputInput", function () {
@@ -108,6 +112,7 @@ function registerEventHandlers() {
             let rowIndex = $ge.data("index");
             populateOutputData(rowIndex, $(this).val(), "js-videoGroupOutputDropdownItem");
         }
+        // TODO: populate also this popup input.js-videoGroupOutputInput
     }).on("click", "a.js-videoOutputDropdownItem", function (event) {
         populateOutputData($(this).data("index"), $(this).text(), "js-videoOutputDropdownItem");
         event.preventDefault();
@@ -118,6 +123,7 @@ function registerEventHandlers() {
             let rowIndex = $ge.data("index");
             populateOutputData(rowIndex, $(this).text(), "js-videoGroupOutputDropdownItem");
         }
+        // TODO: populate also this popup input.js-videoGroupOutputDropdownItem
         event.preventDefault();
     }).on("click", "button#groupEdit", function () {
         $("#groupEditModal").modal("show");
