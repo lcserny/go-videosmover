@@ -79,6 +79,11 @@ body {
     display: none; /* trigger show from JS */
 }
 
+.shadowed-textInput {
+    border: none;
+    box-shadow: inset 2px 2px 3px #cccccc;
+}
+
 .btn-flat {
     font-family: "Lato Light", sans-serif;
     font-size: 20px;
