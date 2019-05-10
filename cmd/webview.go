@@ -24,7 +24,7 @@ func main() {
 	// validate startup
 	args := os.Args[1:]
 	if len(args) != 1 {
-		_, _ = fmt.Fprintln(os.Stderr, "ERROR: Please provide `configPath` flag")
+		_, _ = fmt.Fprintln(os.Stderr, "ERROR: Please provide `config` flag")
 		return
 	}
 

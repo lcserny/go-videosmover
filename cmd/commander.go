@@ -22,7 +22,7 @@ import (
 func main() {
 	args := os.Args[1:]
 	if len(args) != 3 {
-		_, _ = fmt.Fprintln(os.Stderr, "ERROR: Please provide `configs`, `action` and `payloadFile` flags")
+		_, _ = fmt.Fprintln(os.Stderr, "ERROR: Please provide `config`, `action` and `payloadFile` flags")
 		return
 	}
 
