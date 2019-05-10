@@ -2,6 +2,7 @@
 
 cd ../..
 
+go test -v videosmover/pkg/action
 go test -v videosmover/pkg/move
 go test -v videosmover/pkg/delete
 go test -v videosmover/pkg/search

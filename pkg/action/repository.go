@@ -21,7 +21,7 @@ func NewActionRepository() core.ActionRepository {
 type unknownAction struct {
 }
 
-func (uc *unknownAction) Execute(json []byte) (string, error) {
+func (uc unknownAction) Execute(json []byte) (string, error) {
 	return "", errors.New("unknown action given")
 }
 

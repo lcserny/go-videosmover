@@ -36,7 +36,7 @@ func main() {
 	var pingTimestamp int64
 	jsonCodec := json.NewJsonCodec()
 	apiRequester := web.NewApiRequester(jsonCodec)
-	cfg := config.GenerateWebviewConfig(*cfgPath, jsonCodec)
+	cfg := config.MakeWebviewConfig(*cfgPath, jsonCodec)
 	webPath := fmt.Sprintf("localhost:%s", cfg.Port)
 
 	// define template controllers

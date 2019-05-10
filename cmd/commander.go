@@ -35,7 +35,7 @@ func main() {
 
 	codec := json.NewJsonCodec()
 	trashMover := wastebasket.NewTrashMover()
-	cfg := config.NewActionConfig(*cmdConfig, codec)
+	cfg := config.MakeActionConfig(*cmdConfig, codec)
 	mimeChecker := h2non.NewVideoChecker(cfg)
 	videoPathWalker := godirwalk.NewVideoPathWalker(cfg)
 	videoWebSearcher := tmdb.NewVideoWebSearcher()
