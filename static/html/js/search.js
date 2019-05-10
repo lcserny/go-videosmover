@@ -1,3 +1,5 @@
+// TODO #1: change in popup only, and on close of popup, populate the rows selected
+
 // TODO: refactor functions
 
 function addToRowData(index, key, val) {
