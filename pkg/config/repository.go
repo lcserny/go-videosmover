@@ -85,7 +85,7 @@ func MakeActionConfig(cfgPath string, codec core.Codec) *core.ActionConfig {
 	if ac.MaxOutputWalkDepth < 1 || ac.MaxSearchWalkDepth < 1 {
 		goutils.LogFatal(errors.New("walkDepths are not a positive number"))
 	}
-	if ac.MaxWebSearchResultCount > 1 {
+	if ac.MaxWebSearchResultCount < 1 {
 		goutils.LogFatal(errors.New("webSearchCount is not a positive number"))
 	}
 	if ac.OutWebSearchCacheLimit < 10 {
