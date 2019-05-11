@@ -131,5 +131,5 @@ body {
 }
 
 .highlight-border {
-    border: 3px solid #0091ef;
+    border-left: 5px solid #0091ef;
 }
