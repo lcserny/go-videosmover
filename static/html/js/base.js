@@ -1,7 +1,7 @@
 class RunHelper {
     setupPing(uri) {
         setInterval(function () {
-            fetch(uri);
+            fetch(uri).catch(reason => alert("Webview failed to connect to server, reason: " + reason));
         }, 1000);
     }
 }
