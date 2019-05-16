@@ -1,0 +1,222 @@
+{{template "layout.gohtml" .}}
+
+{{define "title"}}VideosMover - Search{{end}}
+
+{{define "additionalStyles"}}
+    <link rel="stylesheet" type="text/css" href="/static/css/search.css">
+{{end}}
+
+{{define "additionalScripts"}}
+    <script src="/static/js/search.js"></script>
+{{end}}
+
+{{define "contentHeader"}}
+    <div class="container p-3">
+        <form id="js-searchVideosForm" class="searchVideosForm" action="/search" method="post">
+            <input type="submit" value="Search" class="btn btn-flat btn-big btn-green">
+        </form>
+        <button id="moveVideosButton" type="button" class="btn btn-flat btn-big btn-orange">
+            Move Selected
+        </button>
+        <button id="js-groupEditButton" type="button" class="groupEditButton btn btn-flat btn-big btn-blue">
+            Group Edit <span id="js-groupEditCount"></span>
+        </button>
+    </div>
+{{end}}
+
+{{define "content"}}
+    <div class="container p-3">
+        {{if .Videos}}
+            <table class="table table-striped table-hover table-bordered">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col" style="width: 2%;"></th>
+                    <th scope="col" style="width: 5%;">#</th>
+                    <th scope="col" style="width: 38%;">Name</th>
+                    <th scope="col" style="width: 25%;">Type</th>
+                    <th scope="col" style="width: 30%;">Output</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{range .Videos}}
+                    <tr id="js-videoRow{{.Index}}" class="js-videoRow"
+                        data-index="{{.Index}}"
+                        data-filename="{{.FileName}}"
+                        data-name="{{.Name}}"
+                        data-type="unknown"
+                        data-skipcache=false
+                        data-skiponlinesearch=false
+                        data-path="{{.VideoPath}}"
+                        data-subs="{{.EncodedSubsArray}}"
+                        data-output=""
+                        data-outputnames=[]
+                        data-outputorigin="">
+
+                        <td>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input js-videoMultiEdit" type="checkbox" data-index="{{.Index}}">
+                            </div>
+                        </td>
+                        <th scope="row">{{.Index}}</th>
+                        <td>{{.FileName}}</td>
+                        <td>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input js-videoTypeInput" type="radio"
+                                           id="videoTypeMovie{{.Index}}" name="videoType{{.Index}}"
+                                           value="movie" data-index="{{.Index}}">
+                                    <label class="form-check-label" for="videoTypeMovie{{.Index}}">Movie</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input js-videoTypeInput" type="radio"
+                                           id="videoTypeTv{{.Index}}" name="videoType{{.Index}}"
+                                           value="tv" data-index="{{.Index}}">
+                                    <label class="form-check-label" for="videoTypeTv{{.Index}}">TV</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input js-videoTypeInput" type="radio"
+                                           id="videoTypeUnknown{{.Index}}" name="videoType{{.Index}}"
+                                           value="unknown" data-index="{{.Index}}">
+                                    <label class="form-check-label" for="videoTypeUnknown{{.Index}}">Unknown</label>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input js-videoSkipCacheInput"
+                                           type="checkbox" id="videoSkipCache{{.Index}}" data-index="{{.Index}}">
+                                    <label class="form-check-label" for="videoSkipCache{{.Index}}">
+                                        skip cache
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input js-videoSkipOnlineSearchInput"
+                                           type="checkbox" id="videoSkipOnlineSearch{{.Index}}" data-index="{{.Index}}">
+                                    <label class="form-check-label" for="videoSkipOnlineSearch{{.Index}}">
+                                        skip online search
+                                    </label>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group">
+                                <input type="text" class="form-control shadowed-textInput js-videoOutputInput" id="js-videoOutput{{.Index}}"
+                                       autocomplete="off" data-index="{{.Index}}"
+                                       placeholder="Check video type or type here">
+                                <div class="input-group-append">
+                                    <div class="btn-group dropleft">
+                                        <button type="button" class="btn btn-default js-videoOutputButton"
+                                                id="videoOutputDropdownButton{{.Index}}"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            ...
+                                        </button>
+                                        <div class="dropdown-menu" id="js-videoOutputDropdown{{.Index}}"
+                                             aria-labelledby="videoOutputDropdownButton{{.Index}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {{end}}
+                </tbody>
+            </table>
+        {{end}}
+    </div>
+
+    <div class="modal fade" id="js-moveIssuesModal" tabindex="-1" role="dialog"
+         aria-labelledby="Move Issues" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Move Issues</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body"><pre id="js-moveIssuesModalBody" class="pre-scrollable"></pre></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="js-groupEditModal" tabindex="-1" role="dialog"
+         aria-labelledby="Group Edit" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Group Edit</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input js-videoGroupTypeInput" type="radio"
+                                       id="videoGroupTypeMovie" name="videoGroupType"
+                                       value="movie">
+                                <label class="form-check-label" for="videoGroupTypeMovie">Movie</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input js-videoGroupTypeInput" type="radio"
+                                       id="videoGroupTypeTv" name="videoGroupType"
+                                       value="tv">
+                                <label class="form-check-label" for="videoGroupTypeTv">TV</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input js-videoGroupTypeInput" type="radio"
+                                       id="videoGroupTypeUnknown" name="videoGroupType"
+                                       value="unknown">
+                                <label class="form-check-label" for="videoGroupTypeUnknown">Unknown</label>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input js-videoGroupSkipCacheInput"
+                                       type="checkbox" id="videoGroupSkipCache">
+                                <label class="form-check-label" for="videoGroupSkipCache">
+                                    skip cache
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input js-videoGroupSkipOnlineSearchInput"
+                                       type="checkbox" id="videoGroupSkipOnlineSearch">
+                                <label class="form-check-label" for="videoGroupSkipOnlineSearch">
+                                    skip online search
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <input type="text" class="form-control shadowed-textInput js-videoGroupOutputInput"
+                                   autocomplete="off"
+                                   placeholder="Check group video type or type here">
+                            <div class="input-group-append">
+                                <div class="btn-group dropleft">
+                                    <button type="button" class="btn btn-default"
+                                            id="videoGroupOutputDropdownButton"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        ...
+                                    </button>
+                                    <div class="js-videoGroupOutputDropdown dropdown-menu"
+                                         aria-labelledby="videoGroupOutputDropdownButton">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{{end}}
