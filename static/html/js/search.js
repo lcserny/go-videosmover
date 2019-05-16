@@ -38,6 +38,13 @@ class VideoDataService {
     constructor(repo) {
         this.repo = repo;
     }
+
+    updateVideoType(index, value) {
+        // if value == unknown return
+        // get from repo by index
+        // if nothing in repo, create a videoData applying videoType and save to repo
+        alert("index: " + index + ", value: " + value);
+    }
 }
 
 class SearchHandler {
@@ -46,12 +53,20 @@ class SearchHandler {
         // loop over all rows/data if there and use service to convert rows to videoData and add to storage
     }
 
+    findIndex(rowChild) {
+        try {
+            return rowChild.closest(".js-videoRow").querySelector(".js-videoRowIndex").innerHTML;
+        } catch (e) {
+            throw "Couldn't find parent video row of element " + rowChild;
+        }
+    }
+
     register() {
         // register event handlers on document
         const videoTypeRadios = document.querySelectorAll('.js-videoRow .js-videoTypeInput');
         videoTypeRadios.forEach((radio) => {
             radio.addEventListener('change', (event) => {
-                alert('Thanks for clicking! ' + radio.value);
+                this.service.updateVideoType(this.findIndex(radio), radio.value);
             });
         });
     }
