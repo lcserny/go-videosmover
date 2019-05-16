@@ -24,7 +24,7 @@ function populateOutputData(index, data, itemClass) {
     }
     addToRowData(index, "output", outputVal);
 
-    $("#videoOutput" + index).val(outputVal);
+    $("#js-videoOutput" + index).val(outputVal);
 }
 
 function populateOutputDropdown(index, outputNames, itemClass) {
@@ -127,14 +127,14 @@ function registerEventHandlers() {
         }
         // TODO: populate also this popup input.js-videoGroupOutputDropdownItem
         event.preventDefault();
-    }).on("click", "button#groupEdit", function () {
-        $("#groupEditModal").modal("show");
+    }).on("click", "#js-groupEditButton", function () {
+        $("#js-groupEditModal").modal("show");
     }).on("click", "input.js-videoMultiEdit", function () {
         let groupEditListSize = getListOfCheckmarkedVideoMultiEdit().length;
         if (groupEditListSize > 0) {
-            $("#groupEditCount").text("(" + groupEditListSize + ")");
+            $("#js-groupEditCount").text("(" + groupEditListSize + ")");
         }
-        let $groupEditButton = $("#groupEdit");
+        let $groupEditButton = $("#js-groupEditButton");
         if (groupEditListSize > 0) {
             $groupEditButton.show();
         } else {
@@ -158,9 +158,9 @@ function registerEventHandlers() {
             handleVideoTypeChange(rowIndex, $(this).val(), "js-videoGroupOutputDropdownItem", $loadingContainer);
             $("#videoType" + capitalizeFirstLetter($(this).val()) + rowIndex).prop("checked", $(this).prop("checked")).trigger("change");
         }
-    }).on("hidden.bs.modal", "#moveIssuesModal", function () {
-        $("#searchVideos").submit();
-    }).on("hidden.bs.modal", "#groupEditModal", function () {
+    }).on("hidden.bs.modal", "#js-moveIssuesModal", function () {
+        $("#js-searchVideosForm").submit();
+    }).on("hidden.bs.modal", "#js-groupEditModal", function () {
         let groupEditList = getListOfCheckmarkedVideoMultiEdit();
         for (let i = 0; i < groupEditList.length; i++) {
             let $ge = groupEditList[i];
@@ -196,11 +196,11 @@ function registerEventHandlers() {
             $loadingContainer.hide();
 
             if (response.length === 0) {
-                $("#searchVideos").submit();
+                $("#js-searchVideosForm").submit();
                 return;
             }
-            $("#moveIssuesModal .modal-body pre").html(JSON.stringify(response, undefined, 2));
-            $("#moveIssuesModal").modal("show");
+            $("#js-moveIssuesModalBody").html(JSON.stringify(response, undefined, 2));
+            $("#js-moveIssuesModal").modal("show");
         });
     });
 }

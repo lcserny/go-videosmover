@@ -64,14 +64,6 @@ body {
     overflow: hidden;
 }
 
-#searchVideos {
-    display: inline-block;
-}
-
-#moveVideos {
-    display: none;
-}
-
 #loading-container {
     position: fixed;
     top: calc(50% - 128px); /* adjust as needed for size of loading gif */

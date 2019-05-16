@@ -1,3 +1,11 @@
-#groupEdit {
+.groupEditButton {
     display: none;
+}
+
+#moveVideosButton {
+    display: none;
+}
+
+.searchVideosForm {
+    display: inline-block;
 }

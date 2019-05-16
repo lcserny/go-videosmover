@@ -12,14 +12,14 @@
 
 {{define "contentHeader"}}
     <div class="container p-3">
-        <form id="searchVideos" action="/search" method="post">
+        <form id="js-searchVideosForm" class="searchVideosForm" action="/search" method="post">
             <input type="submit" value="Search" class="btn btn-flat btn-big btn-green">
         </form>
-        <button id="moveVideos" type="button" class="btn btn-flat btn-big btn-orange">
+        <button id="moveVideosButton" type="button" class="btn btn-flat btn-big btn-orange">
             Move Selected
         </button>
-        <button id="groupEdit" type="button" class="btn btn-flat btn-big btn-blue">
-            Group Edit <span id="groupEditCount"></span>
+        <button id="js-groupEditButton" type="button" class="groupEditButton btn btn-flat btn-big btn-blue">
+            Group Edit <span id="js-groupEditCount"></span>
         </button>
     </div>
 {{end}}
@@ -54,8 +54,7 @@
 
                         <td>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input js-videoMultiEdit" type="checkbox"
-                                       id="videoMultiEdit" name="videoMultiEdit" data-index="{{.Index}}">
+                                <input class="form-check-input js-videoMultiEdit" type="checkbox" data-index="{{.Index}}">
                             </div>
                         </td>
                         <th scope="row">{{.Index}}</th>
@@ -102,7 +101,7 @@
                         </td>
                         <td>
                             <div class="input-group">
-                                <input type="text" class="form-control shadowed-textInput js-videoOutputInput" id="videoOutput{{.Index}}"
+                                <input type="text" class="form-control shadowed-textInput js-videoOutputInput" id="js-videoOutput{{.Index}}"
                                        autocomplete="off" data-index="{{.Index}}"
                                        placeholder="Check video type or type here">
                                 <div class="input-group-append">
@@ -112,7 +111,7 @@
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             ...
                                         </button>
-                                        <div class="js-videoOutputDropdown dropdown-menu" id="js-videoOutputDropdown{{.Index}}"
+                                        <div class="dropdown-menu" id="js-videoOutputDropdown{{.Index}}"
                                              aria-labelledby="videoOutputDropdownButton{{.Index}}">
                                         </div>
                                     </div>
@@ -126,17 +125,17 @@
         {{end}}
     </div>
 
-    <div class="modal fade" id="moveIssuesModal" tabindex="-1" role="dialog"
+    <div class="modal fade" id="js-moveIssuesModal" tabindex="-1" role="dialog"
          aria-labelledby="Move Issues" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Move Issues</h5>
+                    <h5 class="modal-title">Move Issues</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body"><pre class="pre-scrollable"><code></code></pre></div>
+                <div class="modal-body"><pre id="js-moveIssuesModalBody" class="pre-scrollable"></pre></div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
@@ -144,18 +143,18 @@
         </div>
     </div>
 
-    <div class="modal fade" id="groupEditModal" tabindex="-1" role="dialog"
+    <div class="modal fade" id="js-groupEditModal" tabindex="-1" role="dialog"
          aria-labelledby="Group Edit" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Group Edit</h5>
+                    <h5 class="modal-title">Group Edit</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div id="groupEditContainer">
+                    <div>
                         <div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input js-videoGroupTypeInput" type="radio"
@@ -196,17 +195,17 @@
                         </div>
 
                         <div class="input-group">
-                            <input type="text" class="form-control shadowed-textInput js-videoGroupOutputInput" id="videoGroupOutput"
+                            <input type="text" class="form-control shadowed-textInput js-videoGroupOutputInput"
                                    autocomplete="off"
                                    placeholder="Check group video type or type here">
                             <div class="input-group-append">
                                 <div class="btn-group dropleft">
-                                    <button type="button" class="btn btn-default js-videoGroupOutputButton"
+                                    <button type="button" class="btn btn-default"
                                             id="videoGroupOutputDropdownButton"
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         ...
                                     </button>
-                                    <div class="js-videoGroupOutputDropdown dropdown-menu" id="js-videoGroupOutputDropdown"
+                                    <div class="js-videoGroupOutputDropdown dropdown-menu"
                                          aria-labelledby="videoGroupOutputDropdownButton">
                                     </div>
                                 </div>
