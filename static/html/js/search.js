@@ -259,11 +259,7 @@ class SearchViewHandler {
 
     checkShowMoveVideosButton() {
         let moveVideosButton = document.querySelector("#js-moveVideosButton");
-        if (this.service.shouldShowMoveButton()) {
-            moveVideosButton.style.display = 'initial';
-        } else {
-            moveVideosButton.style.display = 'none';
-        }
+        moveVideosButton.style.display = this.service.shouldShowMoveButton() ? "initial" : "none";
     }
 
     triggerChangeOutputTextBox(textBox, value) {
@@ -280,20 +276,21 @@ class SearchViewHandler {
             this.highlightRow(row, false);
             this.checkShowMoveVideosButton();
             this.triggerChangeOutputTextBox(outputTextBox, "");
-        } else {
-            this.highlightRow(row, true);
-            LoadingHelper.showLoading();
-            this.service.requestOutputDataAsync(videoData)
-                .then(outData => {
-                    this.service.updateVideoOutNames(videoData.index, outData["names"]);
-                    this.service.updateVideoOutOrigin(videoData.index, outData["origin"]);
-                    this.triggerChangeOutputTextBox(outputTextBox, outData["names"][0]);
-                })
-                .finally(() => {
-                    LoadingHelper.hideLoading();
-                    this.checkShowMoveVideosButton();
-                });
+            return;
         }
+
+        this.highlightRow(row, true);
+        LoadingHelper.showLoading();
+        this.service.requestOutputDataAsync(videoData)
+            .then(outData => {
+                this.service.updateVideoOutNames(videoData.index, outData["names"]);
+                this.service.updateVideoOutOrigin(videoData.index, outData["origin"]);
+                this.triggerChangeOutputTextBox(outputTextBox, outData["names"][0]);
+            })
+            .finally(() => {
+                LoadingHelper.hideLoading();
+                this.checkShowMoveVideosButton();
+            });
     }
 
     triggerSearchVideosButton() {
