@@ -1,102 +1,86 @@
 import LoadingHelper from "./base.js";
 
 class VideoData {
-    constructor(index) {
-        this.index = index;
-        this.name = "";
-        this.fileName = "";
-        this.path = "";
-        this.subs = [];
-        this.type = "unknown";
-        this.skipCache = false;
-        this.skipOnline = false;
-        this.output = "";
-        this.outputNames = [];
-        this.outputOrigin = "";
+    constructor(index, name, fileName, path, subs) {
+        this._index = index;
+        this._name = name;
+        this._fileName = fileName;
+        this._path = path;
+        this._subs = subs;
+        this._type = "unknown";
+        this._skipCache = false;
+        this._skipOnline = false;
+        this._output = "";
+        this._outputNames = [];
+        this._outputOrigin = "";
     }
 
-    setName(name) {
-        this.name = name;
+    get index() {
+        return this._index;
     }
 
-    setFileName(fileName) {
-        this.fileName = fileName;
+    get name() {
+        return this._name;
     }
 
-    setPath(path) {
-        this.path = path;
+    get fileName() {
+        return this._fileName;
     }
 
-    setSubs(subs) {
-        this.subs = subs;
+    get path() {
+        return this._path;
     }
 
-    setType(type) {
-        this.type = type;
+    get subs() {
+        return this._subs;
     }
 
-    setSkipCache(skipCache) {
-        this.skipCache = skipCache;
+    get type() {
+        return this._type;
     }
 
-    setSkipOnline(skipOnline) {
-        this.skipOnline = skipOnline;
+    set type(value) {
+        this._type = value;
     }
 
-    setOutput(output) {
-        this.output = output;
+    get skipCache() {
+        return this._skipCache;
     }
 
-    setOutputNames(outNames) {
-        this.outputNames = outNames;
+    set skipCache(value) {
+        this._skipCache = value;
     }
 
-    setOutputOrigin(origin) {
-        this.outputOrigin = origin;
+    get skipOnline() {
+        return this._skipOnline;
     }
 
-    getIndex() {
-        return this.index;
+    set skipOnline(value) {
+        this._skipOnline = value;
     }
 
-    getName() {
-        return this.name;
+    get output() {
+        return this._output;
     }
 
-    getFileName() {
-        return this.fileName;
+    set output(value) {
+        this._output = value;
     }
 
-    getPath() {
-        return this.path;
+    get outputNames() {
+        return this._outputNames;
     }
 
-    getSubs() {
-        return this.subs;
+    set outputNames(value) {
+        this._outputNames = value;
     }
 
-    getType() {
-        return this.type;
+    get outputOrigin() {
+        return this._outputOrigin;
     }
 
-    getSkipCache() {
-        return this.skipCache;
-    }
-
-    getSkipOnline() {
-        return this.skipOnline;
-    }
-
-    getOutput() {
-        return this.output;
-    }
-
-    getOutputNames() {
-        return this.outputNames;
-    }
-
-    getOutputOrigin() {
-        return this.outputOrigin;
+    set outputOrigin(value) {
+        this._outputOrigin = value;
     }
 }
 
@@ -133,48 +117,48 @@ class BasicVideoDataService {
 
     updateVideoType(index, value) {
         let videoData = this.repo.get(index);
-        videoData.setType(value);
+        videoData.type = value;
         this.save(videoData);
         return videoData;
     }
 
     updateVideoSkipCache(index, value) {
         let videoData = this.repo.get(index);
-        videoData.setSkipCache(value);
+        videoData.skipCache = value;
         this.save(videoData);
         return videoData;
     }
 
     updateVideoSkipOnline(index, value) {
         let videoData = this.repo.get(index);
-        videoData.setSkipOnline(value);
+        videoData.skipOnline = value;
         this.save(videoData);
         return videoData;
     }
 
     updateVideoOutput(index, value) {
         let videoData = this.repo.get(index);
-        videoData.setOutput(value);
+        videoData.output = value;
         this.save(videoData);
         return videoData;
     }
 
     updateVideoOutNames(index, values) {
         let videoData = this.repo.get(index);
-        videoData.setOutputNames(values);
+        videoData.outputNames = values;
         this.save(videoData);
         return videoData;
     }
 
     updateVideoOutOrigin(index, value) {
         let videoData = this.repo.get(index);
-        videoData.setOutputOrigin(value);
+        videoData.outputOrigin = value;
         this.save(videoData);
         return videoData;
     }
 
     save(videoData) {
-        this.repo.add(videoData.getIndex(), videoData);
+        this.repo.add(videoData.index, videoData);
     }
 
     // TODO: for debugging purposes
@@ -187,10 +171,10 @@ class BasicVideoDataService {
             method: 'POST',
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
-                name: videoData.getName(),
-                type: videoData.getType(),
-                skipcache: videoData.getSkipCache(),
-                skiponlinesearch: videoData.getSkipOnline(),
+                name: videoData.name,
+                type: videoData.type,
+                skipcache: videoData.skipCache,
+                skiponlinesearch: videoData.skipOnline,
             })
         });
         return response.json();
@@ -199,15 +183,15 @@ class BasicVideoDataService {
     async requestMoveVideosAsync() {
         let moveDataList = [];
         for (let videodata of this.repo.getAll()) {
-            if (videodata.getType() === "unknown") {
+            if (videodata.type === "unknown") {
                 continue;
             }
 
             moveDataList.push({
-                video: videodata.getPath(),
-                subs: videodata.getSubs(),
-                type: videodata.getType(),
-                outName: videodata.getOutput()
+                video: videodata.path,
+                subs: videodata.subs,
+                type: videodata.type,
+                outName: videodata.output
             });
         }
 
@@ -221,7 +205,7 @@ class BasicVideoDataService {
 
     shouldShowMoveButton() {
         for (let videoData of this.repo.getAll()) {
-            if (videoData.getType() === "movie" || videoData.getType() === "tv") {
+            if (videoData.type === "movie" || videoData.type === "tv") {
                 return true;
             }
         }
@@ -243,12 +227,13 @@ class SearchViewHandler {
 
     convertRowToVideoData(row) {
         let initialData = JSON.parse(row.dataset.init);
-        let videoData = new VideoData(initialData.Index);
-        videoData.setName(initialData.Name);
-        videoData.setFileName(initialData.FileName);
-        videoData.setPath(initialData.VideoPath);
-        videoData.setSubs(initialData.Subtitles);
-        return videoData;
+        return new VideoData(
+            initialData.Index,
+            initialData.Name,
+            initialData.FileName,
+            initialData.VideoPath,
+            initialData.Subtitles,
+        );
     }
 
     findRow(rowChild) {
@@ -300,8 +285,8 @@ class SearchViewHandler {
             LoadingHelper.showLoading();
             this.service.requestOutputDataAsync(videoData)
                 .then(outData => {
-                    this.service.updateVideoOutNames(videoData.getIndex(), outData["names"]);
-                    this.service.updateVideoOutOrigin(videoData.getIndex(), outData["origin"]);
+                    this.service.updateVideoOutNames(videoData.index, outData["names"]);
+                    this.service.updateVideoOutOrigin(videoData.index, outData["origin"]);
                     this.triggerChangeOutputTextBox(outputTextBox, outData["names"][0]);
                 })
                 .finally(() => {
