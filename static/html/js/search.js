@@ -1,3 +1,5 @@
+import LoadingHelper from "./base.js";
+
 class VideoData {
     constructor(index) {
         this.index = index;
@@ -9,6 +11,8 @@ class VideoData {
         this.skipCache = false;
         this.skipOnline = false;
         this.output = "";
+        this.outputNames = [];
+        this.outputOrigin = "";
     }
 
     setName(name) {
@@ -41,6 +45,14 @@ class VideoData {
 
     setOutput(output) {
         this.output = output;
+    }
+
+    setOutputNames(outNames) {
+        this.outputNames = outNames;
+    }
+
+    setOutputOrigin(origin) {
+        this.outputOrigin = origin;
     }
 
     getIndex() {
@@ -78,9 +90,18 @@ class VideoData {
     getOutput() {
         return this.output;
     }
+
+    getOutputNames() {
+        return this.outputNames;
+    }
+
+    getOutputOrigin() {
+        return this.outputOrigin;
+    }
 }
 
-class VideoDataRepository {
+// data layer
+class InMemoryVideoDataRepository {
     constructor() {
         this.list = [];
     }
@@ -100,6 +121,7 @@ class VideoDataRepository {
     }
 }
 
+// service layer
 class VideoDataService {
     constructor(repo) {
         this.repo = repo;
@@ -109,30 +131,42 @@ class VideoDataService {
         let videoData = this.repo.get(index);
         videoData.setType(value);
         this.repo.add(index, videoData);
-
-        if (value === "unknown") {
-            return;
-        }
-
-        // TODO: ajax search and populate rest of fields
+        return videoData;
     }
 
     updateVideoSkipCache(index, value) {
         let videoData = this.repo.get(index);
         videoData.setSkipCache(value);
         this.repo.add(index, videoData);
+        return videoData;
     }
 
     updateVideoSkipOnline(index, value) {
         let videoData = this.repo.get(index);
         videoData.setSkipOnline(value);
         this.repo.add(index, videoData);
+        return videoData;
     }
 
     updateVideoOutput(index, value) {
         let videoData = this.repo.get(index);
         videoData.setOutput(value);
         this.repo.add(index, videoData);
+        return videoData;
+    }
+
+    updateVideoOutNames(index, values) {
+        let videoData = this.repo.get(index);
+        videoData.setOutputNames(values);
+        this.repo.add(index, videoData);
+        return videoData;
+    }
+
+    updateVideoOutOrigin(index, value) {
+        let videoData = this.repo.get(index);
+        videoData.setOutputOrigin(value);
+        this.repo.add(index, videoData);
+        return videoData;
     }
 
     save(videoData) {
@@ -142,8 +176,23 @@ class VideoDataService {
     retrieve(index) {
         return this.repo.get(index);
     }
+
+    async requestOutputDataAsync(videoData) {
+        const jsonResp = await fetch("/ajax/output", {
+            method: 'POST',
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                name: videoData.getName(),
+                type: videoData.getType(),
+                skipcache: videoData.getSkipCache(),
+                skiponlinesearch: videoData.getSkipOnline(),
+            })
+        });
+        return jsonResp.json();
+    }
 }
 
+// UI layer
 class SearchHandler {
     constructor(service) {
         this.service = service;
@@ -165,13 +214,47 @@ class SearchHandler {
         return videoData;
     }
 
+    findRow(rowChild) {
+        return rowChild.closest(".js-videoRow")
+    }
+
     findIndex(rowChild) {
         try {
-            let row = rowChild.closest(".js-videoRow");
-            return JSON.parse(row.dataset.init).Index;
+            return JSON.parse(this.findRow(rowChild).dataset.init).Index;
         } catch (e) {
             throw "Couldn't find parent video row of element " + rowChild;
         }
+    }
+
+    highlightRow(row, show) {
+        let className = "highlight-row";
+        if (show) {
+            row.classList.add(className);
+        } else {
+            row.classList.remove(className);
+        }
+    }
+
+    handleVideoTypeChange(radio, event) {
+        let videoData = this.service.updateVideoType(this.findIndex(radio), radio.value);
+
+        let row = this.findRow(radio);
+        let outputTextBox = row.querySelector(".js-videoOutputInput");
+        if (radio.value === "unknown") {
+            this.highlightRow(row, false);
+            outputTextBox.value = "";
+        } else {
+            this.highlightRow(row, true);
+            LoadingHelper.showLoading();
+            this.service.requestOutputDataAsync(videoData)
+                .then(outData => {
+                    this.service.updateVideoOutNames(videoData.getIndex(), outData["names"]);
+                    this.service.updateVideoOutOrigin(videoData.getIndex(), outData["origin"]);
+                    outputTextBox.value = outData["names"][0];
+                })
+                .finally(() => LoadingHelper.hideLoading());
+        }
+        outputTextBox.dispatchEvent(new Event("keyup"));
     }
 
     register() {
@@ -179,7 +262,7 @@ class SearchHandler {
         const videoTypeRadios = document.querySelectorAll('.js-videoRow .js-videoTypeInput');
         videoTypeRadios.forEach((radio) => {
             radio.addEventListener('change', (event) => {
-                this.service.updateVideoType(this.findIndex(radio), radio.value);
+                this.handleVideoTypeChange(radio, event);
             });
         });
 
@@ -199,13 +282,14 @@ class SearchHandler {
 
         const outputTextBoxes = document.querySelectorAll('.js-videoRow .js-videoOutputInput');
         outputTextBoxes.forEach((textBox) => {
-            textBox.addEventListener('keyup', (event) => {
+            textBox.addEventListener("keyup", (event) => {
                 this.service.updateVideoOutput(this.findIndex(textBox), textBox.value);
             });
         });
     }
 }
 
+// init
 $(document).ready(function () {
-    new SearchHandler(new VideoDataService(new VideoDataRepository())).register();
+    new SearchHandler(new VideoDataService(new InMemoryVideoDataRepository())).register();
 });
