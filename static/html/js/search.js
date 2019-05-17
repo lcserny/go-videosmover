@@ -126,7 +126,7 @@ class InMemoryVideoDataRepository {
 }
 
 // service layer
-class VideoDataService {
+class BasicVideoDataService {
     constructor(repo) {
         this.repo = repo;
     }
@@ -230,7 +230,7 @@ class VideoDataService {
 }
 
 // UI layer
-class SearchHandler {
+class SearchViewHandler {
     constructor(service) {
         this.service = service;
 
@@ -377,5 +377,5 @@ class SearchHandler {
 
 // init
 $(document).ready(function () {
-    new SearchHandler(new VideoDataService(new InMemoryVideoDataRepository())).register();
+    new SearchViewHandler(new BasicVideoDataService(new InMemoryVideoDataRepository())).register();
 });
