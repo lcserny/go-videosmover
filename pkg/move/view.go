@@ -2,6 +2,7 @@ package move
 
 import (
 	"github.com/lcserny/goutils"
+	"io/ioutil"
 	"net/http"
 	"strings"
 	"videosmover/pkg"
@@ -21,9 +22,15 @@ func NewAjaxController(config *core.WebviewConfig, codec core.Codec, apiRequeste
 func (c *ajaxController) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	resp.Header().Set("Content-Type", "application/json")
 	if strings.ToUpper(req.Method) == http.MethodPost {
-		moveJsData := req.FormValue("movedata")
+		reqBytes, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			goutils.LogError(err)
+			resp.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
 		var moveReqDataList []RequestData
-		if err := c.codec.Decode([]byte(moveJsData), &moveReqDataList); err != nil {
+		if err := c.codec.Decode(reqBytes, &moveReqDataList); err != nil {
 			goutils.LogError(err)
 			resp.WriteHeader(http.StatusInternalServerError)
 			return
