@@ -39,40 +39,40 @@
                 </thead>
                 <tbody>
                 {{range .Videos}}
-                    <tr id="js-videoRow{{.Index}}" class="js-videoRow">
+                    <tr id="js-videoRow{{.Video.Index}}" class="js-videoRow" data-init="{{.EncodedVideo}}">
                         <td>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input js-videoMultiEdit" type="checkbox">
                             </div>
                         </td>
-                        <th class="js-videoRowIndex" scope="row">{{.Index}}</th>
-                        <td>{{.FileName}}</td>
+                        <th scope="row">{{.Video.Index}}</th>
+                        <td>{{.Video.FileName}}</td>
                         <td>
                             <div>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input js-videoTypeInput" type="radio"
-                                           id="videoTypeMovie{{.Index}}" name="videoType{{.Index}}"
+                                           id="videoTypeMovie{{.Video.Index}}" name="videoType{{.Video.Index}}"
                                            value="movie">
-                                    <label class="form-check-label" for="videoTypeMovie{{.Index}}">Movie</label>
+                                    <label class="form-check-label" for="videoTypeMovie{{.Video.Index}}">Movie</label>
                                 </div>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input js-videoTypeInput" type="radio"
-                                           id="videoTypeTv{{.Index}}" name="videoType{{.Index}}"
+                                           id="videoTypeTv{{.Video.Index}}" name="videoType{{.Video.Index}}"
                                            value="tv">
-                                    <label class="form-check-label" for="videoTypeTv{{.Index}}">TV</label>
+                                    <label class="form-check-label" for="videoTypeTv{{.Video.Index}}">TV</label>
                                 </div>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input js-videoTypeInput" type="radio"
-                                           id="videoTypeUnknown{{.Index}}" name="videoType{{.Index}}"
+                                           id="videoTypeUnknown{{.Video.Index}}" name="videoType{{.Video.Index}}"
                                            value="unknown">
-                                    <label class="form-check-label" for="videoTypeUnknown{{.Index}}">Unknown</label>
+                                    <label class="form-check-label" for="videoTypeUnknown{{.Video.Index}}">Unknown</label>
                                 </div>
                             </div>
                             <div>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input js-videoSkipCacheInput"
-                                           type="checkbox" id="videoSkipCache{{.Index}}">
-                                    <label class="form-check-label" for="videoSkipCache{{.Index}}">
+                                           type="checkbox" id="videoSkipCache{{.Video.Index}}">
+                                    <label class="form-check-label" for="videoSkipCache{{.Video.Index}}">
                                         skip cache
                                     </label>
                                 </div>
@@ -80,8 +80,8 @@
                             <div>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input js-videoSkipOnlineSearchInput"
-                                           type="checkbox" id="videoSkipOnlineSearch{{.Index}}">
-                                    <label class="form-check-label" for="videoSkipOnlineSearch{{.Index}}">
+                                           type="checkbox" id="videoSkipOnlineSearch{{.Video.Index}}">
+                                    <label class="form-check-label" for="videoSkipOnlineSearch{{.Video.Index}}">
                                         skip online search
                                     </label>
                                 </div>
@@ -89,17 +89,17 @@
                         </td>
                         <td>
                             <div class="input-group">
-                                <input type="text" class="form-control shadowed-textInput js-videoOutputInput" id="js-videoOutput{{.Index}}"
+                                <input type="text" class="form-control shadowed-textInput js-videoOutputInput" id="js-videoOutput{{.Video.Index}}"
                                        autocomplete="off" placeholder="Check video type or type here">
                                 <div class="input-group-append">
                                     <div class="btn-group dropleft">
-                                        <button type="button" class="btn btn-default js-videoOutputButton"
-                                                id="videoOutputDropdownButton{{.Index}}"
+                                        <button type="button" class="btn btn-default"
+                                                id="videoOutputDropdownButton{{.Video.Index}}"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             ...
                                         </button>
-                                        <div class="dropdown-menu" id="js-videoOutputDropdown{{.Index}}"
-                                             aria-labelledby="videoOutputDropdownButton{{.Index}}">
+                                        <div class="dropdown-menu" id="js-videoOutputDropdown{{.Video.Index}}"
+                                             aria-labelledby="videoOutputDropdownButton{{.Video.Index}}">
                                         </div>
                                     </div>
                                 </div>

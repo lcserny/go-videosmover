@@ -7,16 +7,21 @@ import (
 	"videosmover/pkg"
 )
 
-type Result struct {
-	Index            int
-	Name             string
-	FileName         string
-	VideoPath        string
-	EncodedSubsArray string
+type VideoResult struct {
+	Index     int
+	Name      string
+	FileName  string
+	VideoPath string
+	Subtitles []string
+}
+
+type ResultWrapper struct {
+	Video        VideoResult
+	EncodedVideo string
 }
 
 type ResultPageData struct {
-	Videos []Result
+	Videos []ResultWrapper
 }
 
 type controller struct {
@@ -69,16 +74,16 @@ func (c *controller) POST(resp http.ResponseWriter, req *http.Request) (name str
 			name = fileName
 		}
 
-		encodeString, _ := c.codec.EncodeString(data.Subtitles)
-
-		searchResult := Result{
-			Index:            i,
-			Name:             name,
-			FileName:         fileName,
-			VideoPath:        data.Path,
-			EncodedSubsArray: encodeString,
+		searchResult := VideoResult{
+			Index:     i,
+			Name:      name,
+			FileName:  fileName,
+			VideoPath: data.Path,
+			Subtitles: data.Subtitles,
 		}
-		pageData.Videos = append(pageData.Videos, searchResult)
+		encodedContent, _ := c.codec.EncodeString(searchResult)
+
+		pageData.Videos = append(pageData.Videos, ResultWrapper{Video: searchResult, EncodedVideo: encodedContent})
 	}
 
 	resp.WriteHeader(http.StatusOK)
