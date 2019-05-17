@@ -9,7 +9,7 @@ class RunHelper {
 class LoadingHelper {
     static showLoading() {
         let loadingContainer = document.querySelector(".js-loading-container");
-        loadingContainer.style.display = 'block';
+        loadingContainer.style.display = 'initial';
     }
 
     static hideLoading() {
