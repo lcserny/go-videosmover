@@ -34,11 +34,11 @@
     {{block "contentFooter" .}}{{end}}
 </div>
 
-<div id="loading-container"><img src="/static/img/loading.gif" alt=""></div>
+<div id="loading-container" class="js-loading-container"><img src="/static/img/loading.gif" alt=""></div>
 <script src="/static/js/jquery.min.js"></script>
 <script src="/static/js/popper.min.js"></script>
 <script src="/static/js/bootstrap.min.js"></script>
-<script src="/static/js/base.js"></script>
+<script src="/static/js/base.js" type="module"></script>
 {{block "additionalScripts" .}}{{end}}
 </body>
 </html>
