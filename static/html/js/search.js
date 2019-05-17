@@ -108,7 +108,7 @@ class InMemoryVideoDataRepository {
 
     add(index, videoData) {
         if (videoData instanceof VideoData) {
-            this.list.splice(index, 0, videoData);
+            this.list[index] = videoData;
         }
     }
 
@@ -118,6 +118,10 @@ class InMemoryVideoDataRepository {
             return videoData;
         }
         return null;
+    }
+
+    getAll() {
+        return this.list;
     }
 }
 
@@ -130,42 +134,42 @@ class VideoDataService {
     updateVideoType(index, value) {
         let videoData = this.repo.get(index);
         videoData.setType(value);
-        this.repo.add(index, videoData);
+        this.save(videoData);
         return videoData;
     }
 
     updateVideoSkipCache(index, value) {
         let videoData = this.repo.get(index);
         videoData.setSkipCache(value);
-        this.repo.add(index, videoData);
+        this.save(videoData);
         return videoData;
     }
 
     updateVideoSkipOnline(index, value) {
         let videoData = this.repo.get(index);
         videoData.setSkipOnline(value);
-        this.repo.add(index, videoData);
+        this.save(videoData);
         return videoData;
     }
 
     updateVideoOutput(index, value) {
         let videoData = this.repo.get(index);
         videoData.setOutput(value);
-        this.repo.add(index, videoData);
+        this.save(videoData);
         return videoData;
     }
 
     updateVideoOutNames(index, values) {
         let videoData = this.repo.get(index);
         videoData.setOutputNames(values);
-        this.repo.add(index, videoData);
+        this.save(videoData);
         return videoData;
     }
 
     updateVideoOutOrigin(index, value) {
         let videoData = this.repo.get(index);
         videoData.setOutputOrigin(value);
-        this.repo.add(index, videoData);
+        this.save(videoData);
         return videoData;
     }
 
@@ -173,12 +177,13 @@ class VideoDataService {
         this.repo.add(videoData.getIndex(), videoData);
     }
 
+    // TODO: for debugging purposes
     retrieve(index) {
         return this.repo.get(index);
     }
 
     async requestOutputDataAsync(videoData) {
-        const jsonResp = await fetch("/ajax/output", {
+        const response = await fetch("/ajax/output", {
             method: 'POST',
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
@@ -188,7 +193,39 @@ class VideoDataService {
                 skiponlinesearch: videoData.getSkipOnline(),
             })
         });
-        return jsonResp.json();
+        return response.json();
+    }
+
+    async requestMoveVideosAsync() {
+        let moveDataList = [];
+        for (let videodata of this.repo.getAll()) {
+            if (videodata.getType() === "unknown") {
+                continue;
+            }
+
+            moveDataList.push({
+                video: videodata.getPath(),
+                subs: videodata.getSubs(),
+                type: videodata.getType(),
+                outName: videodata.getOutput()
+            });
+        }
+
+        const response = await fetch("/ajax/move", {
+            method: 'POST',
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(moveDataList)
+        });
+        return response.json();
+    }
+
+    shouldShowMoveButton() {
+        for (let videoData of this.repo.getAll()) {
+            if (videoData.getType() === "movie" || videoData.getType() === "tv") {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
@@ -235,6 +272,20 @@ class SearchHandler {
         }
     }
 
+    checkShowMoveVideosButton() {
+        let moveVideosButton = document.querySelector("#js-moveVideosButton");
+        if (this.service.shouldShowMoveButton()) {
+            moveVideosButton.style.display = 'initial';
+        } else {
+            moveVideosButton.style.display = 'none';
+        }
+    }
+
+    triggerChangeOutputTextBox(textBox, value) {
+        textBox.value = value;
+        textBox.dispatchEvent(new Event("keyup"));
+    }
+
     handleVideoTypeChange(radio, event) {
         let videoData = this.service.updateVideoType(this.findIndex(radio), radio.value);
 
@@ -242,7 +293,8 @@ class SearchHandler {
         let outputTextBox = row.querySelector(".js-videoOutputInput");
         if (radio.value === "unknown") {
             this.highlightRow(row, false);
-            outputTextBox.value = "";
+            this.checkShowMoveVideosButton();
+            this.triggerChangeOutputTextBox(outputTextBox, "");
         } else {
             this.highlightRow(row, true);
             LoadingHelper.showLoading();
@@ -250,11 +302,40 @@ class SearchHandler {
                 .then(outData => {
                     this.service.updateVideoOutNames(videoData.getIndex(), outData["names"]);
                     this.service.updateVideoOutOrigin(videoData.getIndex(), outData["origin"]);
-                    outputTextBox.value = outData["names"][0];
+                    this.triggerChangeOutputTextBox(outputTextBox, outData["names"][0]);
                 })
-                .finally(() => LoadingHelper.hideLoading());
+                .finally(() => {
+                    LoadingHelper.hideLoading();
+                    this.checkShowMoveVideosButton();
+                });
         }
-        outputTextBox.dispatchEvent(new Event("keyup"));
+    }
+
+    triggerSearchVideosButton() {
+        const searchVideosForm = document.querySelector("#js-searchVideosForm");
+        searchVideosForm.submit();
+    }
+
+    showJQueryMoveIssuesModalWith(modalBody) {
+        const moveIssuesModalBody = document.querySelector("#js-moveIssuesModalBody");
+        moveIssuesModalBody.innerHTML = modalBody;
+
+        // TODO: remove JQuery...
+        $("#js-moveIssuesModal").modal("show");
+    }
+
+    handleMoveVideosButtonClick(button, event) {
+        LoadingHelper.showLoading();
+        this.service.requestMoveVideosAsync()
+            .then(response => {
+                if (response.length === 0) {
+                    this.triggerSearchVideosButton();
+                    return;
+                }
+
+                this.showJQueryMoveIssuesModalWith(JSON.stringify(response, undefined, 2));
+                LoadingHelper.hideLoading();
+            });
     }
 
     register() {
@@ -285,6 +366,11 @@ class SearchHandler {
             textBox.addEventListener("keyup", (event) => {
                 this.service.updateVideoOutput(this.findIndex(textBox), textBox.value);
             });
+        });
+
+        const moveVideosButton = document.querySelector("#js-moveVideosButton");
+        moveVideosButton.addEventListener("click", (event) => {
+            this.handleMoveVideosButtonClick(moveVideosButton, event);
         });
     }
 }
