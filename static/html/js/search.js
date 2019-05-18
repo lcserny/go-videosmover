@@ -13,6 +13,8 @@ class VideoData {
         this._output = "";
         this._outputNames = [];
         this._outputOrigin = "";
+        this._moving = false;
+        this._grouping = false;
     }
 
     get index() {
@@ -82,6 +84,22 @@ class VideoData {
     set outputOrigin(value) {
         this._outputOrigin = value;
     }
+
+    get moving() {
+        return this._moving;
+    }
+
+    set moving(value) {
+        this._moving = value;
+    }
+
+    get grouping() {
+        return this._grouping;
+    }
+
+    set grouping(value) {
+        this._grouping = value;
+    }
 }
 
 // data layer
@@ -118,6 +136,7 @@ class BasicVideoDataService {
     updateVideoType(index, value) {
         let videoData = this.repo.get(index);
         videoData.type = value;
+        videoData.moving = value !== "unknown";
         this.save(videoData);
         return videoData;
     }
@@ -182,16 +201,16 @@ class BasicVideoDataService {
 
     async requestMoveVideosAsync() {
         let moveDataList = [];
-        for (let videodata of this.repo.getAll()) {
-            if (videodata.type === "unknown") {
+        for (let videoData of this.repo.getAll()) {
+            if (!videoData.moving) {
                 continue;
             }
 
             moveDataList.push({
-                video: videodata.path,
-                subs: videodata.subs,
-                type: videodata.type,
-                outName: videodata.output
+                video: videoData.path,
+                subs: videoData.subs,
+                type: videoData.type,
+                outName: videoData.output
             });
         }
 
@@ -205,7 +224,7 @@ class BasicVideoDataService {
 
     shouldShowMoveButton() {
         for (let videoData of this.repo.getAll()) {
-            if (videoData.type === "movie" || videoData.type === "tv") {
+            if (videoData.moving) {
                 return true;
             }
         }
@@ -268,7 +287,8 @@ class SearchViewHandler {
     }
 
     handleVideoTypeChange(radio, event) {
-        let videoData = this.service.updateVideoType(this.findIndex(radio), radio.value);
+        const index = this.findIndex(radio);
+        let videoData = this.service.updateVideoType(index, radio.value);
 
         let row = this.findRow(radio);
         let outputTextBox = row.querySelector(".js-videoOutputInput");
