@@ -557,6 +557,16 @@ class SearchViewHandler {
             this.service.updateGroupVideoOutput(groupOutputTextBox.value);
         });
 
+        const groupEditModal = document.querySelector("#js-groupEditModal");
+        groupEditModal.addEventListener("hidden.bs.modal", (event) => {
+            // TODO: this doesn't fire?
+            console.log("closed");
+
+            // get all group checkmarked videoData
+                // update UI (remove highlight border of each) and in repo with data from group (setting grouping property to false for each)
+            // reset group UI and in repo
+        });
+
         // dynamic event handlers (elements that don't exist yet)
         const body = document.querySelector("body");
         body.addEventListener("click", (event) => {
