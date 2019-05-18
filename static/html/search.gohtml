@@ -88,7 +88,7 @@
                             </div>
                         </td>
                         <td>
-                            <div class="input-group">
+                            <div class="input-group js-outputDropdownContainer">
                                 <input type="text" class="form-control shadowed-textInput js-videoOutputInput" id="js-videoOutput{{.Video.Index}}"
                                        autocomplete="off" placeholder="Check video type or type here">
                                 <div class="input-group-append">
@@ -182,8 +182,8 @@
                             </div>
                         </div>
 
-                        <div class="input-group">
-                            <input type="text" class="form-control shadowed-textInput js-videoGroupOutputInput"
+                        <div class="input-group js-outputDropdownContainer">
+                            <input type="text" class="form-control shadowed-textInput js-videoOutputInput"
                                    autocomplete="off" placeholder="Check group video type or type here">
                             <div class="input-group-append">
                                 <div class="btn-group dropleft">
@@ -192,7 +192,7 @@
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         ...
                                     </button>
-                                    <div class="js-videoGroupOutputDropdown dropdown-menu"
+                                    <div id="js-videoGroupOutputDropdown" class="dropdown-menu"
                                          aria-labelledby="videoGroupOutputDropdownButton">
                                     </div>
                                 </div>

@@ -106,11 +106,18 @@ class VideoData {
 class InMemoryVideoDataRepository {
     constructor() {
         this.list = [];
+        this.groupVideoData = null;
     }
 
     add(index, videoData) {
         if (videoData instanceof VideoData) {
             this.list[index] = videoData;
+        }
+    }
+
+    addGroupVideoData(videoData) {
+        if (videoData instanceof VideoData) {
+            this.groupVideoData = videoData;
         }
     }
 
@@ -120,6 +127,10 @@ class InMemoryVideoDataRepository {
             return videoData;
         }
         return null;
+    }
+
+    getGroupVideoData() {
+        return this.groupVideoData;
     }
 
     getAll() {
@@ -138,6 +149,14 @@ class BasicVideoDataService {
         videoData.type = value;
         videoData.moving = value !== "unknown";
         this.save(videoData);
+        return videoData;
+    }
+
+    updateGroupVideoType(value) {
+        let videoData = this.repo.getGroupVideoData();
+        videoData.type = value;
+        videoData.moving = value !== "unknown";
+        this.saveGroupVideoData(videoData);
         return videoData;
     }
 
@@ -169,10 +188,24 @@ class BasicVideoDataService {
         return videoData;
     }
 
+    updateGroupVideoOutNames(values) {
+        let videoData = this.repo.getGroupVideoData();
+        videoData.outputNames = values;
+        this.saveGroupVideoData(videoData);
+        return videoData;
+    }
+
     updateVideoOutOrigin(index, value) {
         let videoData = this.repo.get(index);
         videoData.outputOrigin = value;
         this.save(videoData);
+        return videoData;
+    }
+
+    updateGroupVideoOutOrigin(value) {
+        let videoData = this.repo.getGroupVideoData();
+        videoData.outputOrigin = value;
+        this.saveGroupVideoData(videoData);
         return videoData;
     }
 
@@ -185,6 +218,10 @@ class BasicVideoDataService {
 
     save(videoData) {
         this.repo.add(videoData.index, videoData);
+    }
+
+    saveGroupVideoData(videoData) {
+        this.repo.addGroupVideoData(videoData);
     }
 
     // TODO: for debugging purposes
@@ -247,6 +284,16 @@ class BasicVideoDataService {
         }
         return count;
     }
+
+    saveVideoDataGroupingLeader() {
+        for (let videoData of this.repo.getAll()) {
+            if (videoData.grouping) {
+                this.repo.addGroupVideoData(videoData);
+                return videoData;
+            }
+        }
+        return null;
+    }
 }
 
 // UI layer
@@ -305,10 +352,12 @@ class SearchViewHandler {
 
     handleVideoTypeChange(radio, event) {
         const index = this.findIndex(radio);
-        let videoData = this.service.updateVideoType(index, radio.value);
+        const videoData = this.service.updateVideoType(index, radio.value);
 
-        let row = this.findRow(radio);
-        let outputTextBox = row.querySelector(".js-videoOutputInput");
+        const row = this.findRow(radio);
+        const outputTextBox = row.querySelector(".js-videoOutputInput");
+        const outputDropdown = row.querySelector("#js-videoOutputDropdown" + index);
+
         if (radio.value === "unknown") {
             this.highlightRow(row, false);
             this.checkShowMoveVideosButton();
@@ -320,14 +369,39 @@ class SearchViewHandler {
         LoadingHelper.showLoading();
         this.service.requestOutputDataAsync(videoData)
             .then(outData => {
-                this.service.updateVideoOutNames(videoData.index, outData["names"]);
-                this.service.updateVideoOutOrigin(videoData.index, outData["origin"]);
+                this.service.updateVideoOutNames(index, outData["names"]);
+                this.service.updateVideoOutOrigin(index, outData["origin"]);
                 this.triggerChangeOutputTextBox(outputTextBox, outData["names"][0]);
-                this.populateOutputDropdownList(row.querySelector("#js-videoOutputDropdown" + videoData.index), outData["names"]);
+                this.populateOutputDropdownList(outputDropdown, outData["names"]);
             })
             .finally(() => {
                 LoadingHelper.hideLoading();
                 this.checkShowMoveVideosButton();
+            });
+    }
+
+    handleVideoGroupTypeChange(radio, event) {
+        const videoData = this.service.updateGroupVideoType(radio.value);
+
+        const groupEditModal = document.querySelector("#js-groupEditModal");
+        const outputTextBox = groupEditModal.querySelector(".js-videoOutputInput");
+        const groupOutputDropdown = groupEditModal.querySelector("#js-videoGroupOutputDropdown");
+
+        if (radio.value === "unknown") {
+            this.triggerChangeOutputTextBox(outputTextBox, "");
+            return;
+        }
+
+        LoadingHelper.showLoading();
+        this.service.requestOutputDataAsync(videoData)
+            .then(outData => {
+                this.service.updateGroupVideoOutNames(outData["names"]);
+                this.service.updateGroupVideoOutOrigin(outData["origin"]);
+                this.triggerChangeOutputTextBox(outputTextBox, outData["names"][0]);
+                this.populateOutputDropdownList(groupOutputDropdown, outData["names"]);
+            })
+            .finally(() => {
+                LoadingHelper.hideLoading();
             });
     }
 
@@ -357,6 +431,13 @@ class SearchViewHandler {
         $("#js-moveIssuesModal").modal("show");
     }
 
+    showJQueryGroupEditModal() {
+        this.service.saveVideoDataGroupingLeader();
+
+        // TODO: remove JQuery...
+        $("#js-groupEditModal").modal("show");
+    }
+
     handleMoveVideosButtonClick(button, event) {
         LoadingHelper.showLoading();
         this.service.requestMoveVideosAsync()
@@ -373,6 +454,7 @@ class SearchViewHandler {
 
     handleGroupEditCheckBoxChange(row, index, checked) {
         this.service.updateVideoGrouping(index, checked);
+        const count = this.service.getGroupedVideosCount();
 
         if (checked) {
             row.classList.add("highlight-border");
@@ -380,11 +462,8 @@ class SearchViewHandler {
             row.classList.remove("highlight-border");
         }
 
-        const count = this.service.getGroupedVideosCount();
         document.querySelector("#js-groupEditCount").innerText = "(" + count + ")";
-
-        const groupEditButton = document.querySelector("#js-groupEditButton");
-        groupEditButton.style.display = count > 0 ? "initial" : "none";
+        document.querySelector("#js-groupEditButton").style.display = count > 0 ? "initial" : "none";
     }
 
     register() {
@@ -422,10 +501,23 @@ class SearchViewHandler {
             this.handleMoveVideosButtonClick(moveVideosButton, event);
         });
 
+        // grouping listeners
+        const groupEditButton = document.querySelector("#js-groupEditButton");
+        groupEditButton.addEventListener("click", (event) => {
+            this.showJQueryGroupEditModal();
+        });
+
         const groupEditCheckboxes = document.querySelectorAll(".js-videoRow .js-videoMultiEdit");
         groupEditCheckboxes.forEach((checkBox) => {
             checkBox.addEventListener("change", (event) => {
                 this.handleGroupEditCheckBoxChange(this.findRow(checkBox), this.findIndex(checkBox), checkBox.checked);
+            });
+        });
+
+        const groupVideoTypeRadios = document.querySelectorAll('#js-groupEditModal .js-videoGroupTypeInput');
+        groupVideoTypeRadios.forEach((radio) => {
+            radio.addEventListener('change', (event) => {
+                this.handleVideoGroupTypeChange(radio, event);
             });
         });
 
@@ -434,7 +526,8 @@ class SearchViewHandler {
         body.addEventListener("click", (event) => {
             const element = event.target;
             if (element.tagName.toLowerCase() === "a" && element.classList.contains("js-dropdown-item")) {
-                this.triggerChangeOutputTextBox(this.findRow(element).querySelector(".js-videoOutputInput"), element.innerText);
+                const textBox = element.closest(".js-outputDropdownContainer").querySelector(".js-videoOutputInput");
+                this.triggerChangeOutputTextBox(textBox, element.innerText);
             }
         })
     }
