@@ -167,6 +167,13 @@ class BasicVideoDataService {
         return videoData;
     }
 
+    updateGroupVideoSkipCache(value) {
+        let videoData = this.repo.getGroupVideoData();
+        videoData.skipCache = value;
+        this.saveGroupVideoData(videoData);
+        return videoData;
+    }
+
     updateVideoSkipOnline(index, value) {
         let videoData = this.repo.get(index);
         videoData.skipOnline = value;
@@ -174,10 +181,24 @@ class BasicVideoDataService {
         return videoData;
     }
 
+    updateGroupVideoSkipOnline(value) {
+        let videoData = this.repo.getGroupVideoData();
+        videoData.skipOnline = value;
+        this.saveGroupVideoData(videoData);
+        return videoData;
+    }
+
     updateVideoOutput(index, value) {
         let videoData = this.repo.get(index);
         videoData.output = value;
         this.save(videoData);
+        return videoData;
+    }
+
+    updateGroupVideoOutput(value) {
+        let videoData = this.repo.getGroupVideoData();
+        videoData.output = value;
+        this.saveGroupVideoData(videoData);
         return videoData;
     }
 
@@ -519,6 +540,21 @@ class SearchViewHandler {
             radio.addEventListener('change', (event) => {
                 this.handleVideoGroupTypeChange(radio, event);
             });
+        });
+
+        const groupSkipCacheCheckbox = document.querySelector('#js-groupEditModal .js-videoGroupSkipCacheInput');
+        groupSkipCacheCheckbox.addEventListener('change', (event) => {
+            this.service.updateGroupVideoSkipCache(groupSkipCacheCheckbox.checked);
+        });
+
+        const groupSkipOnlineCheckbox = document.querySelector('#js-groupEditModal .js-videoGroupSkipOnlineSearchInput');
+        groupSkipOnlineCheckbox.addEventListener('change', (event) => {
+            this.service.updateGroupVideoSkipOnline(groupSkipOnlineCheckbox.checked);
+        });
+
+        const groupOutputTextBox = document.querySelector('#js-groupEditModal .js-videoOutputInput');
+        groupOutputTextBox.addEventListener("keyup", (event) => {
+            this.service.updateGroupVideoOutput(groupOutputTextBox.value);
         });
 
         // dynamic event handlers (elements that don't exist yet)
