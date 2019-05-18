@@ -176,6 +176,13 @@ class BasicVideoDataService {
         return videoData;
     }
 
+    updateVideoGrouping(index, value) {
+        let videoData = this.repo.get(index);
+        videoData.grouping = value;
+        this.save(videoData);
+        return videoData;
+    }
+
     save(videoData) {
         this.repo.add(videoData.index, videoData);
     }
@@ -229,6 +236,16 @@ class BasicVideoDataService {
             }
         }
         return false;
+    }
+
+    getGroupedVideosCount() {
+        let count = 0;
+        for (let videoData of this.repo.getAll()) {
+            if (videoData.grouping) {
+                count++;
+            }
+        }
+        return count;
     }
 }
 
@@ -354,6 +371,22 @@ class SearchViewHandler {
             });
     }
 
+    handleGroupEditCheckBoxChange(row, index, checked) {
+        this.service.updateVideoGrouping(index, checked);
+
+        if (checked) {
+            row.classList.add("highlight-border");
+        } else {
+            row.classList.remove("highlight-border");
+        }
+
+        const count = this.service.getGroupedVideosCount();
+        document.querySelector("#js-groupEditCount").innerText = "(" + count + ")";
+
+        const groupEditButton = document.querySelector("#js-groupEditButton");
+        groupEditButton.style.display = count > 0 ? "initial" : "none";
+    }
+
     register() {
         // register event handlers on document
         const videoTypeRadios = document.querySelectorAll('.js-videoRow .js-videoTypeInput');
@@ -387,6 +420,13 @@ class SearchViewHandler {
         const moveVideosButton = document.querySelector("#js-moveVideosButton");
         moveVideosButton.addEventListener("click", (event) => {
             this.handleMoveVideosButtonClick(moveVideosButton, event);
+        });
+
+        const groupEditCheckboxes = document.querySelectorAll(".js-videoRow .js-videoMultiEdit");
+        groupEditCheckboxes.forEach((checkBox) => {
+            checkBox.addEventListener("change", (event) => {
+                this.handleGroupEditCheckBoxChange(this.findRow(checkBox), this.findIndex(checkBox), checkBox.checked);
+            });
         });
 
         // dynamic event handlers (elements that don't exist yet)
