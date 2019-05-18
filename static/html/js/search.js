@@ -286,11 +286,25 @@ class SearchViewHandler {
                 this.service.updateVideoOutNames(videoData.index, outData["names"]);
                 this.service.updateVideoOutOrigin(videoData.index, outData["origin"]);
                 this.triggerChangeOutputTextBox(outputTextBox, outData["names"][0]);
+                this.populateOutputDropdownList(row.querySelector("#js-videoOutputDropdown" + videoData.index), outData["names"]);
             })
             .finally(() => {
                 LoadingHelper.hideLoading();
                 this.checkShowMoveVideosButton();
             });
+    }
+
+    populateOutputDropdownList(dropdown, outNames) {
+        if (dropdown == null) {
+            return;
+        }
+
+        let templateHtml = document.querySelector("#js-videoOutputDropdown-item").innerHTML;
+        let content = "";
+        for (let name of outNames) {
+            content += templateHtml.replace(/##outName##/g, name);
+        }
+        dropdown.innerHTML = content;
     }
 
     triggerSearchVideosButton() {
@@ -354,6 +368,15 @@ class SearchViewHandler {
         moveVideosButton.addEventListener("click", (event) => {
             this.handleMoveVideosButtonClick(moveVideosButton, event);
         });
+
+        // dynamic event handlers (elements that don't exist yet)
+        const body = document.querySelector("body");
+        body.addEventListener("click", (event) => {
+            const element = event.target;
+            if (element.tagName.toLowerCase() === "a" && element.classList.contains("js-dropdown-item")) {
+                this.triggerChangeOutputTextBox(this.findRow(element).querySelector(".js-videoOutputInput"), element.innerText);
+            }
+        })
     }
 }
 
