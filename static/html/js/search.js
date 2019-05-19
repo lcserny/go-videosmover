@@ -121,6 +121,10 @@ class InMemoryVideoDataRepository {
         }
     }
 
+    clearGroupVideoData() {
+        this.groupVideoData = null;
+    }
+
     get(index) {
         let videoData = this.list[index];
         if (videoData instanceof VideoData) {
@@ -296,14 +300,22 @@ class BasicVideoDataService {
         return false;
     }
 
+    shouldShowGroupEditButton() {
+        return this.getGroupedVideosCount() > 0;
+    }
+
     getGroupedVideosCount() {
-        let count = 0;
+        return this.getAllGroupedVideos().length;
+    }
+
+    getAllGroupedVideos() {
+        const groupedVideoDataList = [];
         for (let videoData of this.repo.getAll()) {
             if (videoData.grouping) {
-                count++;
+                groupedVideoDataList.push(videoData);
             }
         }
-        return count;
+        return groupedVideoDataList;
     }
 
     saveVideoDataGroupingLeader() {
@@ -314,6 +326,29 @@ class BasicVideoDataService {
             }
         }
         return null;
+    }
+
+    resetGroupVideoLeader() {
+        this.repo.clearGroupVideoData();
+    }
+
+    applyLeaderToGroupedVideos() {
+        const leader = this.repo.getGroupVideoData();
+        const groupedVideos = this.getAllGroupedVideos();
+
+        for (let video of groupedVideos) {
+            video.type = leader.type;
+            video.skipCache = leader.skipCache;
+            video.skipOnline = leader.skipOnline;
+            video.output = leader.output;
+            video.outputNames = leader.outputNames;
+            video.outputOrigin = leader.outputOrigin;
+            video.moving = leader.moving;
+            video.grouping = false;
+            this.save(video);
+        }
+
+        return groupedVideos;
     }
 }
 
@@ -361,9 +396,22 @@ class SearchViewHandler {
         }
     }
 
+    highlightBorder(row, show) {
+        if (show) {
+            row.classList.add("highlight-border");
+        } else {
+            row.classList.remove("highlight-border");
+        }
+    }
+
     checkShowMoveVideosButton() {
-        let moveVideosButton = document.querySelector("#js-moveVideosButton");
-        moveVideosButton.style.display = this.service.shouldShowMoveButton() ? "initial" : "none";
+        let button = document.querySelector("#js-moveVideosButton");
+        button.style.display = this.service.shouldShowMoveButton() ? "initial" : "none";
+    }
+
+    checkShowGroupEditButton() {
+        let button = document.querySelector("#js-groupEditButton");
+        button.style.display = this.service.shouldShowGroupEditButton() ? "initial" : "none";
     }
 
     triggerChangeOutputTextBox(textBox, value) {
@@ -475,16 +523,61 @@ class SearchViewHandler {
 
     handleGroupEditCheckBoxChange(row, index, checked) {
         this.service.updateVideoGrouping(index, checked);
-        const count = this.service.getGroupedVideosCount();
+        this.highlightBorder(row, checked);
+        document.querySelector("#js-groupEditCount").innerText = "(" + this.service.getGroupedVideosCount() + ")";
+        this.checkShowGroupEditButton();
+    }
 
-        if (checked) {
-            row.classList.add("highlight-border");
-        } else {
-            row.classList.remove("highlight-border");
+    handleGroupEditModalClose() {
+        // apply leader to grouped videos
+        const changedVideos = this.service.applyLeaderToGroupedVideos();
+        for (let video of changedVideos) {
+            const row = document.querySelector("#js-videoRow" + video.index);
+
+            const multiEditCheckbox = row.querySelector(".js-videoMultiEdit");
+            multiEditCheckbox.checked = false;
+            this.highlightBorder(row, false);
+
+            const videoTypeRadio = row.querySelector(".js-videoTypeInput[value='" + video.type + "']");
+            videoTypeRadio.checked = true;
+            this.highlightRow(row, video.type !== "unknown");
+
+            const skipCacheCheckbox = row.querySelector(".js-videoSkipCacheInput");
+            skipCacheCheckbox.checked = video.skipCache;
+
+            const skipOnlineCheckbox = row.querySelector(".js-videoSkipOnlineSearchInput");
+            skipOnlineCheckbox.checked = video.skipOnline;
+
+            const outputTextBox = row.querySelector(".js-videoOutputInput");
+            outputTextBox.value = video.output;
+
+            const dropDown = row.querySelector("#js-videoOutputDropdown" + video.index);
+            this.populateOutputDropdownList(dropDown, video.outputNames);
         }
 
-        document.querySelector("#js-groupEditCount").innerText = "(" + count + ")";
-        document.querySelector("#js-groupEditButton").style.display = count > 0 ? "initial" : "none";
+        // reset group UI and repo
+        const groupEditModal = document.querySelector("#js-groupEditModal");
+        const groupTypeRadios = groupEditModal.querySelectorAll(".js-videoGroupTypeInput");
+        for (let radio of groupTypeRadios) {
+            radio.checked = false;
+        }
+
+        const groupSkipCache = groupEditModal.querySelector(".js-videoGroupSkipCacheInput");
+        groupSkipCache.checked = false;
+
+        const groupSkipOnline = groupEditModal.querySelector(".js-videoGroupSkipOnlineSearchInput");
+        groupSkipOnline.checked = false;
+
+        const outputTextBox = groupEditModal.querySelector(".js-videoOutputInput");
+        outputTextBox.value = "";
+
+        const outputNamesListPopup = groupEditModal.querySelector("#js-videoGroupOutputDropdown");
+        outputNamesListPopup.innerHTML = "";
+
+        this.checkShowMoveVideosButton();
+        this.checkShowGroupEditButton();
+
+        this.service.resetGroupVideoLeader();
     }
 
     register() {
@@ -557,16 +650,6 @@ class SearchViewHandler {
             this.service.updateGroupVideoOutput(groupOutputTextBox.value);
         });
 
-        const groupEditModal = document.querySelector("#js-groupEditModal");
-        groupEditModal.addEventListener("hidden.bs.modal", (event) => {
-            // TODO: this doesn't fire?
-            console.log("closed");
-
-            // get all group checkmarked videoData
-                // update UI (remove highlight border of each) and in repo with data from group (setting grouping property to false for each)
-            // reset group UI and in repo
-        });
-
         // dynamic event handlers (elements that don't exist yet)
         const body = document.querySelector("body");
         body.addEventListener("click", (event) => {
@@ -575,6 +658,12 @@ class SearchViewHandler {
                 const textBox = element.closest(".js-outputDropdownContainer").querySelector(".js-videoOutputInput");
                 this.triggerChangeOutputTextBox(textBox, element.innerText);
             }
+        });
+
+        // TODO: JQuery modal bindings, try to remove later...
+        const that = this;
+        $('#js-groupEditModal').on('hidden.bs.modal', function () {
+            that.handleGroupEditModalClose();
         })
     }
 }
