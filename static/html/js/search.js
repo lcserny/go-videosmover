@@ -292,12 +292,7 @@ class BasicVideoDataService {
     }
 
     shouldShowMoveButton() {
-        for (let videoData of this.repo.getAll()) {
-            if (videoData.moving) {
-                return true;
-            }
-        }
-        return false;
+        return this.getMovingVideosCount() > 0;
     }
 
     shouldShowGroupEditButton() {
@@ -306,6 +301,16 @@ class BasicVideoDataService {
 
     getGroupedVideosCount() {
         return this.getAllGroupedVideos().length;
+    }
+
+    getMovingVideosCount() {
+        let count = 0;
+        for (let videoData of this.repo.getAll()) {
+            if (videoData.moving) {
+                count++;
+            }
+        }
+        return count;
     }
 
     getAllGroupedVideos() {
@@ -406,11 +411,13 @@ class SearchViewHandler {
 
     checkShowMoveVideosButton() {
         let button = document.querySelector("#js-moveVideosButton");
+        document.querySelector("#js-moveVideosCount").innerText = "(" + this.service.getMovingVideosCount() + ")";
         button.style.display = this.service.shouldShowMoveButton() ? "initial" : "none";
     }
 
     checkShowGroupEditButton() {
         let button = document.querySelector("#js-groupEditButton");
+        document.querySelector("#js-groupEditCount").innerText = "(" + this.service.getGroupedVideosCount() + ")";
         button.style.display = this.service.shouldShowGroupEditButton() ? "initial" : "none";
     }
 
@@ -524,7 +531,6 @@ class SearchViewHandler {
     handleGroupEditCheckBoxChange(row, index, checked) {
         this.service.updateVideoGrouping(index, checked);
         this.highlightBorder(row, checked);
-        document.querySelector("#js-groupEditCount").innerText = "(" + this.service.getGroupedVideosCount() + ")";
         this.checkShowGroupEditButton();
     }
 
