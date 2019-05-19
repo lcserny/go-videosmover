@@ -664,7 +664,11 @@ class SearchViewHandler {
         const that = this;
         $('#js-groupEditModal').on('hidden.bs.modal', function () {
             that.handleGroupEditModalClose();
-        })
+        });
+
+        $('#js-moveIssuesModal').on('hidden.bs.modal', function () {
+            that.triggerSearchVideosButton();
+        });
     }
 }
 
