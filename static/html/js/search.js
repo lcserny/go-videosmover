@@ -392,20 +392,11 @@ class SearchViewHandler {
         }
     }
 
-    highlightRow(row, show) {
-        let className = "highlight-row";
+    toggleClassOnElement(element, show, className) {
         if (show) {
-            row.classList.add(className);
+            element.classList.add(className);
         } else {
-            row.classList.remove(className);
-        }
-    }
-
-    highlightBorder(row, show) {
-        if (show) {
-            row.classList.add("highlight-border");
-        } else {
-            row.classList.remove("highlight-border");
+            element.classList.remove(className);
         }
     }
 
@@ -435,13 +426,13 @@ class SearchViewHandler {
         const outputDropdown = row.querySelector("#js-videoOutputDropdown" + index);
 
         if (radio.value === "unknown") {
-            this.highlightRow(row, false);
+            this.toggleClassOnElement(row, false, "highlight-row");
             this.checkShowMoveVideosButton();
             this.triggerChangeOutputTextBox(outputTextBox, "");
             return;
         }
 
-        this.highlightRow(row, true);
+        this.toggleClassOnElement(row, true, "highlight-row");
         LoadingHelper.showLoading();
         this.service.requestOutputDataAsync(videoData)
             .then(outData => {
@@ -530,7 +521,7 @@ class SearchViewHandler {
 
     handleGroupEditCheckBoxChange(row, index, checked) {
         this.service.updateVideoGrouping(index, checked);
-        this.highlightBorder(row, checked);
+        this.toggleClassOnElement(row, checked, "highlight-border");
         this.checkShowGroupEditButton();
     }
 
@@ -542,11 +533,11 @@ class SearchViewHandler {
 
             const multiEditCheckbox = row.querySelector(".js-videoMultiEdit");
             multiEditCheckbox.checked = false;
-            this.highlightBorder(row, false);
+            this.toggleClassOnElement(row, false, "highlight-border");
 
             const videoTypeRadio = row.querySelector(".js-videoTypeInput[value='" + video.type + "']");
             videoTypeRadio.checked = true;
-            this.highlightRow(row, video.type !== "unknown");
+            this.toggleClassOnElement(row, video.type !== "unknown", "highlight-row");
 
             const skipCacheCheckbox = row.querySelector(".js-videoSkipCacheInput");
             skipCacheCheckbox.checked = video.skipCache;
