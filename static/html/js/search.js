@@ -491,8 +491,7 @@ class SearchViewHandler {
     }
 
     showJQueryMoveIssuesModalWith(modalBody) {
-        const moveIssuesModalBody = document.querySelector("#js-moveIssuesModalBody");
-        moveIssuesModalBody.innerHTML = modalBody;
+        document.querySelector("#js-moveIssuesModalBody").innerHTML = modalBody;
 
         // TODO: remove JQuery...
         $("#js-moveIssuesModal").modal("show");
