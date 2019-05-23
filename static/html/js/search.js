@@ -359,7 +359,8 @@ class BasicVideoDataService {
 
 // UI layer
 class SearchViewHandler {
-    constructor(service) {
+    constructor(service, modalHandler) {
+        this.modalHandler = modalHandler;
         this.service = service;
 
         const videoRows = document.querySelectorAll('.js-videoRow');
@@ -492,16 +493,12 @@ class SearchViewHandler {
 
     showJQueryMoveIssuesModalWith(modalBody) {
         document.querySelector("#js-moveIssuesModalBody").innerHTML = modalBody;
-
-        // TODO: remove JQuery...
-        $("#js-moveIssuesModal").modal("show");
+        this.modalHandler.showMoveIssuesModal();
     }
 
     showJQueryGroupEditModal() {
         this.service.saveVideoDataGroupingLeader();
-
-        // TODO: remove JQuery...
-        $("#js-groupEditModal").modal("show");
+        this.modalHandler.showGroupEditModal();
     }
 
     handleMoveVideosButtonClick(button, event) {
@@ -656,19 +653,37 @@ class SearchViewHandler {
             }
         });
 
-        // TODO: JQuery modal bindings, try to remove later...
-        const that = this;
-        $('#js-groupEditModal').on('hidden.bs.modal', function () {
-            that.handleGroupEditModalClose();
+        this.modalHandler.register(this);
+    }
+}
+
+// TODO: JQuery modals, try to remove later...
+class JQueryModalHandler {
+    constructor() {
+        this.groupEditModal = $("#js-groupEditModal");
+        this.moveIssuesModal = $("#js-moveIssuesModal");
+    }
+
+    showGroupEditModal() {
+        this.groupEditModal.modal("show");
+    }
+
+    showMoveIssuesModal() {
+        this.moveIssuesModal.modal("show");
+    }
+
+    register(viewHandler) {
+        this.groupEditModal.on('hidden.bs.modal', function () {
+            viewHandler.handleGroupEditModalClose();
         });
 
-        $('#js-moveIssuesModal').on('hidden.bs.modal', function () {
-            that.triggerSearchVideosButton();
+        this.moveIssuesModal.on('hidden.bs.modal', function () {
+            viewHandler.triggerSearchVideosButton();
         });
     }
 }
 
 // init
 $(document).ready(function () {
-    new SearchViewHandler(new BasicVideoDataService(new InMemoryVideoDataRepository())).register();
+    new SearchViewHandler(new BasicVideoDataService(new InMemoryVideoDataRepository()), new JQueryModalHandler()).register();
 });
