@@ -491,12 +491,12 @@ class SearchViewHandler {
         searchVideosForm.submit();
     }
 
-    showJQueryMoveIssuesModalWith(modalBody) {
+    showMoveIssuesModalWith(modalBody) {
         document.querySelector("#js-moveIssuesModalBody").innerHTML = modalBody;
         this.modalHandler.showMoveIssuesModal();
     }
 
-    showJQueryGroupEditModal() {
+    showGroupEditModal() {
         this.service.saveVideoDataGroupingLeader();
         this.modalHandler.showGroupEditModal();
     }
@@ -510,7 +510,7 @@ class SearchViewHandler {
                     return;
                 }
 
-                this.showJQueryMoveIssuesModalWith(JSON.stringify(response, undefined, 2));
+                this.showMoveIssuesModalWith(JSON.stringify(response, undefined, 2));
                 LoadingHelper.hideLoading();
             });
     }
@@ -611,7 +611,7 @@ class SearchViewHandler {
         // grouping listeners
         const groupEditButton = document.querySelector("#js-groupEditButton");
         groupEditButton.addEventListener("click", (event) => {
-            this.showJQueryGroupEditModal();
+            this.showGroupEditModal();
         });
 
         const groupEditCheckboxes = document.querySelectorAll(".js-videoRow .js-videoMultiEdit");
