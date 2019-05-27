@@ -3,6 +3,10 @@ body {
     overflow-y: scroll;
 }
 
+body .table-bordered td, body .table-bordered th {
+    border: 1px solid #dee2e6;
+}
+
 /*
  * Custom translucent site header
  */
@@ -153,8 +157,8 @@ body.dark-theme .table-hover tbody tr:hover {
     color: #bbbbbb;
 }
 
-body.dark-theme .table-bordered td, .table-bordered th {
-    border: 1px solid #555555;
+body.dark-theme .table-bordered td, body.dark-theme .table-bordered th {
+    border: 1px solid #555555;    
 }
 
 body.dark-theme .form-control {

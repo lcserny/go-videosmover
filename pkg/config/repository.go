@@ -43,7 +43,7 @@ func MakeWebviewConfig(configFile string, codec core.Codec) *core.WebviewConfig 
 	// defaults
 	config := &core.WebviewConfig{
 		AutoDarkModeEnable:  true,
-		AutoDarkModeHourMax: 19,
+		AutoDarkModeHourMax: 18,
 		AutoDarkModeHourMin: 6,
 		Port:                "8079",
 		ServerPingTimeoutMs: int64(10000),
