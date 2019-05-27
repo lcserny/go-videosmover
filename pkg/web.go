@@ -7,12 +7,17 @@ type WebAPIRequest struct {
 	Payload interface{} `json:"payload"`
 }
 
+type WebTemplateData struct {
+	Data     interface{}
+	DarkMode bool
+}
+
 type WebTemplateController interface {
-	ServeTemplate(http.ResponseWriter, *http.Request) (string, interface{}, bool)
+	ServeTemplate(http.ResponseWriter, *http.Request) (string, WebTemplateData, bool)
 }
 
 type WebAPIRequester interface {
-	Return500(tmpl string, err error, resp http.ResponseWriter) (string, interface{}, bool)
+	Return500(tmpl string, err error, resp http.ResponseWriter) (string, WebTemplateData, bool)
 	ExecutePOST(action string, payload interface{}, videosMoverAPI string) (string, error)
 }
 

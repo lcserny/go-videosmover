@@ -61,6 +61,7 @@ func main() {
 	for pat, tmplController := range tmplControllers {
 		mux.HandleFunc(pat, func(resp http.ResponseWriter, req *http.Request) {
 			if tmplName, tmplData, renderTmpl := tmplController.ServeTemplate(resp, req); renderTmpl {
+				tmplData.DarkMode = time.Now().Hour() > 19 && time.Now().Hour() < 6
 				goutils.LogFatal(templates.ExecuteTemplate(resp, fmt.Sprintf("%s.gohtml", tmplName), tmplData))
 			}
 		})

@@ -12,7 +12,7 @@
     <link rel="stylesheet" type="text/css" href="/static/css/base.css">
     {{block "additionalStyles" .}}{{end}}
 </head>
-<body>
+<body {{ if .DarkMode }} class="dark-theme" {{end}}>
 <div class="sticky-top">
     <nav class="site-header sticky-top py-1">
         <div class="container d-flex flex-column flex-md-row justify-content-between">

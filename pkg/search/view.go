@@ -34,7 +34,7 @@ func NewController(cfg *core.WebviewConfig, codec core.Codec, apiReqResProcessor
 	return &controller{config: cfg, codec: codec, apiReqResProcessor: apiReqResProcessor}
 }
 
-func (c *controller) ServeTemplate(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
+func (c *controller) ServeTemplate(resp http.ResponseWriter, req *http.Request) (name string, data core.WebTemplateData, render bool) {
 	resp.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	switch strings.ToUpper(req.Method) {
@@ -45,12 +45,12 @@ func (c *controller) ServeTemplate(resp http.ResponseWriter, req *http.Request) 
 	}
 }
 
-func (c *controller) GET(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
+func (c controller) GET(resp http.ResponseWriter, req *http.Request) (name string, data core.WebTemplateData, render bool) {
 	resp.WriteHeader(http.StatusOK)
-	return "search", nil, true
+	return "search", core.WebTemplateData{}, true
 }
 
-func (c *controller) POST(resp http.ResponseWriter, req *http.Request) (name string, data interface{}, render bool) {
+func (c controller) POST(resp http.ResponseWriter, req *http.Request) (name string, data core.WebTemplateData, render bool) {
 	jsonBody, err := c.apiReqResProcessor.ExecutePOST("search", &RequestData{Path: c.config.DownloadsPath}, c.config.VideosMoverAPI)
 	if err != nil {
 		return c.apiReqResProcessor.Return500("search", err, resp)
@@ -87,5 +87,5 @@ func (c *controller) POST(resp http.ResponseWriter, req *http.Request) (name str
 	}
 
 	resp.WriteHeader(http.StatusOK)
-	return "search", pageData, true
+	return "search", core.WebTemplateData{Data: pageData}, true
 }

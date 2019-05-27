@@ -29,10 +29,10 @@ func (ar apiRequester) generateActionRequest(action string, payload interface{})
 	return s, nil
 }
 
-func (ar apiRequester) Return500(tmpl string, err error, resp http.ResponseWriter) (string, interface{}, bool) {
+func (ar apiRequester) Return500(tmpl string, err error, resp http.ResponseWriter) (string, core.WebTemplateData, bool) {
 	resp.WriteHeader(http.StatusInternalServerError)
 	goutils.LogError(err)
-	return tmpl, nil, false
+	return tmpl, core.WebTemplateData{}, false
 }
 
 func (ar apiRequester) ExecutePOST(action string, payload interface{}, videosMoverAPI string) (string, error) {
