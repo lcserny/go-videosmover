@@ -1,6 +1,9 @@
 package core
 
 type WebviewConfig struct {
+	AutoDarkModeEnable  bool   `json:"autoDarkModeEnable"`
+	AutoDarkModeHourMax int    `json:"autoDarkModeHourMax"`
+	AutoDarkModeHourMin int    `json:"autoDarkModeHourMin"`
 	Port                string `json:"port"`
 	HtmlFilesPath       string `json:"htmlFilesPath"`
 	ServerPingTimeoutMs int64  `json:"serverPingTimeoutMs"`

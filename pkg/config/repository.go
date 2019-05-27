@@ -42,6 +42,9 @@ func MakeWebviewConfig(configFile string, codec core.Codec) *core.WebviewConfig 
 
 	// defaults
 	config := &core.WebviewConfig{
+		AutoDarkModeEnable:  true,
+		AutoDarkModeHourMax: 19,
+		AutoDarkModeHourMin: 6,
 		Port:                "8079",
 		ServerPingTimeoutMs: int64(10000),
 		VideosMoverAPI:      "http://localhost:8077/exec-bin/videos-mover",
