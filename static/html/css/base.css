@@ -125,3 +125,75 @@ body {
 .highlight-border {
     border-left: 5px solid #0091ef;
 }
+
+/* DarkMode theme */
+body.dark-theme {
+    background-color: #111111;
+}
+
+body.dark-theme #content-header {
+    background-color: #505050;
+    box-shadow: 3px 3px 5px #444444;
+}
+
+body.dark-theme .btn-flat {
+    box-shadow: 4px 4px 10px 0 #000000;
+}
+
+body.dark-theme .btn-flat:hover {
+    box-shadow: 4px 4px 5px 0 #000000;
+}
+
+body.dark-theme .table {
+    color: #999999;
+    background-color: #222222;
+}
+
+body.dark-theme .table-hover tbody tr:hover {
+    color: #bbbbbb;
+}
+
+body.dark-theme .table-bordered td, .table-bordered th {
+    border: 1px solid #555555;
+}
+
+body.dark-theme .form-control {
+    color: #999999;
+    background-color: #222222;
+}
+
+body.dark-theme .shadowed-textInput {
+    box-shadow: inset 2px 2px 3px #555555;
+}
+
+body.dark-theme .dropdown-menu {
+    color: #999999;
+    background-color: #222222;
+}
+
+body.dark-theme .dropdown-item {
+    color: #999999;
+    background-color: #222222;
+}
+
+body.dark-theme .dropdown-item:hover {
+    color: #bbbbbb;
+    background-color: #222222;
+}
+
+body.dark-theme .modal-content {
+    background-color: #333333;
+    color: #999999;
+}
+
+body.dark-theme .modal-header {
+    border-bottom: 1px solid #000000;
+}
+
+body.dark-theme .modal-footer {
+    border-top: 1px solid #000000;
+}
+
+body.dark-theme .close {
+    color: white;
+}
