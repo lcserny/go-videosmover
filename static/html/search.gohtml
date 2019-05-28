@@ -31,10 +31,10 @@
                 <thead class="thead-dark">
                 <tr>
                     <th scope="col" style="width: 2%;"></th>
-                    <th scope="col" style="width: 5%;">#</th>
+                    <th scope="col" style="width: 2%;">#</th>
                     <th scope="col" style="width: 38%;">Name</th>
                     <th scope="col" style="width: 25%;">Type</th>
-                    <th scope="col" style="width: 30%;">Output</th>
+                    <th scope="col" style="width: 33%;">Output</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -91,6 +91,7 @@
                             <div class="input-group js-outputDropdownContainer">
                                 <input type="text" class="form-control shadowed-textInput js-videoOutputInput" id="js-videoOutput{{.Video.Index}}"
                                        autocomplete="off" placeholder="Check video type or type here">
+                                <button type="button" class="js-videoOutputOnlineReSearch btn btn-tmdb"></button>
                                 <div class="input-group-append">
                                     <div class="btn-group dropleft">
                                         <button type="button" class="btn btn-default"
@@ -185,6 +186,7 @@
                         <div class="input-group js-outputDropdownContainer">
                             <input type="text" class="form-control shadowed-textInput js-videoOutputInput"
                                    autocomplete="off" placeholder="Check group video type or type here">
+                            <button type="button" id="js-videoGroupOutputOnlineReSearch" class="btn btn-tmdb"></button>
                             <div class="input-group-append">
                                 <div class="btn-group dropleft">
                                     <button type="button" class="btn btn-default"

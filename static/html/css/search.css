@@ -9,3 +9,14 @@
 .searchVideosForm {
     display: inline-block;
 }
+
+.btn-tmdb {
+    width: 35px;
+    height: 35px;
+    background-image: url("/static/img/tmdb_logo_small.png");
+    background-size: 35px;
+}
+
+.js-videoOutputOnlineReSearch, #js-videoGroupOutputOnlineReSearch {
+    display: none;
+}

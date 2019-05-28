@@ -122,6 +122,10 @@ body .table-bordered td, body .table-bordered th {
     color: white;
 }
 
+.show-element {
+    display: initial !important;
+}
+
 .highlight-row {
     background-color: #ef880040 !important;
 }

@@ -542,6 +542,8 @@ class SearchViewHandler {
             skipOnlineCheckbox.checked = video.skipOnline;
 
             const outputTextBox = row.querySelector(".js-videoOutputInput");
+            const onlineSearchButton = row.querySelector(".js-videoOutputOnlineReSearch");
+            this.toggleClassOnElement(onlineSearchButton, video.output !== "", "show-element");
             outputTextBox.value = video.output;
 
             const dropDown = row.querySelector("#js-videoOutputDropdown" + video.index);
@@ -573,6 +575,18 @@ class SearchViewHandler {
         this.service.resetGroupVideoLeader();
     }
 
+    handleVideoOutputKeyup(row, index, textbox) {
+        const btn = row.querySelector(".js-videoOutputOnlineReSearch");
+        this.toggleClassOnElement(btn, textbox.value !== "", "show-element");
+        this.service.updateVideoOutput(index, textbox.value);
+    }
+
+    handleGroupVideoOutputKeyup(textbox) {
+        const btn = document.querySelector("#js-videoGroupOutputOnlineReSearch");
+        this.toggleClassOnElement(btn, textbox.value !== "", "show-element");
+        this.service.updateGroupVideoOutput(textbox.value);
+    }
+
     register() {
         // register event handlers on document
         const videoTypeRadios = document.querySelectorAll('.js-videoRow .js-videoTypeInput');
@@ -599,9 +613,11 @@ class SearchViewHandler {
         const outputTextBoxes = document.querySelectorAll('.js-videoRow .js-videoOutputInput');
         outputTextBoxes.forEach((textBox) => {
             textBox.addEventListener("keyup", (event) => {
-                this.service.updateVideoOutput(this.findIndex(textBox), textBox.value);
+                this.handleVideoOutputKeyup(this.findRow(textBox), this.findIndex(textBox), textBox);
             });
         });
+
+        // TODO: register trigger on button click re-search
 
         const moveVideosButton = document.querySelector("#js-moveVideosButton");
         moveVideosButton.addEventListener("click", (event) => {
@@ -640,8 +656,10 @@ class SearchViewHandler {
 
         const groupOutputTextBox = document.querySelector('#js-groupEditModal .js-videoOutputInput');
         groupOutputTextBox.addEventListener("keyup", (event) => {
-            this.service.updateGroupVideoOutput(groupOutputTextBox.value);
+            this.handleGroupVideoOutputKeyup(groupOutputTextBox);
         });
+
+        // TODO: same for group
 
         // dynamic event handlers (elements that don't exist yet)
         const body = document.querySelector("body");
