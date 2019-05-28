@@ -249,17 +249,20 @@ class BasicVideoDataService {
         this.repo.addGroupVideoData(videoData);
     }
 
-    // TODO: for debugging purposes
     retrieve(index) {
         return this.repo.get(index);
     }
 
-    async requestOutputDataAsync(videoData) {
+    retrieveGroupVideoData(index) {
+        return this.repo.getGroupVideoData();
+    }
+
+    async requestOutputDataAsync(videoData, useOutputInsteadOfName) {
         const response = await fetch("/ajax/output", {
             method: 'POST',
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
-                name: videoData.name,
+                name: useOutputInsteadOfName ? videoData.output : videoData.name,
                 type: videoData.type,
                 skipcache: videoData.skipCache,
                 skiponlinesearch: videoData.skipOnline,
@@ -435,7 +438,7 @@ class SearchViewHandler {
 
         this.toggleClassOnElement(row, true, "highlight-row");
         LoadingHelper.showLoading();
-        this.service.requestOutputDataAsync(videoData)
+        this.service.requestOutputDataAsync(videoData, false)
             .then(outData => {
                 this.service.updateVideoOutNames(index, outData["names"]);
                 this.service.updateVideoOutOrigin(index, outData["origin"]);
@@ -461,7 +464,7 @@ class SearchViewHandler {
         }
 
         LoadingHelper.showLoading();
-        this.service.requestOutputDataAsync(videoData)
+        this.service.requestOutputDataAsync(videoData, false)
             .then(outData => {
                 this.service.updateGroupVideoOutNames(outData["names"]);
                 this.service.updateGroupVideoOutOrigin(outData["origin"]);
@@ -543,7 +546,7 @@ class SearchViewHandler {
 
             const outputTextBox = row.querySelector(".js-videoOutputInput");
             const onlineSearchButton = row.querySelector(".js-videoOutputOnlineReSearch");
-            this.toggleClassOnElement(onlineSearchButton, video.output !== "", "show-element");
+            this.toggleClassOnElement(onlineSearchButton, video.output !== "" && video.type !== "unknown", "show-element");
             outputTextBox.value = video.output;
 
             const dropDown = row.querySelector("#js-videoOutputDropdown" + video.index);
@@ -576,15 +579,55 @@ class SearchViewHandler {
     }
 
     handleVideoOutputKeyup(row, index, textbox) {
+        const videoData = this.service.retrieve(index);
         const btn = row.querySelector(".js-videoOutputOnlineReSearch");
-        this.toggleClassOnElement(btn, textbox.value !== "", "show-element");
+        this.toggleClassOnElement(btn, textbox.value !== "" && videoData.type !== "unknown", "show-element");
         this.service.updateVideoOutput(index, textbox.value);
     }
 
     handleGroupVideoOutputKeyup(textbox) {
+        const videoData = this.service.retrieveGroupVideoData();
         const btn = document.querySelector("#js-videoGroupOutputOnlineReSearch");
-        this.toggleClassOnElement(btn, textbox.value !== "", "show-element");
+        this.toggleClassOnElement(btn, textbox.value !== "" && videoData.type !== "unknown", "show-element");
         this.service.updateGroupVideoOutput(textbox.value);
+    }
+
+    handleOnlineReSearchButtonClick(row, index) {
+        const videoData = this.service.retrieve(index);
+        const outputTextBox = row.querySelector(".js-videoOutputInput");
+        const outputDropdown = row.querySelector("#js-videoOutputDropdown" + index);
+
+        LoadingHelper.showLoading();
+        this.service.requestOutputDataAsync(videoData, true)
+            .then(outData => {
+                this.service.updateVideoOutNames(index, outData["names"]);
+                this.service.updateVideoOutOrigin(index, outData["origin"]);
+                this.triggerChangeOutputTextBox(outputTextBox, outData["names"][0]);
+                this.populateOutputDropdownList(outputDropdown, outData["names"]);
+            })
+            .finally(() => {
+                LoadingHelper.hideLoading();
+                this.checkShowMoveVideosButton();
+            });
+    }
+
+    handleGroupOnlineReSearchButtonClick() {
+        const videoData = this.service.retrieveGroupVideoData();
+        const groupEditModal = document.querySelector("#js-groupEditModal");
+        const outputTextBox = groupEditModal.querySelector(".js-videoOutputInput");
+        const groupOutputDropdown = groupEditModal.querySelector("#js-videoGroupOutputDropdown");
+
+        LoadingHelper.showLoading();
+        this.service.requestOutputDataAsync(videoData, true)
+            .then(outData => {
+                this.service.updateGroupVideoOutNames(outData["names"]);
+                this.service.updateGroupVideoOutOrigin(outData["origin"]);
+                this.triggerChangeOutputTextBox(outputTextBox, outData["names"][0]);
+                this.populateOutputDropdownList(groupOutputDropdown, outData["names"]);
+            })
+            .finally(() => {
+                LoadingHelper.hideLoading();
+            });
     }
 
     register() {
@@ -617,7 +660,12 @@ class SearchViewHandler {
             });
         });
 
-        // TODO: register trigger on button click re-search
+        const onlineReSearchButtons = document.querySelectorAll(".js-videoOutputOnlineReSearch");
+        onlineReSearchButtons.forEach((btn) => {
+            btn.addEventListener("click", (event) => {
+                this.handleOnlineReSearchButtonClick(this.findRow(btn), this.findIndex(btn));
+            });
+        });
 
         const moveVideosButton = document.querySelector("#js-moveVideosButton");
         moveVideosButton.addEventListener("click", (event) => {
@@ -659,7 +707,10 @@ class SearchViewHandler {
             this.handleGroupVideoOutputKeyup(groupOutputTextBox);
         });
 
-        // TODO: same for group
+        const onlineGroupReSearchButton = document.querySelector("#js-videoGroupOutputOnlineReSearch");
+        onlineGroupReSearchButton.addEventListener("click", (event) => {
+            this.handleGroupOnlineReSearchButtonClick();
+        });
 
         // dynamic event handlers (elements that don't exist yet)
         const body = document.querySelector("body");
