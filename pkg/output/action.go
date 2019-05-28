@@ -46,6 +46,7 @@ var (
 	outputTMDBCacheSeparator          = "###"
 	outputTMDBCacheFileNamesSeparator = ";"
 	specialCharsReplaceMap            = map[string]string{"&": "and"}
+	preNormalizedNameRegex            = regexp.MustCompile(`^\s*(?P<name>[a-zA-Z0-9-\s]+)\s\((?P<year>\d{4})(-\d{1,2}-\d{1,2})?\)$`)
 	specialCharsRegex                 = regexp.MustCompile(`[^a-zA-Z0-9-\s]`)
 	spaceMergeRegex                   = regexp.MustCompile(`\s{2,}`)
 	yearRegex                         = regexp.MustCompile(`\s\d{4}$`)
@@ -183,6 +184,14 @@ func getTMDBFunc(itemType string) (videoSearchFunc, error) {
 }
 
 func normalize(name string, nameTrimPartsRegxs []*regexp.Regexp) (string, int) {
+	// handle already normalized text
+	if preNormalizedNameRegex.MatchString(name) {
+		resMap := goutils.GetRegexSubgroups(preNormalizedNameRegex, name)
+		n := strings.Trim(resMap["name"], " ")
+		y, _ := strconv.Atoi(resMap["year"])
+		return n, y
+	}
+
 	// trim
 	for _, pat := range nameTrimPartsRegxs {
 		if loc := pat.FindStringIndex(name); loc != nil {
