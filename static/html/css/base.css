@@ -7,7 +7,7 @@ body .table-bordered td, body .table-bordered th {
     border: 1px solid #dee2e6;
 }
 
-.table {
+.table, .modal-body {
     font-family: 'Roboto Condensed', sans-serif;
 }
 
