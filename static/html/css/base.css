@@ -7,6 +7,10 @@ body .table-bordered td, body .table-bordered th {
     border: 1px solid #dee2e6;
 }
 
+.table {
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
 /*
  * Custom translucent site header
  */
@@ -22,7 +26,7 @@ body .table-bordered td, body .table-bordered th {
 }
 
 .site-logo-text {
-    font-family: "Lato Light", sans-serif;
+    font-family: Lato, sans-serif;
     font-weight: normal;
     font-size: 30px;
     vertical-align: middle;
@@ -30,7 +34,7 @@ body .table-bordered td, body .table-bordered th {
 
 .site-header a {
     color: #ddd;
-    font-family: "Lato", sans-serif;
+    font-family: Lato, sans-serif;
     font-size: 18px;
     transition: ease-in-out color .15s;
 }
@@ -81,7 +85,7 @@ body .table-bordered td, body .table-bordered th {
 }
 
 .btn-flat {
-    font-family: "Lato Light", sans-serif;
+    font-family: Lato, sans-serif;
     font-size: 20px;
     border-radius: 0;
     box-shadow: 4px 4px 10px 0 #aaaaaa;
