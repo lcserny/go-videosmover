@@ -11,7 +11,7 @@ class VideoData {
         this._skipCache = false;
         this._skipOnline = false;
         this._output = "";
-        this._outputNames = [];
+        this._outputList = [];
         this._outputOrigin = "";
         this._moving = false;
         this._grouping = false;
@@ -69,12 +69,12 @@ class VideoData {
         this._output = value;
     }
 
-    get outputNames() {
-        return this._outputNames;
+    get outputList() {
+        return this._outputList;
     }
 
-    set outputNames(value) {
-        this._outputNames = value;
+    set outputList(value) {
+        this._outputList = value;
     }
 
     get outputOrigin() {
@@ -206,16 +206,16 @@ class BasicVideoDataService {
         return videoData;
     }
 
-    updateVideoOutNames(index, values) {
+    updateVideoOutList(index, values) {
         let videoData = this.repo.get(index);
-        videoData.outputNames = values;
+        videoData.outputList = values;
         this.save(videoData);
         return videoData;
     }
 
-    updateGroupVideoOutNames(values) {
+    updateGroupVideoOutList(values) {
         let videoData = this.repo.getGroupVideoData();
-        videoData.outputNames = values;
+        videoData.outputList = values;
         this.saveGroupVideoData(videoData);
         return videoData;
     }
@@ -349,7 +349,7 @@ class BasicVideoDataService {
             video.skipCache = leader.skipCache;
             video.skipOnline = leader.skipOnline;
             video.output = leader.output;
-            video.outputNames = leader.outputNames;
+            video.outputList = leader.outputList;
             video.outputOrigin = leader.outputOrigin;
             video.moving = leader.moving;
             video.grouping = false;
@@ -440,10 +440,10 @@ class SearchViewHandler {
         LoadingHelper.showLoading();
         this.service.requestOutputDataAsync(videoData, false)
             .then(outData => {
-                this.service.updateVideoOutNames(index, outData["names"]);
+                this.service.updateVideoOutList(index, outData["videos"]);
                 this.service.updateVideoOutOrigin(index, outData["origin"]);
-                this.triggerChangeOutputTextBox(outputTextBox, outData["names"][0]);
-                this.populateOutputDropdownList(outputDropdown, outData["names"]);
+                this.triggerChangeOutputTextBox(outputTextBox, outData["videos"][0]["Title"]);
+                this.populateOutputDropdownList(outputDropdown, outData["videos"]);
             })
             .finally(() => {
                 LoadingHelper.hideLoading();
@@ -466,25 +466,27 @@ class SearchViewHandler {
         LoadingHelper.showLoading();
         this.service.requestOutputDataAsync(videoData, false)
             .then(outData => {
-                this.service.updateGroupVideoOutNames(outData["names"]);
+                this.service.updateGroupVideoOutList(outData["videos"]);
                 this.service.updateGroupVideoOutOrigin(outData["origin"]);
-                this.triggerChangeOutputTextBox(outputTextBox, outData["names"][0]);
-                this.populateOutputDropdownList(groupOutputDropdown, outData["names"]);
+                this.triggerChangeOutputTextBox(outputTextBox, outData["videos"][0]["Title"]);
+                this.populateOutputDropdownList(groupOutputDropdown, outData["videos"]);
             })
             .finally(() => {
                 LoadingHelper.hideLoading();
             });
     }
 
-    populateOutputDropdownList(dropdown, outNames) {
+    // TODO: make proper UI
+    populateOutputDropdownList(dropdown, outList) {
         if (dropdown == null) {
             return;
         }
 
         let templateHtml = document.querySelector("#js-videoOutputDropdown-item").innerHTML;
         let content = "";
-        for (let name of outNames) {
-            content += templateHtml.replace(/##outName##/g, name);
+        for (let vid of outList) {
+            console.log(vid); // TODO: for debugging only
+            content += templateHtml.replace(/##outName##/g, vid.Title);
         }
         dropdown.innerHTML = content;
     }
@@ -550,7 +552,7 @@ class SearchViewHandler {
             outputTextBox.value = video.output;
 
             const dropDown = row.querySelector("#js-videoOutputDropdown" + video.index);
-            this.populateOutputDropdownList(dropDown, video.outputNames);
+            this.populateOutputDropdownList(dropDown, video.outputList);
         }
 
         // reset group UI and repo
@@ -569,8 +571,8 @@ class SearchViewHandler {
         const outputTextBox = groupEditModal.querySelector(".js-videoOutputInput");
         outputTextBox.value = "";
 
-        const outputNamesListPopup = groupEditModal.querySelector("#js-videoGroupOutputDropdown");
-        outputNamesListPopup.innerHTML = "";
+        const outputListPopup = groupEditModal.querySelector("#js-videoGroupOutputDropdown");
+        outputListPopup.innerHTML = "";
 
         this.checkShowMoveVideosButton();
         this.checkShowGroupEditButton();
@@ -600,10 +602,10 @@ class SearchViewHandler {
         LoadingHelper.showLoading();
         this.service.requestOutputDataAsync(videoData, true)
             .then(outData => {
-                this.service.updateVideoOutNames(index, outData["names"]);
+                this.service.updateVideoOutList(index, outData["videos"]);
                 this.service.updateVideoOutOrigin(index, outData["origin"]);
-                this.triggerChangeOutputTextBox(outputTextBox, outData["names"][0]);
-                this.populateOutputDropdownList(outputDropdown, outData["names"]);
+                this.triggerChangeOutputTextBox(outputTextBox, outData["videos"][0]["Title"]);
+                this.populateOutputDropdownList(outputDropdown, outData["videos"]);
             })
             .finally(() => {
                 LoadingHelper.hideLoading();
@@ -620,10 +622,10 @@ class SearchViewHandler {
         LoadingHelper.showLoading();
         this.service.requestOutputDataAsync(videoData, true)
             .then(outData => {
-                this.service.updateGroupVideoOutNames(outData["names"]);
+                this.service.updateGroupVideoOutList(outData["videos"]);
                 this.service.updateGroupVideoOutOrigin(outData["origin"]);
-                this.triggerChangeOutputTextBox(outputTextBox, outData["names"][0]);
-                this.populateOutputDropdownList(groupOutputDropdown, outData["names"]);
+                this.triggerChangeOutputTextBox(outputTextBox, outData["videos"][0]["Title"]);
+                this.populateOutputDropdownList(groupOutputDropdown, outData["videos"]);
             })
             .finally(() => {
                 LoadingHelper.hideLoading();
