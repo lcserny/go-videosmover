@@ -144,8 +144,8 @@ body.dark-theme {
 }
 
 body.dark-theme #content-header {
-    background-color: #505050;
-    box-shadow: 3px 3px 5px #444444;
+    background-color: #292929;
+    box-shadow: 3px 3px 5px #000000;
 }
 
 body.dark-theme .btn-flat {
@@ -161,12 +161,16 @@ body.dark-theme .table {
     background-color: #222222;
 }
 
+body.dark-theme .table .thead-dark th {
+	background-color: #111111;
+}
+
 body.dark-theme .table-hover tbody tr:hover {
     color: #bbbbbb;
 }
 
 body.dark-theme .table-bordered td, body.dark-theme .table-bordered th {
-    border: 1px solid #555555;    
+    border: 1px solid #444444;    
 }
 
 body.dark-theme .form-control {
@@ -175,7 +179,8 @@ body.dark-theme .form-control {
 }
 
 body.dark-theme .shadowed-textInput {
-    box-shadow: inset 2px 2px 3px #555555;
+    box-shadow: none;
+    border: 2px solid black;
 }
 
 body.dark-theme .dropdown-menu {
