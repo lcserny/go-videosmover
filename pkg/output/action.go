@@ -2,9 +2,9 @@ package output
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"github.com/lcserny/goutils"
-	"github.com/pkg/errors"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -15,10 +15,20 @@ import (
 	"videosmover/pkg/action"
 )
 
-// TODO: improve this
-
 func NewAction(cfg *core.ActionConfig, c core.Codec, ws core.VideoWebSearcher) core.Action {
-	oa := outputAction{config: cfg, codec: c, webSearcher: ws}
+	oa := outputAction{
+		config:                            cfg,
+		codec:                             c,
+		webSearcher:                       ws,
+		outputTMDBCacheFile:               goutils.GetAbsCurrentPathOf("tmdbOutput.cache"),
+		outputTMDBCacheSeparator:          "###",
+		outputTMDBCacheFileNamesSeparator: ";",
+		preNormalizedNameRegex:            regexp.MustCompile(`^\s*(?P<name>[a-zA-Z0-9-\s]+)\s\((?P<year>\d{4})(-\d{1,2}-\d{1,2})?\)$`),
+		specialCharsRegex:                 regexp.MustCompile(`[^a-zA-Z0-9-\s]`),
+		spaceMergeRegex:                   regexp.MustCompile(`\s{2,}`),
+		yearRegex:                         regexp.MustCompile(`\s\d{4}$`),
+		releaseDateRegex:                  regexp.MustCompile(`\s+\(\d{4}(-\d{2}-\d{2})?\)$`),
+	}
 	if cfg.NameTrimRegexes != nil {
 		for _, pat := range cfg.NameTrimRegexes {
 			oa.namePatterns = append(oa.namePatterns, regexp.MustCompile(fmt.Sprintf("(?i)(-?%s)", pat)))
@@ -28,34 +38,26 @@ func NewAction(cfg *core.ActionConfig, c core.Codec, ws core.VideoWebSearcher) c
 }
 
 type outputAction struct {
-	config       *core.ActionConfig
-	codec        core.Codec
-	webSearcher  core.VideoWebSearcher
-	namePatterns []*regexp.Regexp
+	config                            *core.ActionConfig
+	codec                             core.Codec
+	webSearcher                       core.VideoWebSearcher
+	namePatterns                      []*regexp.Regexp
+	outputTMDBCacheFile               string
+	outputTMDBCacheSeparator          string
+	outputTMDBCacheFileNamesSeparator string
+	preNormalizedNameRegex            *regexp.Regexp
+	specialCharsRegex                 *regexp.Regexp
+	spaceMergeRegex                   *regexp.Regexp
+	yearRegex                         *regexp.Regexp
+	releaseDateRegex                  *regexp.Regexp
 }
 
-type videoSearchFunc func(normalizedName string, year int, webSearcher core.VideoWebSearcher, maxAccepted int) ([]string, bool)
+type videoSearchFunc func(name string, year, maxResCount int, specialCharsRegex *regexp.Regexp) ([]*core.VideoWebResult, bool)
 
 type diskResult struct {
 	name        string
 	coefficient int
 }
-
-var (
-	outputTMDBCacheFile               = goutils.GetAbsCurrentPathOf("tmdbOutput.cache")
-	outputTMDBCacheSeparator          = "###"
-	outputTMDBCacheFileNamesSeparator = ";"
-	specialCharsReplaceMap            = map[string]string{"&": "and"}
-	preNormalizedNameRegex            = regexp.MustCompile(`^\s*(?P<name>[a-zA-Z0-9-\s]+)\s\((?P<year>\d{4})(-\d{1,2}-\d{1,2})?\)$`)
-	specialCharsRegex                 = regexp.MustCompile(`[^a-zA-Z0-9-\s]`)
-	spaceMergeRegex                   = regexp.MustCompile(`\s{2,}`)
-	yearRegex                         = regexp.MustCompile(`\s\d{4}$`)
-	releaseDateRegex                  = regexp.MustCompile(`\s+\(\d{4}(-\d{2}-\d{2})?\)$`)
-	tmdbFuncMap                       = map[string]videoSearchFunc{
-		action.MOVIE: movieTMDBSearch,
-		action.TV:    tvSeriesTMDBSearch,
-	}
-)
 
 func (oa outputAction) Execute(jsonPayload []byte) (string, error) {
 	var request RequestData
@@ -64,38 +66,47 @@ func (oa outputAction) Execute(jsonPayload []byte) (string, error) {
 		return "", err
 	}
 
-	normalized, year := normalize(request.Name, oa.namePatterns)
-	normalizedWithYear := appendYear(normalized, year)
-	if onDisk, found := findOnDisk(normalized, request.DiskPath, oa.config.MaxOutputWalkDepth, oa.config.SimilarityPercent); found {
-		return oa.codec.EncodeString(ResponseData{onDisk, ORIGIN_DISK})
+	normalized, year := oa.normalize(request.Name)
+	normalizedWithYear := oa.appendYear(normalized, year)
+	if onDisk, found := oa.findOnDisk(normalized, request.DiskPath); found {
+		return oa.codec.EncodeString(ResponseData{oa.generateVideoWebResultsFromStrings(onDisk), ORIGIN_DISK})
 	}
 
 	if !request.SkipOnlineSearch && oa.webSearcher.CanSearch() {
-		tmdbFunc, err := getTMDBFunc(request.Type)
+		webSearcherFunc, err := oa.getWebSearcherFunc(request.Type)
 		if err != nil {
 			goutils.LogError(err)
 			return "", err
 		}
 
-		cacheKey := generateTMDBOutputCacheKey(request.Type, normalizedWithYear, outputTMDBCacheSeparator)
+		// TODO: save base64 in cache or something encoded on the cache key?
+		cacheKey := generateTMDBOutputCacheKey(request.Type, normalizedWithYear, oa.outputTMDBCacheSeparator)
 		if !request.SkipCache {
-			if _, err := os.Stat(outputTMDBCacheFile); !os.IsNotExist(err) {
-				if cachedTMDBNames, exist := getFromTMDBOutputCache(cacheKey, outputTMDBCacheFile); exist {
+			if _, err := os.Stat(oa.outputTMDBCacheFile); !os.IsNotExist(err) {
+				if cachedTMDBResults, exist := getFromTMDBOutputCache(cacheKey, oa.outputTMDBCacheFile, oa.outputTMDBCacheFileNamesSeparator); exist {
 					return oa.codec.EncodeString(ResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE})
 				}
 			}
 		}
 
-		if tmdbNames, found := tmdbFunc(normalized, year, oa.webSearcher, oa.config.MaxWebSearchResultCount); found {
-			saveInTMDBOutputCache(cacheKey, tmdbNames, outputTMDBCacheFile, oa.config.OutWebSearchCacheLimit)
+		if tmdbResults, found := webSearcherFunc(normalized, year, oa.config.MaxWebSearchResultCount, oa.specialCharsRegex); found {
+			saveInTMDBOutputCache(cacheKey, tmdbNames, oa.outputTMDBCacheFile, oa.config.OutWebSearchCacheLimit, oa.outputTMDBCacheFileNamesSeparator)
 			return oa.codec.EncodeString(ResponseData{tmdbNames, ORIGIN_TMDB})
 		}
 	}
 
-	return oa.codec.EncodeString(ResponseData{[]string{normalizedWithYear}, ORIGIN_NAME})
+	return oa.codec.EncodeString(ResponseData{oa.generateVideoWebResultsFromStrings([]string{normalizedWithYear}), ORIGIN_NAME})
 }
 
-func saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string, cacheLimit int) {
+func (oa outputAction) generateVideoWebResultsFromStrings(strs []string) []*core.VideoWebResult {
+	res := make([]*core.VideoWebResult, 0)
+	for _, s := range strs {
+		res = append(res, &core.VideoWebResult{Title: s})
+	}
+	return res
+}
+
+func (oa outputAction) saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string, cacheLimit int, separator string) {
 	oldFile, err := os.OpenFile(cacheFile, os.O_RDONLY|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		goutils.LogError(err)
@@ -123,7 +134,7 @@ func saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string
 		goutils.LogError(err)
 	}
 
-	firstLine := cacheKey + strings.Join(tmdbNames, outputTMDBCacheFileNamesSeparator)
+	firstLine := cacheKey + strings.Join(tmdbNames, separator)
 	if _, err = fmt.Fprintln(newFile, firstLine); err != nil {
 		cleanupAndFail(err)
 		return
@@ -147,7 +158,7 @@ func saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string
 	moveAndSucceed()
 }
 
-func getFromTMDBOutputCache(cacheKey, cacheFile string) ([]string, bool) {
+func (oa outputAction) getFromTMDBOutputCache(cacheKey, cacheFile, separator string) ([]string, bool) {
 	openFile, err := os.OpenFile(cacheFile, os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		goutils.LogError(err)
@@ -159,57 +170,59 @@ func getFromTMDBOutputCache(cacheKey, cacheFile string) ([]string, bool) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.HasPrefix(line, cacheKey) {
-			return strings.Split(line[len(cacheKey):], outputTMDBCacheFileNamesSeparator), true
+			return strings.Split(line[len(cacheKey):], separator), true
 		}
 	}
 	return nil, false
 }
 
-func generateTMDBOutputCacheKey(videoType, normalizedWithYear, separator string) string {
+func (oa outputAction) generateTMDBOutputCacheKey(videoType, normalizedWithYear, separator string) string {
 	return fmt.Sprintf("%s__%s%s", strings.ToUpper(videoType), normalizedWithYear, separator)
 }
 
-func appendYear(normalizedName string, year int) string {
+func (oa outputAction) appendYear(normalizedName string, year int) string {
 	if year > 0 {
 		return fmt.Sprintf("%s (%d)", normalizedName, year)
 	}
 	return normalizedName
 }
 
-func getTMDBFunc(itemType string) (videoSearchFunc, error) {
-	if tmdbFunc, found := tmdbFuncMap[strings.ToLower(itemType)]; found {
-		return tmdbFunc, nil
+func (oa outputAction) getWebSearcherFunc(itemType string) (videoSearchFunc, error) {
+	if itemType == action.MOVIE {
+		return oa.webSearcher.SearchMovies, nil
+	} else if itemType == action.TV {
+		return oa.webSearcher.SearchTVSeries, nil
 	}
 	return nil, errors.New("No TMDB function found for type:" + itemType)
 }
 
-func normalize(name string, nameTrimPartsRegxs []*regexp.Regexp) (string, int) {
+func (oa outputAction) normalize(name string) (string, int) {
 	// handle already normalized text
-	if preNormalizedNameRegex.MatchString(name) {
-		resMap := goutils.GetRegexSubgroups(preNormalizedNameRegex, name)
+	if oa.preNormalizedNameRegex.MatchString(name) {
+		resMap := goutils.GetRegexSubgroups(oa.preNormalizedNameRegex, name)
 		n := strings.Trim(resMap["name"], " ")
 		y, _ := strconv.Atoi(resMap["year"])
 		return n, y
 	}
 
 	// trim
-	for _, pat := range nameTrimPartsRegxs {
+	for _, pat := range oa.namePatterns {
 		if loc := pat.FindStringIndex(name); loc != nil {
 			name = name[0:loc[0]]
 		}
 	}
 
 	// strip special chars
-	name = replaceSpecialChars(name)
-	name = specialCharsRegex.ReplaceAllString(name, " ")
-	name = spaceMergeRegex.ReplaceAllString(name, " ")
+	name = strings.ReplaceAll(name, "&", "and")
+	name = oa.specialCharsRegex.ReplaceAllString(name, " ")
+	name = oa.spaceMergeRegex.ReplaceAllString(name, " ")
 	name = strings.Trim(name, " ")
 
 	// title case
 	name = strings.Title(name)
 
 	// resolve year
-	yearLoc := yearRegex.FindStringIndex(name)
+	yearLoc := oa.yearRegex.FindStringIndex(name)
 	if yearLoc != nil {
 		year, err := strconv.ParseInt(name[yearLoc[0]+1:], 0, 32)
 		goutils.LogError(err)
@@ -219,14 +232,7 @@ func normalize(name string, nameTrimPartsRegxs []*regexp.Regexp) (string, int) {
 	return name, 0
 }
 
-func replaceSpecialChars(text string) string {
-	for k, v := range specialCharsReplaceMap {
-		text = strings.ReplaceAll(text, k, v)
-	}
-	return text
-}
-
-func findOnDisk(normalized, diskPath string, maxOutputWalkDepth, acceptedSimPercent int) (results []string, found bool) {
+func (oa outputAction) findOnDisk(normalized, diskPath string) (results []string, found bool) {
 	if _, err := os.Stat(diskPath); os.IsNotExist(err) {
 		goutils.LogWarning(fmt.Sprintf("Diskpath provided not found: %s", diskPath))
 		return results, false
@@ -239,12 +245,12 @@ func findOnDisk(normalized, diskPath string, maxOutputWalkDepth, acceptedSimPerc
 			return nil
 		}
 
-		if info.IsDir() && diskPath != path && action.WalkDepthIsAcceptable(diskPath, path, maxOutputWalkDepth) {
-			nameWithoutDate := trimReleaseDate(info.Name())
+		if info.IsDir() && diskPath != path && action.WalkDepthIsAcceptable(diskPath, path, oa.config.MaxOutputWalkDepth) {
+			nameWithoutDate := oa.trimReleaseDate(info.Name())
 			distance := goutils.LevenshteinDistance(nameWithoutDate, normalized)
 			bigger := goutils.MaxInt(len(normalized), len(nameWithoutDate))
 			simPercent := int(float32(bigger-distance) / float32(bigger) * 100)
-			if simPercent > acceptedSimPercent {
+			if simPercent > oa.config.SimilarityPercent {
 				tmpList = append(tmpList, diskResult{info.Name(), simPercent})
 			}
 		}
@@ -271,54 +277,6 @@ func findOnDisk(normalized, diskPath string, maxOutputWalkDepth, acceptedSimPerc
 	return results, true
 }
 
-func trimReleaseDate(nameWithReleaseDate string) string {
-	return releaseDateRegex.ReplaceAllString(nameWithReleaseDate, "")
-}
-
-func movieTMDBSearch(normalizedName string, year int, webSearcher core.VideoWebSearcher, maxAccepted int) (searchedList []string, found bool) {
-	results, err := webSearcher.SearchMovies(normalizedName, year)
-	if err != nil {
-		goutils.LogError(err)
-		return searchedList, false
-	}
-
-	if len(results) < 1 {
-		return searchedList, false
-	}
-
-	for i := 0; i < goutils.MinInt(maxAccepted, len(results)); i++ {
-		video := results[i]
-		outName := replaceSpecialChars(video.Title)
-		outName = specialCharsRegex.ReplaceAllString(outName, "")
-		if video.ReleaseDate != "" {
-			outName += " (" + video.ReleaseDate + ")"
-		}
-		searchedList = append(searchedList, outName)
-	}
-
-	return searchedList, true
-}
-
-func tvSeriesTMDBSearch(normalizedName string, year int, webSearcher core.VideoWebSearcher, maxAccepted int) (searchedList []string, found bool) {
-	results, err := webSearcher.SearchTVSeries(normalizedName, year)
-	if err != nil {
-		goutils.LogError(err)
-		return searchedList, false
-	}
-
-	if len(results) < 1 {
-		return searchedList, false
-	}
-
-	for i := 0; i < goutils.MinInt(maxAccepted, len(results)); i++ {
-		video := results[i]
-		outName := replaceSpecialChars(video.Title)
-		outName = specialCharsRegex.ReplaceAllString(outName, "")
-		if video.ReleaseDate != "" {
-			outName += " (" + video.ReleaseDate[0:4] + ")"
-		}
-		searchedList = append(searchedList, outName)
-	}
-
-	return searchedList, true
+func (oa outputAction) trimReleaseDate(nameWithReleaseDate string) string {
+	return oa.releaseDateRegex.ReplaceAllString(nameWithReleaseDate, "")
 }

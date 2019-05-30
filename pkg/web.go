@@ -1,6 +1,9 @@
 package core
 
-import "net/http"
+import (
+	"net/http"
+	"regexp"
+)
 
 type WebAPIRequest struct {
 	Action  string      `json:"action"`
@@ -33,11 +36,13 @@ type WebApiReqResProcessor interface {
 
 type VideoWebResult struct {
 	Title       string
-	ReleaseDate string
+	Description string
+	PosterURL   string
+	Cast        []string
 }
 
 type VideoWebSearcher interface {
 	CanSearch() bool
-	SearchMovies(name string, year int) ([]*VideoWebResult, error)
-	SearchTVSeries(name string, year int) ([]*VideoWebResult, error)
+	SearchMovies(name string, year, maxResCount int, specialCharsRegex *regexp.Regexp) ([]*VideoWebResult, bool)
+	SearchTVSeries(name string, year, maxResCount int, specialCharsRegex *regexp.Regexp) ([]*VideoWebResult, bool)
 }

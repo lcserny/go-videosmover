@@ -1,5 +1,7 @@
 package output
 
+import core "videosmover/pkg"
+
 const (
 	ORIGIN_NAME       = "NAME"
 	ORIGIN_DISK       = "DISK"
@@ -16,6 +18,6 @@ type RequestData struct {
 }
 
 type ResponseData struct {
-	Names  []string `json:"names"`
-	Origin string   `json:"origin"`
+	Videos []*core.VideoWebResult `json:"videos"`
+	Origin string                 `json:"origin"`
 }
