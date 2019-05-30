@@ -4,7 +4,7 @@
   "maxOutputWalkDepth": 2,
   "maxSearchWalkDepth": 4,
   "maxWebSearchResultCount": 10,
-  "outWebSearchCacheLimit": 100,
+  "outWebSearchCacheLimit": 10000000,
   "headerBytesSize": 261,
   "restrictedRemovePaths": [
     "Documents",

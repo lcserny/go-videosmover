@@ -40,8 +40,8 @@ func (vws videoWebSearcher) SearchMovies(name string, year, maxResCount int, spe
 	}
 
 	searchedList := make([]*core.VideoWebResult, 0)
-	for i := 0; i < len(results.Results); i++ {
-		movie, err := vws.tmdbAPI.GetMovieInfo(results.Results[i].ID, nil)
+	for i := 0; i < goutils.MinInt(len(results.Results), maxResCount); i++ {
+		movie, err := vws.tmdbAPI.GetMovieInfo(results.Results[i].ID, map[string]string{"append_to_response": "credits"})
 		if err != nil {
 			goutils.LogError(err)
 			continue
@@ -80,8 +80,8 @@ func (vws videoWebSearcher) SearchTVSeries(name string, year, maxResCount int, s
 	}
 
 	searchedList := make([]*core.VideoWebResult, 0)
-	for i := 0; i < len(results.Results); i++ {
-		tvShow, err := vws.tmdbAPI.GetTvInfo(results.Results[i].ID, nil)
+	for i := 0; i < goutils.MinInt(len(results.Results), maxResCount); i++ {
+		tvShow, err := vws.tmdbAPI.GetTvInfo(results.Results[i].ID, map[string]string{"append_to_response": "credits"})
 		if err != nil {
 			goutils.LogError(err)
 			continue
@@ -116,9 +116,9 @@ func (vws videoWebSearcher) generateMovieCastNames(cast []struct {
 	Order       int
 	ProfilePath string `json:"profile_path"`
 }) []string {
-	list := make([]string, len(cast))
-	for _, c := range cast {
-		list = append(list, c.Name)
+	list := make([]string, 0)
+	for i := 0; i < goutils.MinInt(len(cast), 5); i++ {
+		list = append(list, cast[i].Name)
 	}
 	return list
 }
@@ -131,9 +131,9 @@ func (vws videoWebSearcher) generateTvShowCastNames(cast []struct {
 	Order       int
 	ProfilePath string `json:"profile_path"`
 }) []string {
-	list := make([]string, len(cast))
-	for _, c := range cast {
-		list = append(list, c.Name)
+	list := make([]string, 0)
+	for i := 0; i < goutils.MinInt(len(cast), 5); i++ {
+		list = append(list, cast[i].Name)
 	}
 	return list
 }

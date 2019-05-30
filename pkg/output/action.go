@@ -1,7 +1,6 @@
 package output
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"github.com/lcserny/goutils"
@@ -15,19 +14,17 @@ import (
 	"videosmover/pkg/action"
 )
 
-func NewAction(cfg *core.ActionConfig, c core.Codec, ws core.VideoWebSearcher) core.Action {
+func NewAction(cfg *core.ActionConfig, c core.Codec, ws core.VideoWebSearcher, cs core.CacheStore) core.Action {
 	oa := outputAction{
-		config:                            cfg,
-		codec:                             c,
-		webSearcher:                       ws,
-		outputTMDBCacheFile:               goutils.GetAbsCurrentPathOf("tmdbOutput.cache"),
-		outputTMDBCacheSeparator:          "###",
-		outputTMDBCacheFileNamesSeparator: ";",
-		preNormalizedNameRegex:            regexp.MustCompile(`^\s*(?P<name>[a-zA-Z0-9-\s]+)\s\((?P<year>\d{4})(-\d{1,2}-\d{1,2})?\)$`),
-		specialCharsRegex:                 regexp.MustCompile(`[^a-zA-Z0-9-\s]`),
-		spaceMergeRegex:                   regexp.MustCompile(`\s{2,}`),
-		yearRegex:                         regexp.MustCompile(`\s\d{4}$`),
-		releaseDateRegex:                  regexp.MustCompile(`\s+\(\d{4}(-\d{2}-\d{2})?\)$`),
+		config:                 cfg,
+		codec:                  c,
+		webSearcher:            ws,
+		cacheStore:             cs,
+		preNormalizedNameRegex: regexp.MustCompile(`^\s*(?P<name>[a-zA-Z0-9-\s]+)\s\((?P<year>\d{4})(-\d{1,2}-\d{1,2})?\)$`),
+		specialCharsRegex:      regexp.MustCompile(`[^a-zA-Z0-9-\s]`),
+		spaceMergeRegex:        regexp.MustCompile(`\s{2,}`),
+		yearRegex:              regexp.MustCompile(`\s\d{4}$`),
+		releaseDateRegex:       regexp.MustCompile(`\s+\(\d{4}(-\d{2}-\d{2})?\)$`),
 	}
 	if cfg.NameTrimRegexes != nil {
 		for _, pat := range cfg.NameTrimRegexes {
@@ -38,18 +35,16 @@ func NewAction(cfg *core.ActionConfig, c core.Codec, ws core.VideoWebSearcher) c
 }
 
 type outputAction struct {
-	config                            *core.ActionConfig
-	codec                             core.Codec
-	webSearcher                       core.VideoWebSearcher
-	namePatterns                      []*regexp.Regexp
-	outputTMDBCacheFile               string
-	outputTMDBCacheSeparator          string
-	outputTMDBCacheFileNamesSeparator string
-	preNormalizedNameRegex            *regexp.Regexp
-	specialCharsRegex                 *regexp.Regexp
-	spaceMergeRegex                   *regexp.Regexp
-	yearRegex                         *regexp.Regexp
-	releaseDateRegex                  *regexp.Regexp
+	config                 *core.ActionConfig
+	codec                  core.Codec
+	webSearcher            core.VideoWebSearcher
+	cacheStore             core.CacheStore
+	namePatterns           []*regexp.Regexp
+	preNormalizedNameRegex *regexp.Regexp
+	specialCharsRegex      *regexp.Regexp
+	spaceMergeRegex        *regexp.Regexp
+	yearRegex              *regexp.Regexp
+	releaseDateRegex       *regexp.Regexp
 }
 
 type videoSearchFunc func(name string, year, maxResCount int, specialCharsRegex *regexp.Regexp) ([]*core.VideoWebResult, bool)
@@ -79,19 +74,20 @@ func (oa outputAction) Execute(jsonPayload []byte) (string, error) {
 			return "", err
 		}
 
-		// TODO: save base64 in cache or something encoded on the cache key?
-		cacheKey := generateTMDBOutputCacheKey(request.Type, normalizedWithYear, oa.outputTMDBCacheSeparator)
+		cacheKey := oa.generateOutputCacheKey(request.Type, normalizedWithYear)
 		if !request.SkipCache {
-			if _, err := os.Stat(oa.outputTMDBCacheFile); !os.IsNotExist(err) {
-				if cachedTMDBResults, exist := getFromTMDBOutputCache(cacheKey, oa.outputTMDBCacheFile, oa.outputTMDBCacheFileNamesSeparator); exist {
-					return oa.codec.EncodeString(ResponseData{cachedTMDBNames, ORIGIN_TMDB_CACHE})
+			if blobResults, found := oa.cacheStore.Get(cacheKey); found {
+				if cachedResults, ok := blobResults.([]*core.VideoWebResult); ok {
+					return oa.codec.EncodeString(ResponseData{cachedResults, ORIGIN_TMDB_CACHE})
+				} else {
+					goutils.LogError(errors.New(fmt.Sprintf("Could not cast cache blob to `[]*core.VideoWebResult` for key %s", cacheKey)))
 				}
 			}
 		}
 
-		if tmdbResults, found := webSearcherFunc(normalized, year, oa.config.MaxWebSearchResultCount, oa.specialCharsRegex); found {
-			saveInTMDBOutputCache(cacheKey, tmdbNames, oa.outputTMDBCacheFile, oa.config.OutWebSearchCacheLimit, oa.outputTMDBCacheFileNamesSeparator)
-			return oa.codec.EncodeString(ResponseData{tmdbNames, ORIGIN_TMDB})
+		if webResults, found := webSearcherFunc(normalized, year, oa.config.MaxWebSearchResultCount, oa.specialCharsRegex); found {
+			goutils.LogError(oa.cacheStore.Set(cacheKey, webResults))
+			return oa.codec.EncodeString(ResponseData{webResults, ORIGIN_TMDB})
 		}
 	}
 
@@ -106,78 +102,17 @@ func (oa outputAction) generateVideoWebResultsFromStrings(strs []string) []*core
 	return res
 }
 
-func (oa outputAction) saveInTMDBOutputCache(cacheKey string, tmdbNames []string, cacheFile string, cacheLimit int, separator string) {
-	oldFile, err := os.OpenFile(cacheFile, os.O_RDONLY|os.O_CREATE, os.ModePerm)
-	if err != nil {
-		goutils.LogError(err)
-		return
+func (oa outputAction) getWebSearcherFunc(itemType string) (videoSearchFunc, error) {
+	if itemType == action.MOVIE {
+		return oa.webSearcher.SearchMovies, nil
+	} else if itemType == action.TV {
+		return oa.webSearcher.SearchTVSeries, nil
 	}
-
-	tmpName := cacheFile + "_tmp"
-	newFile, err := os.OpenFile(tmpName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
-	if err != nil {
-		goutils.LogError(err)
-		return
-	}
-
-	cleanupAndFail := func(err error) {
-		goutils.LogError(err)
-		goutils.CloseFile(oldFile)
-		goutils.CloseFile(newFile)
-		err = os.Remove(tmpName)
-		goutils.LogError(err)
-	}
-	moveAndSucceed := func() {
-		goutils.CloseFile(oldFile)
-		goutils.CloseFile(newFile)
-		err = os.Rename(tmpName, cacheFile)
-		goutils.LogError(err)
-	}
-
-	firstLine := cacheKey + strings.Join(tmdbNames, separator)
-	if _, err = fmt.Fprintln(newFile, firstLine); err != nil {
-		cleanupAndFail(err)
-		return
-	}
-
-	lineCounter := 1
-	scanner := bufio.NewScanner(oldFile)
-	for scanner.Scan() {
-		if lineCounter >= cacheLimit {
-			break
-		}
-
-		if _, err = fmt.Fprintln(newFile, scanner.Text()); err != nil {
-			cleanupAndFail(err)
-			return
-		}
-
-		lineCounter++
-	}
-
-	moveAndSucceed()
+	return nil, errors.New("No TMDB function found for type:" + itemType)
 }
 
-func (oa outputAction) getFromTMDBOutputCache(cacheKey, cacheFile, separator string) ([]string, bool) {
-	openFile, err := os.OpenFile(cacheFile, os.O_RDONLY, os.ModePerm)
-	if err != nil {
-		goutils.LogError(err)
-		return nil, false
-	}
-	defer goutils.CloseFile(openFile)
-
-	scanner := bufio.NewScanner(openFile)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.HasPrefix(line, cacheKey) {
-			return strings.Split(line[len(cacheKey):], separator), true
-		}
-	}
-	return nil, false
-}
-
-func (oa outputAction) generateTMDBOutputCacheKey(videoType, normalizedWithYear, separator string) string {
-	return fmt.Sprintf("%s__%s%s", strings.ToUpper(videoType), normalizedWithYear, separator)
+func (oa outputAction) generateOutputCacheKey(videoType, normalizedWithYear string) string {
+	return fmt.Sprintf("%s__%s", strings.ToUpper(videoType), normalizedWithYear)
 }
 
 func (oa outputAction) appendYear(normalizedName string, year int) string {
@@ -187,13 +122,8 @@ func (oa outputAction) appendYear(normalizedName string, year int) string {
 	return normalizedName
 }
 
-func (oa outputAction) getWebSearcherFunc(itemType string) (videoSearchFunc, error) {
-	if itemType == action.MOVIE {
-		return oa.webSearcher.SearchMovies, nil
-	} else if itemType == action.TV {
-		return oa.webSearcher.SearchTVSeries, nil
-	}
-	return nil, errors.New("No TMDB function found for type:" + itemType)
+func (oa outputAction) trimReleaseDate(nameWithReleaseDate string) string {
+	return oa.releaseDateRegex.ReplaceAllString(nameWithReleaseDate, "")
 }
 
 func (oa outputAction) normalize(name string) (string, int) {
@@ -275,8 +205,4 @@ func (oa outputAction) findOnDisk(normalized, diskPath string) (results []string
 	}
 
 	return results, true
-}
-
-func (oa outputAction) trimReleaseDate(nameWithReleaseDate string) string {
-	return oa.releaseDateRegex.ReplaceAllString(nameWithReleaseDate, "")
 }

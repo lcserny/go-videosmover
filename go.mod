@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	github.com/Bios-Marcel/wastebasket v0.0.0-20190304193457-ba788b19da79
+	github.com/VictoriaMetrics/fastcache v1.5.0
 	github.com/h2non/filetype v1.0.8
 	github.com/karrick/godirwalk v1.8.0
 	github.com/lcserny/goutils v1.0.6
