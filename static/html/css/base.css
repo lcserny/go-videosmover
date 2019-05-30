@@ -1,3 +1,19 @@
+@font-face {
+    font-family: 'Lato Light';
+    src: url('../fonts/Lato/Lato-Light.woff') format('woff'),
+         url('../fonts/Lato/Lato-Light.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto Condensed';
+    src: url('../fonts/Roboto_Condensed/RobotoCondensed-Regular.woff') format('woff'),
+         url('../fonts/Roboto_Condensed/RobotoCondensed-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
 /* Fix for scrollbar show that moves header to the left a bit*/
 body {
     overflow-y: scroll;
@@ -26,7 +42,7 @@ body .table-bordered td, body .table-bordered th {
 }
 
 .site-logo-text {
-    font-family: Lato, sans-serif;
+    font-family: "Lato Light", sans-serif;
     font-weight: normal;
     font-size: 30px;
     vertical-align: middle;
@@ -34,7 +50,7 @@ body .table-bordered td, body .table-bordered th {
 
 .site-header a {
     color: #ddd;
-    font-family: Lato, sans-serif;
+    font-family: "Lato Light", sans-serif;
     font-size: 18px;
     transition: ease-in-out color .15s;
 }
@@ -85,7 +101,7 @@ body .table-bordered td, body .table-bordered th {
 }
 
 .btn-flat {
-    font-family: Lato, sans-serif;
+    font-family: "Lato Light", sans-serif;
     font-size: 20px;
     border-radius: 0;
     box-shadow: 4px 4px 10px 0 #aaaaaa;
