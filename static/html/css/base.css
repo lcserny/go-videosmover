@@ -167,14 +167,6 @@ body .table-bordered td, body .table-bordered th {
     border: 1px solid #ffffff;
 }
 
-.dropdown-item-title {
-    white-space: normal;
-}
-
-.dropdown-item-description {
-    white-space: pre-line;
-}
-
 /* DarkMode theme */
 body.dark-theme {
     background-color: #111111;

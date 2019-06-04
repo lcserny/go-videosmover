@@ -94,7 +94,7 @@
                                 <button type="button" class="js-videoOutputOnlineReSearch btn btn-tmdb"></button>
                                 <div class="input-group-append">
                                     <div class="btn-group dropleft">
-                                        <button type="button" class="btn btn-default"
+                                        <button type="button" class="btn btn-default dropdown-toggle output-dropdown-toggle"
                                                 id="videoOutputDropdownButton{{.Video.Index}}"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             ...
@@ -114,13 +114,13 @@
     </div>
 
     <script id="js-videoOutputDropdown-item" type="text/template">
-        <a class="js-dropdown-item dropdown-item" href="#">
+        <a class="js-output-dropdown-item output-dropdown-item dropdown-item">
             <div class="row">
                 <div class="col-md-2">
-                    <img src="##posterURL##" alt="">
+                    <img src="##posterURL##" alt="" class="dropdown-item-image">
                 </div>
-                <div class="col-md-10">
-                    <div class="dropdown-item-title">
+                <div class="col-md-10 dropdown-content-container">
+                    <div class="js-output-dropdown-item-title dropdown-item-title">
                         ##title##
                     </div>
                     <div class="dropdown-item-description">
@@ -206,7 +206,7 @@
                             <button type="button" id="js-videoGroupOutputOnlineReSearch" class="btn btn-tmdb"></button>
                             <div class="input-group-append">
                                 <div class="btn-group dropleft">
-                                    <button type="button" class="btn btn-default"
+                                    <button type="button" class="btn btn-default dropdown-toggle output-dropdown-toggle"
                                             id="videoGroupOutputDropdownButton"
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         ...

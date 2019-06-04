@@ -476,7 +476,6 @@ class SearchViewHandler {
             });
     }
 
-    // TODO: make proper UI
     populateOutputDropdownList(dropdown, outList) {
         if (dropdown == null) {
             return;
@@ -485,7 +484,6 @@ class SearchViewHandler {
         let templateHtml = document.querySelector("#js-videoOutputDropdown-item").innerHTML;
         let content = "";
         for (let vid of outList) {
-            console.log(vid);
             content += templateHtml.replace(/##title##/g, vid.Title)
                 .replace(/##posterURL##/g, vid.PosterURL)
                 .replace(/##description##/g, vid.Description)
@@ -720,10 +718,11 @@ class SearchViewHandler {
         // dynamic event handlers (elements that don't exist yet)
         const body = document.querySelector("body");
         body.addEventListener("click", (event) => {
-            const element = event.target;
-            if (element.tagName.toLowerCase() === "a" && element.classList.contains("js-dropdown-item")) {
-                const textBox = element.closest(".js-outputDropdownContainer").querySelector(".js-videoOutputInput");
-                this.triggerChangeOutputTextBox(textBox, element.innerText);
+            const outputDropdownItem = event.target.closest(".js-output-dropdown-item");
+            if (outputDropdownItem != null) {
+                const textBox = outputDropdownItem.closest(".js-outputDropdownContainer").querySelector(".js-videoOutputInput");
+                const title = outputDropdownItem.querySelector(".js-output-dropdown-item-title").innerText;
+                this.triggerChangeOutputTextBox(textBox, title);
             }
         });
 

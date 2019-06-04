@@ -20,3 +20,33 @@
 .js-videoOutputOnlineReSearch, #js-videoGroupOutputOnlineReSearch {
     display: none;
 }
+
+.dropdown-toggle.output-dropdown-toggle::before {
+    display:none;
+}
+
+.dropdown-content-container {
+    background: rgba(221, 221, 221, 0.3);
+    height: 140px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.dropdown-item-image {
+
+}
+
+.dropdown-item-title {
+    white-space: normal;
+    font-weight: bold;
+}
+
+.dropdown-item-description {
+    white-space: normal;
+}
+
+.dropdown-item-cast {
+    white-space: normal;
+    font-style: italic;
+    padding-top: 10px;
+}
