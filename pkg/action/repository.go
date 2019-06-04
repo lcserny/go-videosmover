@@ -37,7 +37,9 @@ func (ar *actionRepository) Register(key string, a core.Action) {
 	ar.actions[strings.ToLower(key)] = a
 }
 
-func (ar actionRepository) Retrieve(key string) core.Action {
+func (ar *actionRepository) Retrieve(key string) core.Action {
+	ar.mutex.RLock()
+	defer ar.mutex.RUnlock()
 	if a, ok := ar.actions[strings.ToLower(key)]; ok {
 		return a
 	}
