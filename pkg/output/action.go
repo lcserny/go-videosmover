@@ -1,9 +1,12 @@
 package output
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"github.com/lcserny/goutils"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -14,12 +17,11 @@ import (
 	"videosmover/pkg/action"
 )
 
-func NewAction(cfg *core.ActionConfig, c core.Codec, ws core.VideoWebSearcher, cs core.CacheStore) core.Action {
+func NewAction(cfg *core.ActionConfig, c core.Codec, ws core.VideoWebSearcher) core.Action {
 	oa := outputAction{
 		config:                 cfg,
 		codec:                  c,
 		webSearcher:            ws,
-		cacheStore:             cs,
 		preNormalizedNameRegex: regexp.MustCompile(`^\s*(?P<name>[a-zA-Z0-9-\s]+)\s\((?P<year>\d{4})(-\d{1,2}-\d{1,2})?\)$`),
 		specialCharsRegex:      regexp.MustCompile(`[^a-zA-Z0-9-\s]`),
 		spaceMergeRegex:        regexp.MustCompile(`\s{2,}`),
@@ -38,7 +40,6 @@ type outputAction struct {
 	config                 *core.ActionConfig
 	codec                  core.Codec
 	webSearcher            core.VideoWebSearcher
-	cacheStore             core.CacheStore
 	namePatterns           []*regexp.Regexp
 	preNormalizedNameRegex *regexp.Regexp
 	specialCharsRegex      *regexp.Regexp
@@ -76,17 +77,49 @@ func (oa outputAction) Execute(jsonPayload []byte) (string, error) {
 
 		cacheKey := oa.generateOutputCacheKey(request.Type, normalizedWithYear)
 		if !request.SkipCache {
-			if blobResults, found := oa.cacheStore.Get(cacheKey); found {
-				if cachedResults, ok := blobResults.([]*core.VideoWebResult); ok {
-					return oa.codec.EncodeString(ResponseData{cachedResults, ORIGIN_TMDB_CACHE})
-				} else {
-					goutils.LogError(errors.New(fmt.Sprintf("Could not cast cache blob to `[]*core.VideoWebResult` for key %s", cacheKey)))
+			// TODO: does this work
+			reqData, err := oa.codec.EncodeBytes(map[string]string{"key": cacheKey})
+			if err != nil {
+				goutils.LogError(err)
+				return "", err
+			}
+			resp, err := http.Post(fmt.Sprintf("%s/get", oa.config.CacheApiURL), "application/json", bytes.NewBuffer(reqData))
+			if err != nil {
+				goutils.LogError(err)
+				return "", err
+			}
+			defer resp.Body.Close()
+
+			var cachedResults []*core.VideoWebResult
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				goutils.LogError(err)
+				return "", err
+			}
+
+			if len(b) > 0 {
+				err = oa.codec.Decode(b, cachedResults)
+				if err != nil {
+					goutils.LogError(err)
+					return "", err
 				}
+				return oa.codec.EncodeString(ResponseData{cachedResults, ORIGIN_TMDB_CACHE})
 			}
 		}
 
 		if webResults, found := webSearcherFunc(normalized, year, oa.config.MaxWebSearchResultCount, oa.specialCharsRegex); found {
-			goutils.LogError(oa.cacheStore.Set(cacheKey, webResults))
+			// TODO: does this work
+			reqData, err := oa.codec.EncodeBytes(map[string]interface{}{"key": cacheKey, "val": webResults})
+			if err != nil {
+				goutils.LogError(err)
+				return "", err
+			}
+			resp, err := http.Post(fmt.Sprintf("%s/set", oa.config.CacheApiURL), "application/json", bytes.NewBuffer(reqData))
+			if err != nil {
+				goutils.LogError(err)
+				return "", err
+			}
+			defer resp.Body.Close()
 			return oa.codec.EncodeString(ResponseData{webResults, ORIGIN_TMDB})
 		}
 	}

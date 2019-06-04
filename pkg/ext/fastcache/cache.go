@@ -27,7 +27,7 @@ func (cs *cacheStore) Set(key string, val interface{}) error {
 		return err
 	}
 	cs.cache.Set([]byte(key), enc)
-	return cs.cache.SaveToFile(cs.cacheFile)
+	return nil
 }
 
 func (cs cacheStore) marshal(v interface{}) ([]byte, error) {
@@ -53,4 +53,8 @@ func (cs *cacheStore) Get(key string) (val interface{}, found bool) {
 func (cs cacheStore) unmarshal(data []byte, v interface{}) error {
 	b := bytes.NewBuffer(data)
 	return gob.NewDecoder(b).Decode(v)
+}
+
+func (cs *cacheStore) Persist() error {
+	return cs.cache.SaveToFile(cs.cacheFile)
 }

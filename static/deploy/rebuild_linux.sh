@@ -8,6 +8,7 @@ go test videosmover/pkg/delete
 go test videosmover/pkg/search
 go test videosmover/pkg/output
 
+go install cmd/cachestore.go
 go install cmd/commander.go
 go install cmd/proxy_server.go
 go install cmd/webview.go

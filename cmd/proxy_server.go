@@ -25,7 +25,7 @@ func main() {
 
 	jsonCodec := json.NewJsonCodec()
 	apiRequester := web.NewApiRequester(jsonCodec)
-	c := config.ProxyProxyConfig(*cfgPath, jsonCodec)
+	c := config.MakeProxyConfig(*cfgPath, jsonCodec)
 
 	mux := http.NewServeMux()
 	for _, binCmd := range c.Bin {

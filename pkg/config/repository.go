@@ -8,7 +8,7 @@ import (
 	"videosmover/pkg"
 )
 
-func ProxyProxyConfig(configFile string, codec core.Codec) *core.ProxyConfig {
+func MakeProxyConfig(configFile string, codec core.Codec) *core.ProxyConfig {
 	configBytes, err := ioutil.ReadFile(configFile)
 	goutils.LogFatal(err)
 
@@ -31,6 +31,34 @@ func ProxyProxyConfig(configFile string, codec core.Codec) *core.ProxyConfig {
 				goutils.LogFatal(errors.New("serverConfig path and cfgPath should not be empty"))
 			}
 		}
+	}
+
+	return serverConfig
+}
+
+func MakeCacheConfig(configFile string, codec core.Codec) *core.CacheConfig {
+	configBytes, err := ioutil.ReadFile(configFile)
+	goutils.LogFatal(err)
+
+	// defaults
+	serverConfig := &core.CacheConfig{
+		Port:                  "8075",
+		MaxSizeBytes:          10000000,
+		PersistenceIntervalMs: 1800000,
+	}
+
+	err = codec.Decode(configBytes, serverConfig)
+	goutils.LogFatal(err)
+
+	// validate
+	if len(serverConfig.Port) < 4 {
+		goutils.LogFatal(errors.New("port not valid"))
+	}
+	if serverConfig.MaxSizeBytes < 512 {
+		goutils.LogFatal(errors.New("maxSizeBytes too small"))
+	}
+	if serverConfig.PersistenceIntervalMs < 5999 {
+		goutils.LogFatal(errors.New("persistenceIntervalMs too small"))
 	}
 
 	return serverConfig
@@ -74,29 +102,29 @@ func MakeActionConfig(cfgPath string, codec core.Codec) *core.ActionConfig {
 	content, err := ioutil.ReadFile(cfgPath)
 	goutils.LogFatal(err)
 
-	var ac core.ActionConfig
-	err = codec.Decode(content, &ac)
+	// defaults
+	config := &core.ActionConfig{
+		CacheApiURL: "http://localhost:8075/cache",
+	}
+	err = codec.Decode(content, config)
 	goutils.LogFatal(err)
 
 	// validate
-	if ac.MinimumVideoSize < 1000000 {
+	if config.MinimumVideoSize < 1000000 {
 		goutils.LogFatal(errors.New("minimumVideoSize less than 1mb"))
 	}
-	if ac.SimilarityPercent < 1 {
+	if config.SimilarityPercent < 1 {
 		goutils.LogFatal(errors.New("similarityPercent is not a positive number"))
 	}
-	if ac.MaxOutputWalkDepth < 1 || ac.MaxSearchWalkDepth < 1 {
+	if config.MaxOutputWalkDepth < 1 || config.MaxSearchWalkDepth < 1 {
 		goutils.LogFatal(errors.New("walkDepths are not a positive number"))
 	}
-	if ac.MaxWebSearchResultCount < 1 {
+	if config.MaxWebSearchResultCount < 1 {
 		goutils.LogFatal(errors.New("webSearchCount is not a positive number"))
 	}
-	if ac.OutWebSearchCacheLimit < 10 {
-		goutils.LogFatal(errors.New("webSearchCacheLimit specified too low"))
-	}
-	if ac.HeaderBytesSize < 10 {
+	if config.HeaderBytesSize < 10 {
 		goutils.LogFatal(errors.New("headerBytesSize specified too low"))
 	}
 
-	return &ac
+	return config
 }
