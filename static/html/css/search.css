@@ -26,7 +26,7 @@
 }
 
 .dropdown-content-container {
-    background: rgba(221, 221, 221, 0.3);
+    background: rgba(160, 160, 160, 0.3);
     height: 140px;
     overflow-y: auto;
     overflow-x: hidden;

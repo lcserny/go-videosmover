@@ -164,7 +164,7 @@ body .table-bordered td, body .table-bordered th {
 }
 
 .dropdown-item:hover {
-    border: 2px solid #ffffff;
+    border: 2px solid #000000;
     cursor: pointer;
 }
 
@@ -243,4 +243,9 @@ body.dark-theme .modal-footer {
 
 body.dark-theme .close {
     color: white;
+}
+
+body.dark-theme .dropdown-item:hover {
+    border: 2px solid #ffffff;
+    cursor: pointer;
 }
