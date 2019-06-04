@@ -160,11 +160,12 @@ body .table-bordered td, body .table-bordered th {
 
 .dropdown-item {
     width: 700px;
-    border: 1px solid #01d277;
+    border: 2px solid #01d277;
 }
 
 .dropdown-item:hover {
-    border: 1px solid #ffffff;
+    border: 2px solid #ffffff;
+    cursor: pointer;
 }
 
 /* DarkMode theme */
