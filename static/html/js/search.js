@@ -485,8 +485,11 @@ class SearchViewHandler {
         let templateHtml = document.querySelector("#js-videoOutputDropdown-item").innerHTML;
         let content = "";
         for (let vid of outList) {
-            console.log(vid); // TODO: for debugging only
-            content += templateHtml.replace(/##outName##/g, vid.Title);
+            console.log(vid);
+            content += templateHtml.replace(/##title##/g, vid.Title)
+                .replace(/##posterURL##/g, vid.PosterURL)
+                .replace(/##description##/g, vid.Description)
+                .replace(/##cast##/g, vid.Cast);
         }
         dropdown.innerHTML = content;
     }

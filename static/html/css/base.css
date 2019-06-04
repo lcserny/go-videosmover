@@ -154,6 +154,27 @@ body .table-bordered td, body .table-bordered th {
     border-left: 5px solid #0091ef;
 }
 
+.dropdown-menu {
+    padding: 0;
+}
+
+.dropdown-item {
+    width: 700px;
+    border: 1px solid #01d277;
+}
+
+.dropdown-item:hover {
+    border: 1px solid #ffffff;
+}
+
+.dropdown-item-title {
+    white-space: normal;
+}
+
+.dropdown-item-description {
+    white-space: pre-line;
+}
+
 /* DarkMode theme */
 body.dark-theme {
     background-color: #111111;
