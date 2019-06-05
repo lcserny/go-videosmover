@@ -80,7 +80,7 @@ func MakeActionConfig(cfgPath string, codec core.Codec) *core.ActionConfig {
 		CachePoolSize: 10,
 	}
 
-	err = codec.Decode(content, ac)
+	err = codec.Decode(content, &ac)
 	goutils.LogFatal(err)
 
 	// validate
