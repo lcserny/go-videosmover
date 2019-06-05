@@ -374,7 +374,8 @@ body.dark-theme .dropdown-item {
 
 body.dark-theme .dropdown-item:hover {
     color: #bbbbbb;
-    background-color: #222222;
+    background-color: #101010;
+    border: 2px solid #ffffff;
 }
 
 body.dark-theme .modal-content {
@@ -392,9 +393,4 @@ body.dark-theme .modal-footer {
 
 body.dark-theme .close {
     color: white;
-}
-
-body.dark-theme .dropdown-item:hover {
-    border: 2px solid #ffffff;
-    cursor: pointer;
 }

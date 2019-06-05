@@ -61,3 +61,7 @@ body.dark-theme .dropdown-content-container {
     font-style: italic;
     color: rgba(0, 0, 0, 0.43137254901960786);
 }
+
+body.dark-theme .dropdown-item-cast {
+    color: rgba(210, 210, 210, 0.43137254901960786);
+}
