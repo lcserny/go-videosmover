@@ -30,7 +30,8 @@ type ActionConfig struct {
 	MaxOutputWalkDepth        int      `json:"maxOutputWalkDepth"`
 	MaxSearchWalkDepth        int      `json:"maxSearchWalkDepth"`
 	MaxWebSearchResultCount   int      `json:"maxWebSearchResultCount"`
-	OutWebSearchCacheLimit    int      `json:"outWebSearchCacheLimit"`
+	CacheAddress              string   `json:"cacheAddress"`
+	CachePoolSize             int      `json:"cachePoolSize"`
 	HeaderBytesSize           int      `json:"headerBytesSize"`
 	RestrictedRemovePaths     []string `json:"restrictedRemovePaths"`
 	NameTrimRegexes           []string `json:"nameTrimRegexes"`

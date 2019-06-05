@@ -8,7 +8,7 @@ import (
 	"videosmover/pkg"
 )
 
-func ProxyProxyConfig(configFile string, codec core.Codec) *core.ProxyConfig {
+func MakeProxyConfig(configFile string, codec core.Codec) *core.ProxyConfig {
 	configBytes, err := ioutil.ReadFile(configFile)
 	goutils.LogFatal(err)
 
@@ -74,8 +74,13 @@ func MakeActionConfig(cfgPath string, codec core.Codec) *core.ActionConfig {
 	content, err := ioutil.ReadFile(cfgPath)
 	goutils.LogFatal(err)
 
-	var ac core.ActionConfig
-	err = codec.Decode(content, &ac)
+	// defaults
+	ac := core.ActionConfig{
+		CacheAddress:  "127.0.0.1:6379",
+		CachePoolSize: 10,
+	}
+
+	err = codec.Decode(content, ac)
 	goutils.LogFatal(err)
 
 	// validate
@@ -90,9 +95,6 @@ func MakeActionConfig(cfgPath string, codec core.Codec) *core.ActionConfig {
 	}
 	if ac.MaxWebSearchResultCount < 1 {
 		goutils.LogFatal(errors.New("webSearchCount is not a positive number"))
-	}
-	if ac.OutWebSearchCacheLimit < 10 {
-		goutils.LogFatal(errors.New("webSearchCacheLimit specified too low"))
 	}
 	if ac.HeaderBytesSize < 10 {
 		goutils.LogFatal(errors.New("headerBytesSize specified too low"))

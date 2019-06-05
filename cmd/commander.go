@@ -9,10 +9,10 @@ import (
 	"videosmover/pkg/action"
 	"videosmover/pkg/config"
 	"videosmover/pkg/delete"
-	"videosmover/pkg/ext/fastcache"
 	"videosmover/pkg/ext/godirwalk"
 	"videosmover/pkg/ext/h2non"
 	"videosmover/pkg/ext/json"
+	"videosmover/pkg/ext/redis"
 	"videosmover/pkg/ext/tmdb"
 	"videosmover/pkg/ext/wastebasket"
 	"videosmover/pkg/move"
@@ -40,7 +40,7 @@ func main() {
 	mimeChecker := h2non.NewVideoChecker(cfg)
 	videoPathWalker := godirwalk.NewVideoPathWalker(cfg)
 	videoWebSearcher := tmdb.NewVideoWebSearcher()
-	fastCacheStore := fastcache.NewCacheStore(goutils.GetAbsCurrentPathOf("tmdbOutput.cache"), cfg.OutWebSearchCacheLimit)
+	fastCacheStore := redis.NewCacheStore(cfg.CacheAddress, cfg.CachePoolSize)
 
 	actionRepo := action.NewActionRepository()
 	actionRepo.Register("delete", delete.NewAction(cfg, codec, trashMover))

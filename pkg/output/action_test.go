@@ -1,13 +1,12 @@
 package output
 
 import (
-	"github.com/lcserny/goutils"
 	"path/filepath"
 	"testing"
 	"videosmover/pkg"
 	"videosmover/pkg/action"
-	"videosmover/pkg/ext/fastcache"
 	"videosmover/pkg/ext/json"
+	"videosmover/pkg/ext/redis"
 	"videosmover/pkg/ext/tmdb"
 )
 
@@ -144,8 +143,9 @@ func TestOutputAction(t *testing.T) {
 		},
 	}
 
+	cfg := action.GetTestActionConfig()
 	jsonCodec := json.NewJsonCodec()
 	videoWebSearcher := tmdb.NewVideoWebSearcher()
-	fastCacheStore := fastcache.NewCacheStore(goutils.GetAbsCurrentPathOf("testOutput.cache"), 10000)
-	action.RunTestAction(t, testData, NewAction(action.GetTestActionConfig(), jsonCodec, videoWebSearcher, fastCacheStore), jsonCodec)
+	fastCacheStore := redis.NewCacheStore(cfg.CacheAddress, cfg.CachePoolSize)
+	action.RunTestAction(t, testData, NewAction(cfg, jsonCodec, videoWebSearcher, fastCacheStore), jsonCodec)
 }
