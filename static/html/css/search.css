@@ -25,6 +25,10 @@
     display:none;
 }
 
+body.dark-theme .dropdown-toggle.output-dropdown-toggle {
+    color: #999999;
+}
+
 .dropdown-image-container {
     height: 140px;
     width: 100px;
