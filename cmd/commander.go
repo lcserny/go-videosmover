@@ -27,16 +27,15 @@ func main() {
 		return
 	}
 
-	goutils.InitFileLogger("vm-commander.log")
-
 	cmdConfig := flag.String("config", "", "actions config file path")
 	cmdAction := flag.String("action", "search", "action to execute")
 	cmdPayload := flag.String("payloadFile", "", "path to payload file")
 	flag.Parse()
 
 	codec := json.NewJsonCodec()
-	trashMover := wastebasket.NewTrashMover()
 	cfg := config.MakeActionConfig(*cmdConfig, codec)
+	goutils.InitFileLogger(cfg.LogFile)
+	trashMover := wastebasket.NewTrashMover()
 	mimeChecker := h2non.NewVideoChecker(cfg)
 	videoPathWalker := godirwalk.NewVideoPathWalker(cfg)
 	videoWebSearcher := tmdb.NewVideoWebSearcher()

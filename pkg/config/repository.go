@@ -13,7 +13,10 @@ func MakeProxyConfig(configFile string, codec core.Codec) *core.ProxyConfig {
 	goutils.LogFatal(err)
 
 	// defaults
-	serverConfig := &core.ProxyConfig{Port: "8077"}
+	serverConfig := &core.ProxyConfig{
+		Port:    "8077",
+		LogFile: "vm-proxyserver.log",
+	}
 
 	err = codec.Decode(configBytes, serverConfig)
 	goutils.LogFatal(err)
@@ -21,6 +24,9 @@ func MakeProxyConfig(configFile string, codec core.Codec) *core.ProxyConfig {
 	// validate
 	if len(serverConfig.Port) < 4 {
 		goutils.LogFatal(errors.New("port not valid"))
+	}
+	if len(serverConfig.LogFile) < 1 {
+		goutils.LogFatal(errors.New("log file path not provided"))
 	}
 	if len(serverConfig.Bin) > 0 {
 		for _, e := range serverConfig.Bin {
@@ -42,6 +48,7 @@ func MakeWebviewConfig(configFile string, codec core.Codec) *core.WebviewConfig 
 
 	// defaults
 	config := &core.WebviewConfig{
+		LogFile:             "vm-webview.log",
 		AutoDarkModeEnable:  true,
 		AutoDarkModeHourMax: 18,
 		AutoDarkModeHourMin: 6,
@@ -54,6 +61,9 @@ func MakeWebviewConfig(configFile string, codec core.Codec) *core.WebviewConfig 
 	goutils.LogFatal(err)
 
 	// validate
+	if len(config.LogFile) < 1 {
+		goutils.LogFatal(errors.New("log file path not provided"))
+	}
 	if len(config.Port) < 4 {
 		goutils.LogFatal(errors.New("port not valid"))
 	}
@@ -76,6 +86,7 @@ func MakeActionConfig(cfgPath string, codec core.Codec) *core.ActionConfig {
 
 	// defaults
 	ac := core.ActionConfig{
+		LogFile:       "vm-commander.log",
 		CacheAddress:  "127.0.0.1:6379",
 		CachePoolSize: 10,
 	}
@@ -84,6 +95,9 @@ func MakeActionConfig(cfgPath string, codec core.Codec) *core.ActionConfig {
 	goutils.LogFatal(err)
 
 	// validate
+	if len(ac.LogFile) < 1 {
+		goutils.LogFatal(errors.New("log file path not provided"))
+	}
 	if len(ac.CacheAddress) < 1 {
 		goutils.LogFatal(errors.New("cacheAddress not set correctly"))
 	}

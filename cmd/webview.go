@@ -28,15 +28,14 @@ func main() {
 		return
 	}
 
-	goutils.InitFileLogger("vm-webview.log")
-
 	cfgPath := flag.String("config", "", "path to webview config")
 	flag.Parse()
 
 	var pingTimestamp int64
 	jsonCodec := json.NewJsonCodec()
-	apiRequester := web.NewApiRequester(jsonCodec)
 	cfg := config.MakeWebviewConfig(*cfgPath, jsonCodec)
+	goutils.InitFileLogger(cfg.LogFile)
+	apiRequester := web.NewApiRequester(jsonCodec)
 	webPath := fmt.Sprintf("localhost:%s", cfg.Port)
 
 	// define template controllers

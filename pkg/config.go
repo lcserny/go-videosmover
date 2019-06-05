@@ -1,6 +1,7 @@
 package core
 
 type WebviewConfig struct {
+	LogFile             string `json:"logFile"`
 	AutoDarkModeEnable  bool   `json:"autoDarkModeEnable"`
 	AutoDarkModeHourMax int    `json:"autoDarkModeHourMax"`
 	AutoDarkModeHourMin int    `json:"autoDarkModeHourMin"`
@@ -20,11 +21,13 @@ type CmdHandlerConfig struct {
 }
 
 type ProxyConfig struct {
-	Port string             `json:"port"`
-	Bin  []CmdHandlerConfig `json:"bin"`
+	LogFile string             `json:"logFile"`
+	Port    string             `json:"port"`
+	Bin     []CmdHandlerConfig `json:"bin"`
 }
 
 type ActionConfig struct {
+	LogFile                   string   `json:"logFile"`
 	MinimumVideoSize          int64    `json:"minimumVideoSize"`
 	SimilarityPercent         int      `json:"similarityPercent"`
 	MaxOutputWalkDepth        int      `json:"maxOutputWalkDepth"`

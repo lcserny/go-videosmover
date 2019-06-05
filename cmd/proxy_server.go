@@ -18,14 +18,13 @@ func main() {
 		return
 	}
 
-	goutils.InitFileLogger("vm-proxyserver.log")
-
 	cfgPath := flag.String("config", "", "path to proxy server config")
 	flag.Parse()
 
 	jsonCodec := json.NewJsonCodec()
 	apiRequester := web.NewApiRequester(jsonCodec)
 	c := config.MakeProxyConfig(*cfgPath, jsonCodec)
+	goutils.InitFileLogger(c.LogFile)
 
 	mux := http.NewServeMux()
 	for _, binCmd := range c.Bin {
