@@ -26,7 +26,7 @@ func GetTestActionConfig() *core.ActionConfig {
 	if testActionCfg == nil {
 		testActionCfg = &core.ActionConfig{
 			MinimumVideoSize: 256, SimilarityPercent: 80, MaxOutputWalkDepth: 2, MaxSearchWalkDepth: 4,
-			MaxWebSearchResultCount: 1, CacheAddress: "127.0.0.1:6379", CachePoolSize: 10, HeaderBytesSize: 261,
+			MaxWebSearchResultCount: 1, CacheAddress: "", CachePoolSize: 0, HeaderBytesSize: 261,
 			NameTrimRegexes:       []string{".[sS](\\d{1,2})([-]?[eE](\\d{1,2}))?", "[\\.\\s][sS][0-9]{1,2}[\\.\\s]?", "1080p", "720p"},
 			RestrictedRemovePaths: []string{"Downloads"}, SearchExcludePaths: []string{"Programming Stuff"},
 			AllowedSubtitleExtensions: []string{".srt", ".sub"},

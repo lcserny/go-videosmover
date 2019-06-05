@@ -146,6 +146,6 @@ func TestOutputAction(t *testing.T) {
 	cfg := action.GetTestActionConfig()
 	jsonCodec := json.NewJsonCodec()
 	videoWebSearcher := tmdb.NewVideoWebSearcher()
-	fastCacheStore := redis.NewCacheStore(cfg.CacheAddress, cfg.CachePoolSize)
-	action.RunTestAction(t, testData, NewAction(cfg, jsonCodec, videoWebSearcher, fastCacheStore), jsonCodec)
+	redisCache := redis.NewCacheStore(cfg.CacheAddress, cfg.CachePoolSize)
+	action.RunTestAction(t, testData, NewAction(cfg, jsonCodec, videoWebSearcher, redisCache), jsonCodec)
 }

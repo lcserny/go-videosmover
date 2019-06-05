@@ -84,6 +84,12 @@ func MakeActionConfig(cfgPath string, codec core.Codec) *core.ActionConfig {
 	goutils.LogFatal(err)
 
 	// validate
+	if len(ac.CacheAddress) < 1 {
+		goutils.LogFatal(errors.New("cacheAddress not set correctly"))
+	}
+	if ac.CachePoolSize < 1 {
+		goutils.LogFatal(errors.New("cachePoolSize must be bigger than 0"))
+	}
 	if ac.MinimumVideoSize < 1000000 {
 		goutils.LogFatal(errors.New("minimumVideoSize less than 1mb"))
 	}

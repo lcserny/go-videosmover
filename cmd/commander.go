@@ -40,12 +40,12 @@ func main() {
 	mimeChecker := h2non.NewVideoChecker(cfg)
 	videoPathWalker := godirwalk.NewVideoPathWalker(cfg)
 	videoWebSearcher := tmdb.NewVideoWebSearcher()
-	fastCacheStore := redis.NewCacheStore(cfg.CacheAddress, cfg.CachePoolSize)
+	redisCache := redis.NewCacheStore(cfg.CacheAddress, cfg.CachePoolSize)
 
 	actionRepo := action.NewActionRepository()
 	actionRepo.Register("delete", delete.NewAction(cfg, codec, trashMover))
 	actionRepo.Register("move", move.NewAction(cfg, codec, trashMover))
-	actionRepo.Register("output", output.NewAction(cfg, codec, videoWebSearcher, fastCacheStore))
+	actionRepo.Register("output", output.NewAction(cfg, codec, videoWebSearcher, redisCache))
 	actionRepo.Register("search", search.NewAction(cfg, codec, mimeChecker, videoPathWalker))
 
 	b, err := ioutil.ReadFile(*cmdPayload)
