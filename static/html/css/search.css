@@ -25,11 +25,22 @@
     display:none;
 }
 
-.dropdown-content-container {
-    background: rgba(160, 160, 160, 0.3);
+.dropdown-image-container {
     height: 140px;
+    width: 100px;
+}
+
+.dropdown-content-container {
+    background: rgba(200, 200, 200, 0.3);
+    height: 140px;
+    width: 578px;
     overflow-y: auto;
     overflow-x: hidden;
+    padding: 10px;
+}
+
+body.dark-theme .dropdown-content-container {
+    background: rgba(160, 160, 160, 0.3);
 }
 
 .dropdown-item-image {
@@ -48,5 +59,5 @@
 .dropdown-item-cast {
     white-space: normal;
     font-style: italic;
-    padding-top: 10px;
+    color: rgba(0, 0, 0, 0.43137254901960786);
 }
