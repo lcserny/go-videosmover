@@ -11,12 +11,16 @@ import (
 )
 
 type videoWebSearcher struct {
-	tmdbAPI       *tmdb.TMDb
-	posterPattern string
+	tmdbAPI           *tmdb.TMDb
+	posterPattern     string
+	fallbackPosterUrl string
 }
 
 func NewVideoWebSearcher() core.VideoWebSearcher {
-	vws := videoWebSearcher{posterPattern: "http://image.tmdb.org/t/p/w92%s"}
+	vws := videoWebSearcher{
+		posterPattern:     "http://image.tmdb.org/t/p/w92%s",
+		fallbackPosterUrl: "/static/img/no-poster.jpg",
+	}
 	if key, exists := os.LookupEnv("TMDB_API_KEY"); exists {
 		vws.tmdbAPI = tmdb.Init(tmdb.Config{key, false, nil})
 	}
@@ -52,10 +56,14 @@ func (vws videoWebSearcher) SearchMovies(name string, year, maxResCount int, spe
 		if movie.ReleaseDate != "" {
 			title += " (" + movie.ReleaseDate + ")"
 		}
+		posterUrl := vws.fallbackPosterUrl
+		if len(movie.PosterPath) > 0 {
+			posterUrl = fmt.Sprintf(vws.posterPattern, movie.PosterPath)
+		}
 		searchedList = append(searchedList, &core.VideoWebResult{
 			Title:       title,
 			Description: movie.Overview,
-			PosterURL:   fmt.Sprintf(vws.posterPattern, movie.PosterPath),
+			PosterURL:   posterUrl,
 			Cast:        vws.generateMovieCastNames(movie.Credits.Cast),
 		})
 	}
@@ -92,10 +100,14 @@ func (vws videoWebSearcher) SearchTVSeries(name string, year, maxResCount int, s
 		if tvShow.FirstAirDate != "" {
 			title += " (" + tvShow.FirstAirDate[0:4] + ")"
 		}
+		posterUrl := vws.fallbackPosterUrl
+		if len(tvShow.PosterPath) > 0 {
+			posterUrl = fmt.Sprintf(vws.posterPattern, tvShow.PosterPath)
+		}
 		searchedList = append(searchedList, &core.VideoWebResult{
 			Title:       title,
 			Description: tvShow.Overview,
-			PosterURL:   fmt.Sprintf(vws.posterPattern, tvShow.PosterPath),
+			PosterURL:   posterUrl,
 			Cast:        vws.generateTvShowCastNames(tvShow.Credits.Cast),
 		})
 	}
