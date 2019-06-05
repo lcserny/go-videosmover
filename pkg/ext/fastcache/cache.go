@@ -39,15 +39,15 @@ func (cs cacheStore) marshal(v interface{}) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func (cs *cacheStore) Get(key string) (val interface{}, found bool) {
+func (cs *cacheStore) Get(key string, valHolderPointer interface{}) error {
 	enc := cs.cache.Get(nil, []byte(key))
 	if enc == nil {
-		return nil, false
+		return nil
 	}
-	if err := cs.unmarshal(enc, &val); err != nil {
-		return nil, false
+	if err := cs.unmarshal(enc, valHolderPointer); err != nil {
+		return err
 	}
-	return val, true
+	return nil
 }
 
 func (cs cacheStore) unmarshal(data []byte, v interface{}) error {

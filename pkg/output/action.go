@@ -76,12 +76,12 @@ func (oa outputAction) Execute(jsonPayload []byte) (string, error) {
 
 		cacheKey := oa.generateOutputCacheKey(request.Type, normalizedWithYear)
 		if !request.SkipCache {
-			if blobResults, found := oa.cacheStore.Get(cacheKey); found {
-				if cachedResults, ok := blobResults.([]*core.VideoWebResult); ok {
-					return oa.codec.EncodeString(ResponseData{cachedResults, ORIGIN_TMDB_CACHE})
-				} else {
-					goutils.LogError(errors.New(fmt.Sprintf("Could not cast cache blob to `[]*core.VideoWebResult` for key %s", cacheKey)))
-				}
+			var cachedResults []*core.VideoWebResult
+			if err := oa.cacheStore.Get(cacheKey, &cachedResults); err != nil {
+				goutils.LogError(err)
+			}
+			if cachedResults != nil && len(cachedResults) > 0 {
+				return oa.codec.EncodeString(ResponseData{cachedResults, ORIGIN_TMDB_CACHE})
 			}
 		}
 

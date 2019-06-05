@@ -19,7 +19,6 @@ func (cs *cacheStore) Set(key string, val interface{}) error {
 	if !cs.available {
 		return nil
 	}
-
 	enc, err := cs.marshal(val)
 	if err != nil {
 		return err
@@ -27,23 +26,21 @@ func (cs *cacheStore) Set(key string, val interface{}) error {
 	return cs.client.Do(radix.Cmd(nil, "SET", key, string(enc)))
 }
 
-func (cs *cacheStore) Get(key string) (val interface{}, found bool) {
+func (cs *cacheStore) Get(key string, valHolderPointer interface{}) error {
 	if !cs.available {
-		return nil, false
+		return nil
 	}
-
 	var b []byte
 	if err := cs.client.Do(radix.Cmd(&b, "GET", key)); err != nil {
-		goutils.LogFatal(err)
-		return nil, false
+		return err
 	}
 	if len(b) == 0 {
-		return nil, false
+		return nil
 	}
-	if err := cs.unmarshal(b, &val); err != nil {
-		return nil, false
+	if err := cs.unmarshal(b, valHolderPointer); err != nil {
+		return err
 	}
-	return val, true
+	return nil
 }
 
 func (cs cacheStore) marshal(v interface{}) ([]byte, error) {
