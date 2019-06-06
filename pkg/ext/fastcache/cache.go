@@ -27,7 +27,11 @@ func (cs *cacheStore) Set(key string, val interface{}) error {
 		return err
 	}
 	cs.cache.Set([]byte(key), enc)
-	return cs.cache.SaveToFile(cs.cacheFile)
+	return nil
+}
+
+func (cs *cacheStore) Close() {
+	cs.cache.SaveToFile(cs.cacheFile)
 }
 
 func (cs cacheStore) marshal(v interface{}) ([]byte, error) {

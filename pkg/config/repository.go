@@ -87,7 +87,7 @@ func MakeActionConfig(cfgPath string, codec core.Codec) *core.ActionConfig {
 	// defaults
 	ac := core.ActionConfig{
 		LogFile:       "vm-commander.log",
-		CacheAddress:  "127.0.0.1:6379",
+		CacheAddress:  "http://localhost:8050",
 		CachePoolSize: 10,
 	}
 

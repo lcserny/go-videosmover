@@ -5,8 +5,8 @@ import (
 	"testing"
 	"videosmover/pkg"
 	"videosmover/pkg/action"
+	"videosmover/pkg/ext/boltdb"
 	"videosmover/pkg/ext/json"
-	"videosmover/pkg/ext/redis"
 	"videosmover/pkg/ext/tmdb"
 )
 
@@ -146,6 +146,7 @@ func TestOutputAction(t *testing.T) {
 	cfg := action.GetTestActionConfig()
 	jsonCodec := json.NewJsonCodec()
 	videoWebSearcher := tmdb.NewVideoWebSearcher()
-	redisCache := redis.NewCacheStore(cfg.CacheAddress, cfg.CachePoolSize)
-	action.RunTestAction(t, testData, NewAction(cfg, jsonCodec, videoWebSearcher, redisCache), jsonCodec)
+	boltCache := boltdb.NewCacheStore(cfg.CacheAddress, "boltdb", "videosmover-test")
+	defer boltCache.Close()
+	action.RunTestAction(t, testData, NewAction(cfg, jsonCodec, videoWebSearcher, boltCache), jsonCodec)
 }
