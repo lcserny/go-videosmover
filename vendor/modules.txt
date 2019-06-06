@@ -15,9 +15,16 @@ github.com/h2non/filetype/matchers/isobmff
 github.com/karrick/godirwalk
 # github.com/lcserny/goutils v1.0.6
 github.com/lcserny/goutils
+# github.com/mediocregopher/radix/v3 v3.2.3
+github.com/mediocregopher/radix/v3
+github.com/mediocregopher/radix/v3/internal/bytesutil
+github.com/mediocregopher/radix/v3/resp
+github.com/mediocregopher/radix/v3/resp/resp2
 # github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
 github.com/pkg/browser
 # github.com/pkg/errors v0.8.1
 github.com/pkg/errors
 # github.com/ryanbradynd05/go-tmdb v0.0.0-20181220020137-291a20d25ffd
 github.com/ryanbradynd05/go-tmdb
+# github.com/schollz/boltdb-server v0.1.2
+github.com/schollz/boltdb-server/connect
