@@ -75,7 +75,7 @@ func (oa outputAction) Execute(jsonPayload []byte) (string, error) {
 		}
 
 		cacheKey := oa.generateOutputCacheKey(request.Type, normalizedWithYear)
-		if !request.SkipCache {
+		if !request.SkipCache && oa.cacheStore != nil {
 			var cachedResults []*core.VideoWebResult
 			if err := oa.cacheStore.Get(cacheKey, &cachedResults); err != nil {
 				goutils.LogError(err)
@@ -86,7 +86,9 @@ func (oa outputAction) Execute(jsonPayload []byte) (string, error) {
 		}
 
 		if webResults, found := webSearcherFunc(normalized, year, oa.config.MaxWebSearchResultCount, oa.specialCharsRegex); found {
-			goutils.LogError(oa.cacheStore.Set(cacheKey, webResults))
+			if oa.cacheStore != nil {
+				goutils.LogError(oa.cacheStore.Set(cacheKey, webResults))
+			}
 			return oa.codec.EncodeString(ResponseData{webResults, ORIGIN_TMDB})
 		}
 	}

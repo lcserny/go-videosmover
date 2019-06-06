@@ -9,7 +9,6 @@ import (
 	"videosmover/pkg/action"
 	"videosmover/pkg/config"
 	"videosmover/pkg/delete"
-	"videosmover/pkg/ext/boltdb"
 	"videosmover/pkg/ext/godirwalk"
 	"videosmover/pkg/ext/h2non"
 	"videosmover/pkg/ext/json"
@@ -39,13 +38,13 @@ func main() {
 	mimeChecker := h2non.NewVideoChecker(cfg)
 	videoPathWalker := godirwalk.NewVideoPathWalker(cfg)
 	videoWebSearcher := tmdb.NewVideoWebSearcher()
-	boltCache := boltdb.NewCacheStore(cfg.CacheAddress, "boltdb", "videosmover")
-	defer boltCache.Close()
+	//boltCache := boltdb.NewCacheStore(cfg.CacheAddress, "boltdb", "videosmover")
+	//defer boltCache.Close()
 
 	actionRepo := action.NewActionRepository()
 	actionRepo.Register("delete", delete.NewAction(cfg, codec, trashMover))
 	actionRepo.Register("move", move.NewAction(cfg, codec, trashMover))
-	actionRepo.Register("output", output.NewAction(cfg, codec, videoWebSearcher, boltCache))
+	actionRepo.Register("output", output.NewAction(cfg, codec, videoWebSearcher, nil))
 	actionRepo.Register("search", search.NewAction(cfg, codec, mimeChecker, videoPathWalker))
 
 	b, err := ioutil.ReadFile(*cmdPayload)
