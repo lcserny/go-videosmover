@@ -1,9 +1,7 @@
 package etcd
 
 import (
-	"bytes"
 	"context"
-	"encoding/gob"
 	"github.com/coreos/etcd/client"
 	"github.com/lcserny/goutils"
 	"time"
@@ -11,12 +9,14 @@ import (
 )
 
 type cacheStore struct {
-	api client.KeysAPI
+	api   client.KeysAPI
+	codec core.Codec
 }
 
-func NewCacheStore(connectionAddress string) core.CacheStore {
+func NewCacheStore(connectionAddress string, codec core.Codec) core.CacheStore {
 	cs := new(cacheStore)
-	cfg := client.Config{Endpoints: []string{connectionAddress}, Transport: client.DefaultTransport, HeaderTimeoutPerRequest: time.Second}
+	cs.codec = codec
+	cfg := client.Config{Endpoints: []string{connectionAddress}, HeaderTimeoutPerRequest: time.Second}
 	c, err := client.New(cfg)
 	if err != nil {
 		goutils.LogFatal(err)
@@ -26,7 +26,7 @@ func NewCacheStore(connectionAddress string) core.CacheStore {
 }
 
 func (cs *cacheStore) Set(key string, val interface{}) error {
-	enc, err := cs.marshal(val)
+	enc, err := cs.codec.EncodeString(val)
 	if err != nil {
 		return err
 	}
@@ -39,25 +39,11 @@ func (cs *cacheStore) Get(key string, valHolderPointer interface{}) error {
 	if err != nil {
 		return err
 	}
-	if err := cs.unmarshal(resp.Node.Value, valHolderPointer); err != nil {
+	if err := cs.codec.Decode([]byte(resp.Node.Value), valHolderPointer); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (cs *cacheStore) Close() {
-}
-
-func (cs cacheStore) marshal(v interface{}) (string, error) {
-	b := new(bytes.Buffer)
-	err := gob.NewEncoder(b).Encode(v)
-	if err != nil {
-		return "", err
-	}
-	return b.String(), nil
-}
-
-func (cs cacheStore) unmarshal(data string, v interface{}) error {
-	b := bytes.NewBufferString(data)
-	return gob.NewDecoder(b).Decode(v)
 }

@@ -39,7 +39,7 @@ func main() {
 	mimeChecker := h2non.NewVideoChecker(cfg)
 	videoPathWalker := godirwalk.NewVideoPathWalker(cfg)
 	videoWebSearcher := tmdb.NewVideoWebSearcher()
-	etcdCache := etcd.NewCacheStore(cfg.CacheAddress)
+	etcdCache := etcd.NewCacheStore(cfg.CacheAddress, codec)
 	defer etcdCache.Close()
 
 	actionRepo := action.NewActionRepository()
