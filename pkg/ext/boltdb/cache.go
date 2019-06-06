@@ -27,6 +27,7 @@ func NewCacheStore(connectionAddress, dbName, bucketName string) core.CacheStore
 		goutils.LogError(err)
 		return cs
 	}
+	cs.available = true
 	cs.conn = connection
 	return cs
 }
