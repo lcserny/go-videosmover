@@ -79,6 +79,7 @@ func main() {
 		}
 		os.Exit(0)
 	}()
+	goutils.LogInfo(fmt.Sprintf("Started server on port %s...", cfg.Port))
 
 	// open browser
 	go goutils.LogFatal(browser.OpenURL(fmt.Sprintf("http://%s", webPath)))
