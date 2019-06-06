@@ -3,7 +3,6 @@ package boltdb
 import (
 	"bytes"
 	"encoding/gob"
-	"fmt"
 	"github.com/lcserny/goutils"
 	"github.com/schollz/boltdb-server/connect"
 	core "videosmover/pkg"
@@ -51,8 +50,6 @@ func (cs *cacheStore) Get(key string, valHolderPointer interface{}) error {
 	if err != nil {
 		return err
 	}
-	// TODO: remove after debugging
-	goutils.LogInfo(fmt.Sprintf("%+v", resMap))
 	enc, ok := resMap[key]
 	if !ok || len(enc) == 0 {
 		return nil
