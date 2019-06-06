@@ -145,7 +145,5 @@ func TestOutputAction(t *testing.T) {
 	cfg := action.GetTestActionConfig()
 	jsonCodec := json.NewJsonCodec()
 	videoWebSearcher := tmdb.NewVideoWebSearcher()
-	//boltCache := boltdb.NewCacheStore(cfg.CacheAddress, "boltdb", "videosmover-test")
-	//defer boltCache.Close()
-	action.RunTestAction(t, testData, NewAction(cfg, jsonCodec, videoWebSearcher, nil), jsonCodec)
+	action.RunTestAction(t, testData, NewAction(cfg, jsonCodec, videoWebSearcher, &core.MockCacheStore{}), jsonCodec)
 }
