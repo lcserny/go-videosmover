@@ -9,23 +9,30 @@ import (
 )
 
 type cacheStore struct {
-	api   client.KeysAPI
-	codec core.Codec
+	available bool
+	api       client.KeysAPI
+	codec     core.Codec
 }
 
 func NewCacheStore(connectionAddress string, codec core.Codec) core.CacheStore {
 	cs := new(cacheStore)
-	cs.codec = codec
 	cfg := client.Config{Endpoints: []string{connectionAddress}, HeaderTimeoutPerRequest: time.Second}
 	c, err := client.New(cfg)
 	if err != nil {
-		goutils.LogFatal(err)
+		goutils.LogError(err)
+		return cs
 	}
 	cs.api = client.NewKeysAPI(c)
+	cs.codec = codec
+	cs.available = true
 	return cs
 }
 
 func (cs *cacheStore) Set(key string, val interface{}) error {
+	if !cs.available {
+		return nil
+	}
+
 	enc, err := cs.codec.EncodeString(val)
 	if err != nil {
 		return err
@@ -35,6 +42,10 @@ func (cs *cacheStore) Set(key string, val interface{}) error {
 }
 
 func (cs *cacheStore) Get(key string, valHolderPointer interface{}) error {
+	if !cs.available {
+		return nil
+	}
+
 	resp, err := cs.api.Get(context.Background(), key, nil)
 	if err != nil {
 		return err
