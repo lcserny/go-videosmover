@@ -123,3 +123,11 @@ func LevenshteinDistance(source, target string) int {
 	}
 	return d[len(source)][len(target)]
 }
+
+func EnvString(key, fallback string) string {
+	v := os.Getenv(key)
+	if v == "" {
+		return fallback
+	}
+	return v
+}

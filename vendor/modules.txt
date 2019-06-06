@@ -13,7 +13,7 @@ github.com/h2non/filetype/types
 github.com/h2non/filetype/matchers/isobmff
 # github.com/karrick/godirwalk v1.8.0
 github.com/karrick/godirwalk
-# github.com/lcserny/goutils v1.0.6
+# github.com/lcserny/goutils v1.0.8
 github.com/lcserny/goutils
 # github.com/mediocregopher/radix/v3 v3.2.3
 github.com/mediocregopher/radix/v3

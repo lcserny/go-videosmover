@@ -4,7 +4,6 @@ import (
 	"github.com/pkg/errors"
 	"log"
 	"os"
-	"strings"
 )
 
 const NO_MESSAGE = "--- no message provided ---"
@@ -41,13 +40,7 @@ func LogWarning(message string) {
 	log.Printf("WARN: %s\n", message)
 }
 
-// If file created needs to be where its executed (as opposed to where binary is situated) set `GOUTILS_EXEC_LOGINIT` env var to true
 func InitFileLogger(logFileName string) {
-	enabled, exists := os.LookupEnv("GOUTILS_EXEC_LOGINIT")
-	if !exists || strings.ToLower(enabled) != "true" {
-		logFileName = GetAbsCurrentPathOf(logFileName)
-	}
-
 	openFile, err := os.OpenFile(logFileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	LogFatal(err)
 	log.SetOutput(openFile)
