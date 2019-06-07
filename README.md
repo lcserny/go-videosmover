@@ -1,7 +1,7 @@
 # Videos Mover (v3)
 ## Description
 
-VideosMover is a desktop webapp helper project which can make it easy to play videos in Kodi media player as it can find your downloaded videos, get video descriptions from *TMDB* (https://www.themoviedb.org/), prepare folders based on type and move them accordingly. *etcd* (https://etcd.io/) client implementation is provided for caching online results. Future versions will have more capabilities to make your video library management even easier, for example, automatically showing you which videos were viewed already and such.  
+VideosMover is a lightweight desktop webapp helper project which can make it easy to play videos in Kodi media player as it can find your downloaded videos, get video descriptions from *TMDB* (https://www.themoviedb.org/), prepare folders based on type and move them accordingly. *etcd* (https://etcd.io/) client implementation is provided for caching online results. Future versions will have more capabilities to make your video library management even easier, for example, automatically showing you which videos were viewed already and such.  
 
 Light mode screenshot:
 ![Alt text](static/screens/screen1.jpg?raw=true)
@@ -30,7 +30,7 @@ Tests provided for each commander action (core of app)
     * `logFile` path to logfile (default: vm-proxyserver.log)
     * `port` port of server (default: 8077)
     * `bin` list of objects containing uri, path and cfgPath (see example)
-2. from root of project `go install cmd/proxy_server.go` NOTE (windows): add `-ldflags -H=windowsgui`  
+2. from root of project `go install cmd/proxy_server.go` NOTE (windows): add `-ldflags="-H windowsgui"`  
 3. launch server providing config path  
 
 JSON requests should be like (regardless of GET or POST usage):  
@@ -67,7 +67,7 @@ JSON response should be like:
     * `moviesPath` path to move movies to
     * `tvSeriesPath` path to move tv shows to
     
-2. from root of project `go install cmd/webview.go` NOTE (windows): add `-ldflags -H=windowsgui`  
+2. from root of project `go install cmd/webview.go` NOTE (windows): add `-ldflags="-H windowsgui"`  
 3. launch server providing config path  
 
 #### TODO:  
@@ -91,13 +91,13 @@ JSON response should be like:
     * `searchExcludePaths` list of folder names in downloads path to exclude from searching 
     * `allowedMIMETypes` list of MIME types considered proper videos
     * `allowedSubtitleExtensions` list of subtitle extensions used when deciding what subs to move with the videos
-2. from root of project `go install cmd/commander.go` NOTE (windows): add `-ldflags -H=windowsgui`  
+2. from root of project `go install cmd/commander.go` NOTE (windows): add `-ldflags="-H windowsgui"`  
 3. *OPTIONAL*: for the TMDB online API search to work you need to set `TMDB_API_KEY` environment variable  
 4. execute actions on built app  
 
 ### Remove Torrents
 #### How to run:  
-1. from root of project `go install cmd/remove_from_qtorrent.go` NOTE (windows): add `-ldflags -H=windowsgui`  
+1. from root of project `go install cmd/remove_from_qtorrent.go` NOTE (windows): add `-ldflags="-H windowsgui"`  
 2. execute actions on built app  
 
 #### qBittorrent required settings:    
