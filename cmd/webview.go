@@ -61,7 +61,7 @@ func main() {
 		mux.HandleFunc(pat, func(resp http.ResponseWriter, req *http.Request) {
 			if tmplName, tmplData, renderTmpl := tmplController.ServeTemplate(resp, req); renderTmpl {
 				if cfg.AutoDarkModeEnable {
-					tmplData.DarkMode = time.Now().Hour() > cfg.AutoDarkModeHourMax || time.Now().Hour() < cfg.AutoDarkModeHourMin
+					tmplData.DarkMode = time.Now().Hour() > cfg.AutoDarkModeHourStart || time.Now().Hour() < cfg.AutoDarkModeHourEnd
 				}
 				goutils.LogFatal(templates.ExecuteTemplate(resp, fmt.Sprintf("%s.gohtml", tmplName), tmplData))
 			}

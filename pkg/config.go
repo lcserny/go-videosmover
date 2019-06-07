@@ -1,17 +1,17 @@
 package core
 
 type WebviewConfig struct {
-	LogFile             string `json:"logFile"`
-	AutoDarkModeEnable  bool   `json:"autoDarkModeEnable"`
-	AutoDarkModeHourMax int    `json:"autoDarkModeHourMax"`
-	AutoDarkModeHourMin int    `json:"autoDarkModeHourMin"`
-	Port                string `json:"port"`
-	HtmlFilesPath       string `json:"htmlFilesPath"`
-	ServerPingTimeoutMs int64  `json:"serverPingTimeoutMs"`
-	VideosMoverAPI      string `json:"videosMoverAPI"`
-	DownloadsPath       string `json:"downloadsPath"`
-	MoviesPath          string `json:"moviesPath"`
-	TvSeriesPath        string `json:"tvSeriesPath"`
+	LogFile               string `json:"logFile"`
+	AutoDarkModeEnable    bool   `json:"autoDarkModeEnable"`
+	AutoDarkModeHourStart int    `json:"autoDarkModeHourStart"`
+	AutoDarkModeHourEnd   int    `json:"autoDarkModeHourEnd"`
+	Port                  string `json:"port"`
+	HtmlFilesPath         string `json:"htmlFilesPath"`
+	ServerPingTimeoutMs   int64  `json:"serverPingTimeoutMs"`
+	VideosMoverAPI        string `json:"videosMoverAPI"`
+	DownloadsPath         string `json:"downloadsPath"`
+	MoviesPath            string `json:"moviesPath"`
+	TvSeriesPath          string `json:"tvSeriesPath"`
 }
 
 type CmdHandlerConfig struct {
