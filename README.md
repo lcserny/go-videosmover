@@ -1,4 +1,4 @@
-# Videos Mover (v3)
+# ![Alt text](static/html/img/application_small.png?raw=true) Videos Mover (v3)
 ## Description
 
 VideosMover is a lightweight cross-platform desktop-webapp helper which can make it easy to play videos in Kodi media player as it can find your downloaded videos, get video descriptions from *TMDB* (https://www.themoviedb.org/), prepare folders based on type and move them accordingly. *etcd* (https://etcd.io/) client implementation is provided for caching online results. Future versions will have more capabilities to make your video library management even easier, for example, automatically showing you which videos were viewed already and such.  
