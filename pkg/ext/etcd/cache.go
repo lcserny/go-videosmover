@@ -32,7 +32,6 @@ func (cs *cacheStore) Set(key string, val interface{}) error {
 	if !cs.available {
 		return nil
 	}
-
 	enc, err := cs.codec.EncodeString(val)
 	if err != nil {
 		return err
@@ -45,15 +44,11 @@ func (cs *cacheStore) Get(key string, valHolderPointer interface{}) error {
 	if !cs.available {
 		return nil
 	}
-
 	resp, err := cs.api.Get(context.Background(), key, nil)
 	if err != nil {
 		return err
 	}
-	if err := cs.codec.Decode([]byte(resp.Node.Value), valHolderPointer); err != nil {
-		return err
-	}
-	return nil
+	return cs.codec.Decode([]byte(resp.Node.Value), valHolderPointer)
 }
 
 func (cs *cacheStore) Close() {
