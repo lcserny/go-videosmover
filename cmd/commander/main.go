@@ -6,10 +6,10 @@ import (
 	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"os"
+	"videosmover/pkg"
 	"videosmover/pkg/action"
 	"videosmover/pkg/config"
 	"videosmover/pkg/delete"
-	"videosmover/pkg/ext/etcd"
 	"videosmover/pkg/ext/godirwalk"
 	"videosmover/pkg/ext/h2non"
 	"videosmover/pkg/ext/json"
@@ -39,13 +39,13 @@ func main() {
 	mimeChecker := h2non.NewVideoChecker(cfg)
 	videoPathWalker := godirwalk.NewVideoPathWalker(cfg)
 	videoWebSearcher := tmdb.NewVideoWebSearcher()
-	etcdCache := etcd.NewCacheStore(cfg.CacheAddress, codec)
-	defer etcdCache.Close()
+	httpCache := core.NewHttpCacheStore(cfg.CacheAddress, "/get", "/set", "/close", codec)
+	defer httpCache.Close()
 
 	actionRepo := action.NewActionRepository()
 	actionRepo.Register("delete", delete.NewAction(cfg, codec, trashMover))
 	actionRepo.Register("move", move.NewAction(cfg, codec, trashMover))
-	actionRepo.Register("output", output.NewAction(cfg, codec, videoWebSearcher, etcdCache))
+	actionRepo.Register("output", output.NewAction(cfg, codec, videoWebSearcher, httpCache))
 	actionRepo.Register("search", search.NewAction(cfg, codec, mimeChecker, videoPathWalker))
 
 	b, err := ioutil.ReadFile(*cmdPayload)

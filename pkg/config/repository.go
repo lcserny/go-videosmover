@@ -42,6 +42,37 @@ func MakeProxyConfig(configFile string, codec core.Codec) *core.ProxyConfig {
 	return serverConfig
 }
 
+func MakeCacheServerConfig(configFile string, codec core.Codec) *core.CacheServerConfig {
+	configBytes, err := ioutil.ReadFile(configFile)
+	goutils.LogFatal(err)
+
+	// defaults
+	serverConfig := &core.CacheServerConfig{
+		Port:         "8076",
+		LogFile:      "vm-cacheserver.log",
+		MaxSizeBytes: 1024 * 1024 * 10,
+	}
+
+	err = codec.Decode(configBytes, serverConfig)
+	goutils.LogFatal(err)
+
+	// validate
+	if len(serverConfig.Port) < 4 {
+		goutils.LogFatal(errors.New("port not valid"))
+	}
+	if len(serverConfig.LogFile) < 1 {
+		goutils.LogFatal(errors.New("log file path not provided"))
+	}
+	if serverConfig.MaxSizeBytes < 128 {
+		goutils.LogFatal(errors.New("max size bytes needs to be bigger than 128"))
+	}
+	if len(serverConfig.CacheDBPath) < 1 {
+		goutils.LogFatal(errors.New("cache DB file path not provided"))
+	}
+
+	return serverConfig
+}
+
 func MakeWebviewConfig(configFile string, codec core.Codec) *core.WebviewConfig {
 	configBytes, err := ioutil.ReadFile(configFile)
 	goutils.LogFatal(err)
@@ -87,7 +118,7 @@ func MakeActionConfig(cfgPath string, codec core.Codec) *core.ActionConfig {
 	// defaults
 	ac := core.ActionConfig{
 		LogFile:       "vm-commander.log",
-		CacheAddress:  "http://127.0.0.1:2379",
+		CacheAddress:  "http://localhost:8076",
 		CachePoolSize: 10,
 	}
 

@@ -19,3 +19,6 @@ cd ../..
 
 cd cmd/remove_from_qtorrent && go install -ldflags="-H windowsgui"
 cd ../..
+
+cd cmd/cache_server && go install -ldflags="-H windowsgui"
+cd ../..

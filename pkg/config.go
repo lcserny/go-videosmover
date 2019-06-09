@@ -26,6 +26,13 @@ type ProxyConfig struct {
 	Bin     []CmdHandlerConfig `json:"bin"`
 }
 
+type CacheServerConfig struct {
+	LogFile      string `json:"logFile"`
+	Port         string `json:"port"`
+	CacheDBPath  string `json:"cacheDBPath"`
+	MaxSizeBytes int    `json:"maxSizeBytes"`
+}
+
 type ActionConfig struct {
 	LogFile                   string   `json:"logFile"`
 	MinimumVideoSize          int64    `json:"minimumVideoSize"`

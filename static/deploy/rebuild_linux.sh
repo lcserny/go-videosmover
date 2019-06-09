@@ -19,3 +19,6 @@ cd ../..
 
 cd cmd/remove_from_qtorrent && go install
 cd ../..
+
+cd cmd/cache_server && go install
+cd ../..
