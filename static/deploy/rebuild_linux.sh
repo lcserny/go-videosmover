@@ -8,7 +8,14 @@ go test videosmover/pkg/delete
 go test videosmover/pkg/search
 go test videosmover/pkg/output
 
-go install cmd/commander.go
-go install cmd/proxy_server.go
-go install cmd/webview.go
-go install cmd/remove_from_qtorrent.go
+cd cmd/commander && go install
+cd ../..
+
+cd cmd/proxy_server && go install
+cd ../..
+
+cd cmd/webview && go install
+cd ../..
+
+cd cmd/remove_from_qtorrent && go install
+cd ../..
