@@ -1,7 +1,7 @@
 # ![Alt text](static/html/img/application_small.png?raw=true) Videos Mover
 ## Description
 
-VideosMover is a lightweight cross-platform desktop-webapp helper which can make it easy to play videos in Kodi media player as it can find your downloaded videos, get video descriptions from *TMDB* (https://www.themoviedb.org/), prepare folders based on type and move them accordingly. *etcd* (https://etcd.io/) client implementation is provided for caching online results. Future versions will have more capabilities to make your video library management even easier, for example, automatically showing you which videos were viewed already and such.  
+VideosMover is a lightweight cross-platform desktop-webapp helper which can make it easy to play videos in Kodi media player as it can find your downloaded videos, get video descriptions from *TMDB* (https://www.themoviedb.org/), prepare folders based on type and move them accordingly. Custom http cache server based on *https://github.com/VictoriaMetrics/fastcache* is provided for caching online results (*etcd* impl also available). Future versions will have more capabilities to make your video library management even easier, for example, automatically showing you which videos were viewed already and such.  
 
 Light mode screenshot:
 ![Alt text](static/screens/screen1.jpg?raw=true)
@@ -9,15 +9,16 @@ Light mode screenshot:
 Dark mode screenshot:
 ![Alt text](static/screens/screen2.jpg?raw=true)
 
-This project contains 4 applications:
+This project contains 5 applications:
 - commander
 - proxy_server
 - webview
+- cache_server
 - remove_torrents
 
 #### How to use:  
 **Remove_torrents** app is used as an execute action after each torrent download complete (see below for details). It will just remove the finished download from the torrent list so it can be moved.  
-The rest are used together, **proxy_server** is meant to run always, so you can add it on startup, it is a small webserver (1mb RAM usage and basically no CPU). It is a proxy from an external tool (can be an Android app or such) to your PC.  
+The rest are used together, **proxy_server** and **cache_server** are meant to run always, so you can add them on startup, both are a very small webserver (1mb RAM usage and basically no CPU). One is a proxy used from an external tool (can be an Android app or such) to your PC, the other is a server to cache online metadata results.  
 The proxy will execute command-line actions on the **commander** which actually does the jobs, like searching videos, moving them and so on.  
 The **webview** is the UI part and basically just opens a tab in your default browser which issues requests on the proxy as needed. Closing the tab will close the webview app as it listens to a "pulse" every second.  
 
@@ -94,6 +95,16 @@ JSON response should be like:
 2. from root of project `cd cmd/commander && go install` NOTE (windows): add `-ldflags="-H windowsgui"`  
 3. *OPTIONAL*: for the TMDB online API search to work you need to set `TMDB_API_KEY` environment variable  
 4. execute actions on built app  
+
+### Cache Server
+#### How to run:
+1. make a config (minimal example provided), options include:
+    * `logFile` path to logfile (default: vm-cacheserver.log)
+    * `port` port of server (default: 8076)
+    * `maxSizeBytes` size in bytes of cache (defaut: 1024 * 1024 * 10 -> 10mb)
+    * `CacheDBPath` path to cache
+2. from root of project `cd cmd/cache_server && go install` NOTE (windows): add `-ldflags="-H windowsgui"`  
+3. launch server providing config path  
 
 ### Remove Torrents
 #### How to run:  
