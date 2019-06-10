@@ -53,7 +53,7 @@ func (cs httpCacheStore) Set(key string, val interface{}) error {
 		return err
 	}
 
-	resp, err := http.Post(cs.address+cs.setURI, "application.json", bytes.NewBuffer(postBytes))
+	resp, err := http.Post(cs.address+cs.setURI, cs.codec.ContentType(), bytes.NewBuffer(postBytes))
 	defer resp.Body.Close()
 	return err
 }
@@ -68,11 +68,15 @@ func (cs httpCacheStore) Get(key string, valHolderPointer interface{}) error {
 		return err
 	}
 
-	resp, err := http.Post(cs.address+cs.getURI, "application.json", bytes.NewBuffer(postBytes))
+	resp, err := http.Post(cs.address+cs.getURI, cs.codec.ContentType(), bytes.NewBuffer(postBytes))
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
+
+	if resp.ContentLength == 0 {
+		return nil
+	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

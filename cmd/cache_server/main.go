@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/VictoriaMetrics/fastcache"
 	"github.com/lcserny/goutils"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"videosmover/pkg/config"
@@ -27,26 +28,57 @@ func main() {
 	cache := fastcache.LoadFromFileOrNew(c.CacheDBPath, c.MaxSizeBytes)
 
 	server := http.NewServeMux()
+	server.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		writer.WriteHeader(http.StatusOK)
+	})
 	server.HandleFunc("/get", func(writer http.ResponseWriter, request *http.Request) {
-		writer.Header().Set("Content-Type", "application/json")
+		writer.Header().Set("Content-Type", jsonCodec.ContentType())
 		if request.Method != http.MethodPost {
 			writer.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
 		writer.WriteHeader(http.StatusOK)
-		fmt.Fprint(writer, string(cache.Get(nil, []byte(request.PostFormValue("key")))))
+
+		reqData, err := ioutil.ReadAll(request.Body)
+		if err != nil {
+			goutils.LogError(err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		var data map[string]string
+		if err = jsonCodec.Decode(reqData, &data); err != nil {
+			goutils.LogError(err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprint(writer, string(cache.Get(nil, []byte(data["key"]))))
 	})
 	server.HandleFunc("/set", func(writer http.ResponseWriter, request *http.Request) {
-		writer.Header().Set("Content-Type", "application/json")
 		if request.Method != http.MethodPost {
 			writer.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
 		writer.WriteHeader(http.StatusOK)
-		cache.Set([]byte(request.PostFormValue("key")), []byte(request.PostFormValue("val")))
+
+		reqData, err := ioutil.ReadAll(request.Body)
+		if err != nil {
+			goutils.LogError(err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		var data map[string]string
+		if err = jsonCodec.Decode(reqData, &data); err != nil {
+			goutils.LogError(err)
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		cache.Set([]byte(data["key"]), []byte(data["val"]))
 	})
 	server.HandleFunc("/close", func(writer http.ResponseWriter, request *http.Request) {
-		writer.Header().Set("Content-Type", "application/json")
 		writer.WriteHeader(http.StatusOK)
 		cache.SaveToFile(c.CacheDBPath)
 	})
