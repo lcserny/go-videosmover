@@ -7,10 +7,11 @@ import (
 )
 
 type jsonCodec struct {
+	contentType string
 }
 
 func NewJsonCodec() core.Codec {
-	return &jsonCodec{}
+	return &jsonCodec{contentType: "application/json"}
 }
 
 func (jc jsonCodec) EncodeString(data interface{}) (string, error) {
@@ -26,4 +27,8 @@ func (jc jsonCodec) EncodeBytes(data interface{}) ([]byte, error) {
 
 func (jc jsonCodec) Decode(body []byte, container interface{}) error {
 	return json.Unmarshal(body, container)
+}
+
+func (jc jsonCodec) ContentType() string {
+	return jc.contentType
 }
