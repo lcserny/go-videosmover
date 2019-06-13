@@ -24,7 +24,7 @@ func main() {
 	args := os.Args[1:]
 	if len(args) != 3 {
 		_, _ = fmt.Fprintln(os.Stderr, "ERROR: Please provide `config`, `action` and `payloadFile` flags")
-		return
+		os.Exit(1)
 	}
 
 	cmdConfig := flag.String("config", "", "actions config file path")

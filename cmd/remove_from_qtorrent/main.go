@@ -11,16 +11,17 @@ import (
 
 func main() {
 	args := os.Args[1:]
-	if len(args) != 2 {
-		_, _ = fmt.Fprintln(os.Stderr, "ERROR: Please provide `port` and `hash` flags")
-		return
+	if len(args) != 3 {
+		_, _ = fmt.Fprintln(os.Stderr, "ERROR: Please provide `logFile`, `port` and `hash` flags")
+		os.Exit(1)
 	}
 
-	goutils.InitFileLogger("vm-removeqtorrent.log")
-
+	logFile := flag.String("logFile", "", "app log file path")
 	port := flag.String("port", "", "the port of qtorrent's webUI")
 	hash := flag.String("hash", "", "the hash of the downloaded torrent to be removed")
 	flag.Parse()
+
+	goutils.InitFileLogger(*logFile)
 
 	values := url.Values{"hashes": {*hash}}
 	host := fmt.Sprintf("http://localhost:%s/command/delete", *port)

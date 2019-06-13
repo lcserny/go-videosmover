@@ -25,7 +25,7 @@ func main() {
 	args := os.Args[1:]
 	if len(args) != 1 {
 		_, _ = fmt.Fprintln(os.Stderr, "ERROR: Please provide `config` flag")
-		return
+		os.Exit(1)
 	}
 
 	cfgPath := flag.String("config", "", "path to webview config")
