@@ -1,3 +1,7 @@
+.videoName {
+    cursor: pointer;
+}
+
 .groupEditButton {
     display: none;
 }

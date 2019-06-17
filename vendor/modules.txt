@@ -1,0 +1,37 @@
+# github.com/Bios-Marcel/wastebasket v0.0.0-20190304193457-ba788b19da79
+github.com/Bios-Marcel/wastebasket
+# github.com/VictoriaMetrics/fastcache v1.5.0
+github.com/VictoriaMetrics/fastcache
+# github.com/cespare/xxhash/v2 v2.0.1-0.20190104013014-3767db7a7e18
+github.com/cespare/xxhash/v2
+# github.com/coreos/etcd v3.3.13+incompatible
+github.com/coreos/etcd/client
+github.com/coreos/etcd/pkg/pathutil
+github.com/coreos/etcd/pkg/srv
+github.com/coreos/etcd/pkg/types
+github.com/coreos/etcd/version
+# github.com/coreos/go-semver v0.3.0
+github.com/coreos/go-semver/semver
+# github.com/golang/snappy v0.0.1
+github.com/golang/snappy
+# github.com/h2non/filetype v1.0.8
+github.com/h2non/filetype
+github.com/h2non/filetype/matchers
+github.com/h2non/filetype/types
+github.com/h2non/filetype/matchers/isobmff
+# github.com/json-iterator/go v1.1.6
+github.com/json-iterator/go
+# github.com/karrick/godirwalk v1.8.0
+github.com/karrick/godirwalk
+# github.com/lcserny/goutils v1.0.8
+github.com/lcserny/goutils
+# github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
+github.com/modern-go/concurrent
+# github.com/modern-go/reflect2 v1.0.1
+github.com/modern-go/reflect2
+# github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
+github.com/pkg/browser
+# github.com/pkg/errors v0.8.1
+github.com/pkg/errors
+# github.com/ryanbradynd05/go-tmdb v0.0.0-20181220020137-291a20d25ffd
+github.com/ryanbradynd05/go-tmdb

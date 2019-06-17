@@ -688,6 +688,16 @@ class SearchViewHandler {
             });
         });
 
+        const groupEditNames = document.querySelectorAll(".js-videoRow .js-videoName");
+        groupEditNames.forEach((name) => {
+            name.addEventListener("click", (event) => {
+                const row = this.findRow(name);
+                const multiEditCheckbox = row.querySelector(".js-videoMultiEdit");
+                multiEditCheckbox.checked = !multiEditCheckbox.checked;
+                this.handleGroupEditCheckBoxChange(row, this.findIndex(name), multiEditCheckbox.checked);
+            });
+        });
+
         const groupVideoTypeRadios = document.querySelectorAll('#js-groupEditModal .js-videoGroupTypeInput');
         groupVideoTypeRadios.forEach((radio) => {
             radio.addEventListener('change', (event) => {
