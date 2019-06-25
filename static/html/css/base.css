@@ -383,6 +383,11 @@ body.dark-theme .modal-content {
     color: #999999;
 }
 
+body.dark-theme .modal-content .moveIssuesModalBody {
+    background-color: black;
+    color: #999999;
+}
+
 body.dark-theme .modal-header {
     border-bottom: 1px solid #000000;
 }
