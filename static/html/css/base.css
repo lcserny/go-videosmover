@@ -19,6 +19,10 @@ body {
     overflow-y: scroll;
 }
 
+.table-shadowed {
+    box-shadow: 2px 5px 10px #eee;
+}
+
 body .table-bordered td, body .table-bordered th {
     border: 1px solid #dee2e6;
 }
@@ -350,6 +354,10 @@ body.dark-theme .table-hover tbody tr:hover {
 
 body.dark-theme .table-bordered td, body.dark-theme .table-bordered th {
     border: 1px solid #444444;
+}
+
+body.dark-theme .table-shadowed {
+    box-shadow: 2px 5px 10px #666;
 }
 
 body.dark-theme .form-control {
