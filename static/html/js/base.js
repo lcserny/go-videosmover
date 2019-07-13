@@ -18,8 +18,6 @@ class LoadingHelper {
     }
 }
 
-export default LoadingHelper;
-
 $(document).ready(function () {
     new RunHelper().setupPing("/running", 1000);
 });

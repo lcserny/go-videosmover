@@ -1,5 +1,3 @@
-import LoadingHelper from "./base.js";
-
 class VideoData {
     constructor(index, name, fileName, path, subs) {
         this._index = index;
