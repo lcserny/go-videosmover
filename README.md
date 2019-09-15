@@ -34,6 +34,9 @@ Tests provided for each commander action (core of app)
 2. from root of project `cd cmd/proxy_server && go install` NOTE (windows): add `-ldflags="-H windowsgui"`  
 3. launch server providing config path  
 
+Proxy also has internal endpoints included like:
+`/shutdown?now=false&seconds=30` which would shutdown your pc in 30 seconds
+
 JSON requests should be like (regardless of GET or POST usage):  
 ```
 {  
