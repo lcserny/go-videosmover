@@ -61,12 +61,12 @@ func addShutdownEndpoint(mux *http.ServeMux) {
 				}
 			}
 		}
-	})
 
-	var cmdErr bytes.Buffer
-	cmd := exec.Command(command, args)
-	cmd.Stderr = &cmdErr
-	if err := cmd.Run(); err != nil {
-		cmdErr.WriteString(err.Error())
-	}
+		var cmdErr bytes.Buffer
+		cmd := exec.Command(command, args)
+		cmd.Stderr = &cmdErr
+		if err := cmd.Run(); err != nil {
+			cmdErr.WriteString(err.Error())
+		}
+	})
 }
