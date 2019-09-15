@@ -35,7 +35,7 @@ Tests provided for each commander action (core of app)
 3. launch server providing config path  
 
 Proxy also has internal endpoints included like:
-`/shutdown?now=false&seconds=30` which would shutdown your pc in 30 seconds
+`/shutdown?seconds=30` which would shutdown your pc in 30 seconds, or don't specify `seconds` and it will shutdown instantly  
 
 JSON requests should be like (regardless of GET or POST usage):  
 ```
