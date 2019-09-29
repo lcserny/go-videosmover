@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 	"videosmover/pkg/config"
 	"videosmover/pkg/ext/json"
 	"videosmover/pkg/web"
@@ -31,7 +32,12 @@ func main() {
 
 	mux := http.NewServeMux()
 	for _, binCmd := range c.Bin {
-		mux.Handle(fmt.Sprintf("/exec-bin/%s", binCmd.Uri), web.NewBinExecutor(&binCmd, jsonCodec, apiRequester))
+		if len(binCmd.Type) <= 0 || strings.ToLower(binCmd.Type) == "bin" {
+			mux.Handle(fmt.Sprintf("/exec-bin/%s", binCmd.Uri), web.NewBinExecutor(&binCmd, jsonCodec, apiRequester))
+		}
+		if strings.ToLower(binCmd.Type) == "java" {
+			mux.Handle(fmt.Sprintf("/exec-java/%s", binCmd.Uri), web.NewJavaExecutor(&binCmd, jsonCodec))
+		}
 	}
 	addInternalHandlers(mux)
 

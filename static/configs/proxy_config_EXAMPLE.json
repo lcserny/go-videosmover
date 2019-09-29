@@ -2,6 +2,7 @@
   "bin": [
     {
       "uri": "videos-mover",
+      "type": "bin",
       "path": "./commander",
       "cfgPath": "/path/to/actions/config"
     }

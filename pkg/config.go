@@ -15,6 +15,7 @@ type WebviewConfig struct {
 }
 
 type CmdHandlerConfig struct {
+	Type       string `json:"type"`
 	Uri        string `json:"uri"`
 	Path       string `json:"path"`
 	ConfigPath string `json:"cfgPath"`
