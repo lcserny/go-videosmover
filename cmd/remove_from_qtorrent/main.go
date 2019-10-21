@@ -4,12 +4,19 @@ import (
 	"flag"
 	"fmt"
 	"github.com/lcserny/goutils"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 	core "videosmover/pkg"
 	"videosmover/pkg/ext/json"
 )
+
+type TorrentData struct {
+	savePath string
+	date     time.Time
+}
 
 func main() {
 	args := os.Args[1:]
@@ -30,17 +37,40 @@ func main() {
 
 	goutils.InitFileLogger(*logFile)
 
-	values := url.Values{"hashes": {*hash}}
-	host := fmt.Sprintf("http://localhost:%s/command/delete", *port)
-	if _, err := http.PostForm(host, values); err != nil {
+	torrentDataUrl := fmt.Sprintf("http://localhost:%s/query/propertiesGeneral/%s", *port, *hash)
+	resp, err := http.Get(torrentDataUrl)
+	if err != nil {
 		goutils.LogFatal(err)
 	}
 
-	var completed []*string // TODO: not string, pair of file name cu date
-	httpCache.Get("downComplete", completed)
+	values := url.Values{"hashes": {*hash}}
+	deleteUrl := fmt.Sprintf("http://localhost:%s/command/delete", *port)
+	if _, err := http.PostForm(deleteUrl, values); err != nil {
+		goutils.LogFatal(err)
+	}
 
-	downloadedFile := "de unde iau file downloaded data, din hash printr-un API de qTorrent"
-	completed = append(completed, &downloadedFile)
+	respBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		goutils.LogFatal(err)
+	}
+	var respData map[string]interface{}
+	if err = codec.Decode(respBytes, &respData); err != nil {
+		goutils.LogFatal(err)
+	}
+	savePath := respData["save_path"].(string)
 
-	httpCache.Set("downComplete", completed)
+	var completed []TorrentData
+	if err = httpCache.Get("downComplete", &completed); err != nil {
+		goutils.LogFatal(err)
+	}
+
+	// TODO: is this valid JSON converted?
+	completed = append(completed, TorrentData{
+		savePath: savePath,
+		date:     time.Time{},
+	})
+
+	if err = httpCache.Set("downComplete", completed); err != nil {
+		goutils.LogFatal(err)
+	}
 }
