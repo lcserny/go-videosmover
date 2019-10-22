@@ -10,6 +10,8 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"time"
+	core "videosmover/pkg"
 	"videosmover/pkg/config"
 	"videosmover/pkg/ext/json"
 	"videosmover/pkg/web"
@@ -28,6 +30,8 @@ func main() {
 	jsonCodec := json.NewJsonCodec()
 	apiRequester := web.NewApiRequester(jsonCodec)
 	c := config.MakeProxyConfig(*cfgPath, jsonCodec)
+	cacheAddress := "http://localhost:8076"
+	httpCache := core.NewHttpCacheStore(cacheAddress, "/get", "/set", "/close", jsonCodec)
 	goutils.InitFileLogger(c.LogFile)
 
 	mux := http.NewServeMux()
@@ -39,14 +43,36 @@ func main() {
 			mux.Handle(fmt.Sprintf("/exec-java/%s", binCmd.Uri), web.NewJavaExecutor(&binCmd, jsonCodec))
 		}
 	}
-	addInternalHandlers(mux)
+	addInternalHandlers(mux, httpCache, jsonCodec)
 
 	goutils.LogInfo(fmt.Sprintf("Started server on port %s...", c.Port))
 	goutils.LogFatal(http.ListenAndServe(fmt.Sprintf(":%s", c.Port), mux))
 }
 
-func addInternalHandlers(mux *http.ServeMux) {
+func addInternalHandlers(mux *http.ServeMux, cache core.CacheStore, codec core.Codec) {
 	addShutdownEndpoint(mux)
+	addDownloadsHistoryEndpoint(mux, cache, codec)
+}
+
+func addDownloadsHistoryEndpoint(mux *http.ServeMux, cache core.CacheStore, codec core.Codec) {
+	now := time.Now().Format(core.CacheKeyDatePattern)
+	key := core.CacheKeyPrefix + now
+
+	mux.HandleFunc("/downloadsCompleted", func(writer http.ResponseWriter, request *http.Request) {
+		var completed []*core.TorrentData
+		if err := cache.Get(key, &completed); err != nil {
+			goutils.LogError(err)
+		}
+
+		jsonCompleted, err := codec.EncodeString(completed)
+		if err != nil {
+			goutils.LogError(err)
+		}
+
+		writer.Header().Set("Content-Type", codec.ContentType())
+		writer.WriteHeader(http.StatusOK)
+		fmt.Fprint(writer, jsonCompleted)
+	})
 }
 
 func addShutdownEndpoint(mux *http.ServeMux) {

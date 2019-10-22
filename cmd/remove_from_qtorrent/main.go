@@ -13,11 +13,6 @@ import (
 	"videosmover/pkg/ext/json"
 )
 
-type TorrentData struct {
-	savePath string
-	date     time.Time
-}
-
 func main() {
 	args := os.Args[1:]
 	if len(args) != 3 {
@@ -37,40 +32,58 @@ func main() {
 
 	goutils.InitFileLogger(*logFile)
 
-	torrentDataUrl := fmt.Sprintf("http://localhost:%s/query/propertiesGeneral/%s", *port, *hash)
-	resp, err := http.Get(torrentDataUrl)
-	if err != nil {
-		goutils.LogFatal(err)
-	}
+	updateCache(port, hash, codec, httpCache)
+	removeTorrent(hash, port)
+}
 
+func removeTorrent(hash *string, port *string) {
 	values := url.Values{"hashes": {*hash}}
 	deleteUrl := fmt.Sprintf("http://localhost:%s/command/delete", *port)
 	if _, err := http.PostForm(deleteUrl, values); err != nil {
 		goutils.LogFatal(err)
 	}
+}
 
-	respBytes, err := ioutil.ReadAll(resp.Body)
+func updateCache(port *string, hash *string, codec core.Codec, httpCache core.CacheStore) {
+	torrentPathGetUrl := fmt.Sprintf("http://localhost:%s/query/propertiesGeneral/%s", *port, *hash)
+	pathResp, err := http.Get(torrentPathGetUrl)
 	if err != nil {
 		goutils.LogFatal(err)
 	}
-	var respData map[string]interface{}
-	if err = codec.Decode(respBytes, &respData); err != nil {
+	torrentNameGetUrl := fmt.Sprintf("http://localhost:%s/query/propertiesFiles/%s", *port, *hash)
+	nameResp, err := http.Get(torrentNameGetUrl)
+	if err != nil {
 		goutils.LogFatal(err)
 	}
-	savePath := respData["save_path"].(string)
-
-	var completed []TorrentData
-	if err = httpCache.Get("downComplete", &completed); err != nil {
+	pathRespBytes, err := ioutil.ReadAll(pathResp.Body)
+	if err != nil {
 		goutils.LogFatal(err)
 	}
-
-	// TODO: is this valid JSON converted?
-	completed = append(completed, TorrentData{
-		savePath: savePath,
-		date:     time.Time{},
+	var pathRespData map[string]interface{}
+	if err = codec.Decode(pathRespBytes, &pathRespData); err != nil {
+		goutils.LogFatal(err)
+	}
+	savePath := pathRespData["save_path"].(string)
+	nameRespBytes, err := ioutil.ReadAll(nameResp.Body)
+	if err != nil {
+		goutils.LogFatal(err)
+	}
+	var nameRespData []map[string]interface{}
+	if err = codec.Decode(nameRespBytes, &nameRespData); err != nil {
+		goutils.LogFatal(err)
+	}
+	name := nameRespData[0]["name"].(string)
+	now := time.Now().Format(core.CacheKeyDatePattern)
+	key := core.CacheKeyPrefix + now
+	var completed []*core.TorrentData
+	if err = httpCache.Get(key, &completed); err != nil {
+		goutils.LogFatal(err)
+	}
+	completed = append(completed, &core.TorrentData{
+		SavePath: savePath + name,
+		Date:     now,
 	})
-
-	if err = httpCache.Set("downComplete", completed); err != nil {
+	if err = httpCache.Set(key, completed); err != nil {
 		goutils.LogFatal(err)
 	}
 }

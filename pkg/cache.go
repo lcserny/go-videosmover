@@ -6,6 +6,14 @@ import (
 	"net/http"
 )
 
+const CacheKeyPrefix = "downComplete_"
+const CacheKeyDatePattern = "2006-01-02"
+
+type TorrentData struct {
+	SavePath string `json:"savePath"`
+	Date     string `json:"date"`
+}
+
 type CacheStore interface {
 	Set(key string, val interface{}) error
 	Get(key string, valHolderPointer interface{}) error
