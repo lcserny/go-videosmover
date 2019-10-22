@@ -59,7 +59,7 @@ func addDownloadsHistoryEndpoint(mux *http.ServeMux, cache core.CacheStore, code
 	key := core.CacheKeyPrefix + now
 
 	mux.HandleFunc("/downloadsCompleted", func(writer http.ResponseWriter, request *http.Request) {
-		var completed []*core.TorrentData
+		completed := make([]*core.TorrentData, 0)
 		if err := cache.Get(key, &completed); err != nil {
 			goutils.LogError(err)
 		}
