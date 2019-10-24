@@ -10,6 +10,7 @@ const CacheKeyPrefix = "downComplete_"
 const CacheKeyDatePattern = "2006-01-02"
 
 type TorrentData struct {
+	Host     string `json:"host"`
 	SavePath string `json:"savePath"`
 	Date     string `json:"date"`
 }

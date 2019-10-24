@@ -79,7 +79,9 @@ func updateCache(port *string, hash *string, codec core.Codec, httpCache core.Ca
 	if err = httpCache.Get(key, &completed); err != nil {
 		goutils.LogFatal(err)
 	}
+	hostname, _ := os.Hostname()
 	completed = append(completed, &core.TorrentData{
+		Host:     hostname,
 		SavePath: savePath + name,
 		Date:     now,
 	})
