@@ -6,7 +6,6 @@ import (
 	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"os"
 	"time"
 	core "videosmover/pkg"
@@ -37,9 +36,8 @@ func main() {
 }
 
 func removeTorrent(hash *string, port *string) {
-	values := url.Values{"hashes": {*hash}}
-	deleteUrl := fmt.Sprintf("http://localhost:%s/command/delete", *port)
-	if _, err := http.PostForm(deleteUrl, values); err != nil {
+	deleteUrl := fmt.Sprintf("http://localhost:%s/api/v2/torrents/delete?hashes=%s&deleteFiles=false", *port, *hash)
+	if _, err := http.Get(deleteUrl); err != nil {
 		goutils.LogFatal(err)
 	}
 }
