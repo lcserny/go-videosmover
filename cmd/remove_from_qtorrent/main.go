@@ -45,12 +45,12 @@ func removeTorrent(hash *string, port *string) {
 }
 
 func updateCache(port *string, hash *string, codec core.Codec, httpCache core.CacheStore) {
-	torrentPathGetUrl := fmt.Sprintf("http://localhost:%s/query/propertiesGeneral/%s", *port, *hash)
+	torrentPathGetUrl := fmt.Sprintf("http://localhost:%s/api/v2/torrents/properties?hash=%s", *port, *hash)
 	pathResp, err := http.Get(torrentPathGetUrl)
 	if err != nil {
 		goutils.LogFatal(err)
 	}
-	torrentNameGetUrl := fmt.Sprintf("http://localhost:%s/query/propertiesFiles/%s", *port, *hash)
+	torrentNameGetUrl := fmt.Sprintf("http://localhost:%s/api/v2/torrents/files?hash=%s", *port, *hash)
 	nameResp, err := http.Get(torrentNameGetUrl)
 	if err != nil {
 		goutils.LogFatal(err)
@@ -72,7 +72,6 @@ func updateCache(port *string, hash *string, codec core.Codec, httpCache core.Ca
 	if err = codec.Decode(nameRespBytes, &nameRespData); err != nil {
 		goutils.LogFatal(err)
 	}
-	name := nameRespData[0]["name"].(string)
 	now := time.Now().Format(core.CacheKeyDatePattern)
 	key := core.CacheKeyPrefix + now
 	var completed []*core.TorrentData
@@ -80,11 +79,14 @@ func updateCache(port *string, hash *string, codec core.Codec, httpCache core.Ca
 		goutils.LogFatal(err)
 	}
 	hostname, _ := os.Hostname()
-	completed = append(completed, &core.TorrentData{
-		Host:     hostname,
-		SavePath: savePath + name,
-		Date:     now,
-	})
+	for i := 0; i < len(nameRespData); i++ {
+		name := nameRespData[i]["name"].(string)
+		completed = append(completed, &core.TorrentData{
+			Host:     hostname,
+			SavePath: savePath + name,
+			Date:     now,
+		})
+	}
 	if err = httpCache.Set(key, completed); err != nil {
 		goutils.LogFatal(err)
 	}
