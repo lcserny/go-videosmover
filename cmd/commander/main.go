@@ -1,10 +1,10 @@
 package main
 
 import (
+	"encoding/base64"
 	"flag"
 	"fmt"
 	"github.com/lcserny/goutils"
-	"io/ioutil"
 	"os"
 	"videosmover/pkg"
 	"videosmover/pkg/action"
@@ -29,7 +29,7 @@ func main() {
 
 	cmdConfig := flag.String("config", "", "actions config file path")
 	cmdAction := flag.String("action", "search", "action to execute")
-	cmdPayload := flag.String("payloadFile", "", "path to payload file")
+	cmdPayload := flag.String("payload", "", "base64 encoded json payload")
 	flag.Parse()
 
 	codec := json.NewJsonCodec()
@@ -48,7 +48,7 @@ func main() {
 	actionRepo.Register("output", output.NewAction(cfg, codec, videoWebSearcher, httpCache))
 	actionRepo.Register("search", search.NewAction(cfg, codec, mimeChecker, videoPathWalker))
 
-	b, err := ioutil.ReadFile(*cmdPayload)
+	b, err := base64.StdEncoding.DecodeString(*cmdPayload)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
 		goutils.LogFatal(err)
