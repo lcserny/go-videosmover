@@ -2,12 +2,10 @@ package web
 
 import (
 	"bytes"
-	"fmt"
+	"encoding/base64"
 	"github.com/lcserny/goutils"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"os/exec"
 	"strings"
 	"videosmover/pkg"
@@ -46,13 +44,12 @@ func (be javaExecutor) servePOST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encodeBytes, _ := be.codec.EncodeBytes(requestData.Payload)
-	tmpFile := be.tmpStorePayload(encodeBytes)
-	defer be.removeTmpStoredPayload(tmpFile)
+	jsonPayload, _ := be.codec.EncodeBytes(requestData.Payload)
+	base64Json := base64.StdEncoding.EncodeToString([]byte(jsonPayload))
 
 	var cmdOut bytes.Buffer
 	var cmdErr bytes.Buffer
-	cmd := exec.Command(be.cmd.Path, "-config="+be.cmd.ConfigPath, "-action="+requestData.Action, "-payloadFile="+tmpFile.Name())
+	cmd := exec.Command(be.cmd.Path, "-config="+be.cmd.ConfigPath, "-action="+requestData.Action, "-payload="+base64Json)
 	cmd.Stdout = &cmdOut
 	cmd.Stderr = &cmdErr
 	if err := cmd.Run(); err != nil {
@@ -60,22 +57,4 @@ func (be javaExecutor) servePOST(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//w.Write([]byte(string(cmdOut.Bytes()), string(cmdErr.Bytes())))
-}
-
-func (be javaExecutor) removeTmpStoredPayload(tempFile *os.File) {
-	err := tempFile.Close()
-	goutils.LogErrorWithMessage(fmt.Sprintf("Couldn't close tmpFile: %s", tempFile.Name()), err)
-
-	err = os.Remove(tempFile.Name())
-	goutils.LogErrorWithMessage(fmt.Sprintf("Couldn't remove tmpFile: %s", tempFile.Name()), err)
-}
-
-func (be javaExecutor) tmpStorePayload(bytes []byte) *os.File {
-	tempFile, err := ioutil.TempFile(os.TempDir(), "vms-")
-	goutils.LogError(errors.Wrap(err, "Couldn't create tmpFile"))
-
-	_, err = tempFile.Write(bytes)
-	goutils.LogErrorWithMessage(fmt.Sprintf("Couldn't write to tmpFile: %s", tempFile.Name()), err)
-
-	return tempFile
 }
