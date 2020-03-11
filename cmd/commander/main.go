@@ -14,7 +14,6 @@ import (
 	"videosmover/pkg/ext/h2non"
 	"videosmover/pkg/ext/json"
 	"videosmover/pkg/ext/tmdb"
-	"videosmover/pkg/ext/wastebasket"
 	"videosmover/pkg/move"
 	"videosmover/pkg/output"
 	"videosmover/pkg/search"
@@ -35,7 +34,7 @@ func main() {
 	codec := json.NewJsonCodec()
 	cfg := config.MakeActionConfig(*cmdConfig, codec)
 	goutils.InitFileLogger(cfg.LogFile)
-	trashMover := wastebasket.NewTrashMover()
+	trashMover := core.NewTrashMover()
 	mimeChecker := h2non.NewVideoChecker(cfg)
 	videoPathWalker := godirwalk.NewVideoPathWalker(cfg)
 	videoWebSearcher := tmdb.NewVideoWebSearcher()
