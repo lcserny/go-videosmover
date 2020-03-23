@@ -80,7 +80,9 @@ func main() {
 	})
 	server.HandleFunc("/close", func(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusOK)
-		cache.SaveToFile(c.CacheDBPath)
+		go func() {
+			cache.SaveToFile(c.CacheDBPath)
+		}()
 	})
 
 	goutils.LogInfo(fmt.Sprintf("Started server on port %s...", c.Port))
