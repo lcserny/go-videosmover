@@ -140,7 +140,7 @@ func TestOutputAction(t *testing.T) {
 				{
 					Title:       "Fight Club (1999-10-15)",
 					Description: "A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy. Their concept catches on, with underground \"fight clubs\" forming in every town, until an eccentric gets in the way and ignites an out-of-control spiral toward oblivion.",
-					PosterURL:   "http://image.tmdb.org/t/p/w92/4GpwvwDjgwiShr1UBJIn5fk1gwT.jpg",
+					PosterURL:   "http://image.tmdb.org/t/p/w92/bptfVGEQuv6vDTIMVCHjJ9Dz8PX.jpg",
 					Cast:        []string{"Edward Norton", "Brad Pitt", "Helena Bonham Carter", "Meat Loaf", "Jared Leto"},
 				},
 			}, ORIGIN_TMDB},
