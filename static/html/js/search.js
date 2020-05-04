@@ -689,6 +689,12 @@ class SearchViewHandler {
         const groupEditNames = document.querySelectorAll(".js-videoRow .js-videoName");
         groupEditNames.forEach((name) => {
             name.addEventListener("click", (event) => {
+                // TODO: if SHIFT is pressed
+                    // find current row
+                    // find first previous row already selected
+                    // change all rows between first and current
+                // else: continue below
+
                 const row = this.findRow(name);
                 const multiEditCheckbox = row.querySelector(".js-videoMultiEdit");
                 multiEditCheckbox.checked = !multiEditCheckbox.checked;
