@@ -3,8 +3,8 @@
     {
       "uri": "videos-mover",
       "type": "bin",
-      "path": "./commander",
-      "cfgPath": "/path/to/actions/config"
+      "path": "bin/commander.exe",
+      "cfgPath": "configs/commander_actions.json"
     }
   ]
 }

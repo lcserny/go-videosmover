@@ -1,5 +1,5 @@
 {
-  "htmlFilesPath": "/path/to/html",
+  "htmlFilesPath": "html",
   "downloadsPath": "/path/to/downloads",
   "moviesPath": "/path/to/movies",
   "tvSeriesPath": "/path/to/tvSeries"
