@@ -1,0 +1,34 @@
+{
+  "name": "go-videosmover",
+  "version": "1.0.0",
+  "description": "VideosMover is a lightweight cross-platform desktop-webapp helper which can make it easy to play videos in Kodi media player as it can find your downloaded videos, get video descriptions from *TMDB* (https://www.themoviedb.org/), prepare folders based on type and move them accordingly. Custom http cache server based on *https://github.com/VictoriaMetrics/fastcache* is provided for caching online results (*etcd* impl also available). Future versions will have more capabilities to make your video library management even easier, for example, automatically showing you which videos were viewed already and such.",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lcserny/go-videosmover.git"
+  },
+  "keywords": [
+    "videos",
+    "mover",
+    "kodi",
+    "plex"
+  ],
+  "author": "Leonardo Cserny",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lcserny/go-videosmover/issues"
+  },
+  "homepage": "https://github.com/lcserny/go-videosmover#readme",
+  "devDependencies": {
+    "typescript": "^3.8.3",
+    "@types/bootstrap": "^4.5.0",
+    "@types/jquery": "^3.3.38"
+  },
+  "dependencies": {
+    "jquery": "^3.5.1",
+    "popper.js": "^1.16.1",
+    "bootstrap": "^4.5.0"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "outDir": "./static/html/js/out",
+    "allowJs": true,
+    "target": "es6",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true
+  },
+  "include": [
+    "./static/html/js/src/**/*"
+  ],
+  "exclude": [
+    "./node_modules"
+  ]
+}
