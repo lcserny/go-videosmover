@@ -6,7 +6,7 @@ class RunHelper {
     }
 }
 
-class LoadingHelper {
+export class LoadingHelper {
     static showLoading() {
         let loadingContainer = document.querySelector<HTMLDivElement>(".js-loading-container");
         loadingContainer.style.display = 'initial';

@@ -1,3 +1,5 @@
+import { LoadingHelper} from "./base.js";
+
 class VideoWebResult {
 
     private _title: string;
@@ -47,169 +49,78 @@ class VideoWebResult {
 
 class MoveRequestData {
 
-    private _video: string;
-    private _subs: Array<string>;
-    private _type: string;
-    private _diskPath: string;
-    private _outName: string;
+    public video: string;
+    public subs: Array<string>;
+    public type: string;
+    public diskPath: string;
+    public outName: string;
 
     constructor(video: string, subs: Array<string>, type: string, outName: string, diskPath: string = null) {
-        this._video = video;
-        this._subs = subs;
-        this._type = type;
-        this._outName = outName;
-        this._diskPath = diskPath;
-    }
-
-    get video(): string {
-        return this._video;
-    }
-
-    set video(value: string) {
-        this._video = value;
-    }
-
-    get subs(): Array<string> {
-        return this._subs;
-    }
-
-    set subs(value: Array<string>) {
-        this._subs = value;
-    }
-
-    get type(): string {
-        return this._type;
-    }
-
-    set type(value: string) {
-        this._type = value;
-    }
-
-    get diskPath(): string {
-        return this._diskPath;
-    }
-
-    set diskPath(value: string) {
-        this._diskPath = value;
-    }
-
-    get outName(): string {
-        return this._outName;
-    }
-
-    set outName(value: string) {
-        this._outName = value;
+        this.video = video;
+        this.subs = subs;
+        this.type = type;
+        this.outName = outName;
+        this.diskPath = diskPath;
     }
 }
 
 class MoveResponseData {
 
-    private _unmovedFolder: string;
-    private _reasons: Array<string>;
+    public unmovedFolder: string;
+    public reasons: Array<string>;
 
     constructor(unmovedFolder: string, reasons: Array<string>) {
-        this._unmovedFolder = unmovedFolder;
-        this._reasons = reasons;
+        this.unmovedFolder = unmovedFolder;
+        this.reasons = reasons;
     }
 
-    get unmovedFolder(): string {
-        return this._unmovedFolder;
-    }
-
-    set unmovedFolder(value: string) {
-        this._unmovedFolder = value;
-    }
-
-    get reasons(): Array<string> {
-        return this._reasons;
-    }
-
-    set reasons(value: Array<string>) {
-        this._reasons = value;
+    public static fromJson(json: any): MoveResponseData {
+        return new MoveResponseData(json.unmovedFolder, json.reasons);
     }
 }
 
 class OutputRequestData {
 
-    private _name: string;
-    private _type: string;
-    private _skipCache: boolean;
-    private _skipOnlineSearch: boolean;
-    private _diskPath: string;
+    public name: string;
+    public type: string;
+    public skipCache: boolean;
+    public skipOnlineSearch: boolean;
+    public diskPath: string;
 
     constructor(name: string, type: string, skipCache: boolean, skipOnlineSearch: boolean, diskPath: string = "") {
-        this._name = name;
-        this._type = type;
-        this._skipCache = skipCache;
-        this._skipOnlineSearch = skipOnlineSearch;
-        this._diskPath = diskPath;
-    }
-
-    get name(): string {
-        return this._name;
-    }
-
-    set name(value: string) {
-        this._name = value;
-    }
-
-    get type(): string {
-        return this._type;
-    }
-
-    set type(value: string) {
-        this._type = value;
-    }
-
-    get skipCache(): boolean {
-        return this._skipCache;
-    }
-
-    set skipCache(value: boolean) {
-        this._skipCache = value;
-    }
-
-    get skipOnlineSearch(): boolean {
-        return this._skipOnlineSearch;
-    }
-
-    set skipOnlineSearch(value: boolean) {
-        this._skipOnlineSearch = value;
-    }
-
-    get diskPath(): string {
-        return this._diskPath;
-    }
-
-    set diskPath(value: string) {
-        this._diskPath = value;
+        this.name = name;
+        this.type = type;
+        this.skipCache = skipCache;
+        this.skipOnlineSearch = skipOnlineSearch;
+        this.diskPath = diskPath;
     }
 }
 
 class OutputResponseData {
 
-    private _origin: string;
-    private _videos: Array<VideoWebResult>;
+    public origin: string;
+    public videos: Array<VideoWebResult>;
 
     constructor(origin: string, videos: Array<VideoWebResult>) {
-        this._origin = origin;
-        this._videos = videos;
+        this.origin = origin;
+        this.videos = videos;
     }
 
-    get origin(): string {
-        return this._origin;
-    }
-
-    set origin(value: string) {
-        this._origin = value;
-    }
-
-    get videos(): Array<VideoWebResult> {
-        return this._videos;
-    }
-
-    set videos(value: Array<VideoWebResult>) {
-        this._videos = value;
+    public static fromJson(json: any): OutputResponseData {
+        let videos = new Array<VideoWebResult>();
+        if (json.hasOwnProperty("videos")) {
+            for (let video of json.videos) {
+                let cast = new Array<string>();
+                if (video.Cast != null) {
+                    for (let actr of video.Cast) {
+                        cast.push(actr);
+                    }
+                }
+                let webResult = new VideoWebResult(video.Title, video.Description, video.PosterURL, cast);
+                videos.push(webResult)
+            }
+        }
+        return new OutputResponseData(json.origin, videos);
     }
 }
 
@@ -413,8 +324,8 @@ interface VideoDataService {
     saveGroupVideoData(videoData: VideoData): void;
     retrieve(index: number): VideoData | null;
     retrieveGroupVideoData(): VideoData | null;
-    requestOutputDataAsync(videoData: VideoData, useOutputInsteadOfName: boolean): Promise<OutputResponseData>;
-    requestMoveVideosAsync(): Promise<MoveResponseData>;
+    requestOutputDataAsync(videoData: VideoData, useOutputInsteadOfName: boolean): Promise<any>;
+    requestMoveVideosAsync(): Promise<any>;
     shouldShowMoveButton(): boolean;
     shouldShowGroupEditButton(): boolean;
     getGroupedVideosCount(): number;
@@ -543,7 +454,7 @@ class BasicVideoDataService implements VideoDataService {
         return this._repo.getGroupVideoData();
     }
 
-    async requestOutputDataAsync(videoData: VideoData, useOutputInsteadOfName: boolean): Promise<OutputResponseData> {
+    async requestOutputDataAsync(videoData: VideoData, useOutputInsteadOfName: boolean): Promise<any> {
         const response = await fetch("/ajax/output", {
             method: 'POST',
             headers: {"Content-Type": "application/json"},
@@ -557,7 +468,7 @@ class BasicVideoDataService implements VideoDataService {
         return response.json();
     }
 
-    async requestMoveVideosAsync(): Promise<MoveResponseData> {
+    async requestMoveVideosAsync(): Promise<any> {
         let moveDataList = new Array<MoveRequestData>();
         for (let videoData of this._repo.getAll()) {
             if (!videoData.moving) {
@@ -723,10 +634,11 @@ class SearchViewHandler {
         LoadingHelper.showLoading();
         this._service.requestOutputDataAsync(videoData, false)
             .then(outData => {
-                this._service.updateVideoOutList(index, outData.videos);
-                this._service.updateVideoOutOrigin(index, outData.origin);
-                this.triggerChangeOutputTextBox(outputTextBox, outData.videos[0].title);
-                this.populateOutputDropdownList(outputDropdown, outData.videos);
+                let converted = OutputResponseData.fromJson(outData);
+                this._service.updateVideoOutList(index, converted.videos);
+                this._service.updateVideoOutOrigin(index, converted.origin);
+                this.triggerChangeOutputTextBox(outputTextBox, converted.videos[0].title);
+                this.populateOutputDropdownList(outputDropdown, converted.videos);
 
                 LoadingHelper.hideLoading();
                 this.checkShowMoveVideosButton();
@@ -748,10 +660,11 @@ class SearchViewHandler {
         LoadingHelper.showLoading();
         this._service.requestOutputDataAsync(videoData, false)
             .then(outData => {
-                this._service.updateGroupVideoOutList(outData.videos);
-                this._service.updateGroupVideoOutOrigin(outData.origin);
-                this.triggerChangeOutputTextBox(outputTextBox, outData.videos[0].title);
-                this.populateOutputDropdownList(groupOutputDropdown, outData.videos);
+                let converted = OutputResponseData.fromJson(outData);
+                this._service.updateGroupVideoOutList(converted.videos);
+                this._service.updateGroupVideoOutOrigin(converted.origin);
+                this.triggerChangeOutputTextBox(outputTextBox, converted.videos[0].title);
+                this.populateOutputDropdownList(groupOutputDropdown, converted.videos);
 
                 LoadingHelper.hideLoading();
             });
@@ -791,11 +704,11 @@ class SearchViewHandler {
         LoadingHelper.showLoading();
         this._service.requestMoveVideosAsync()
             .then(response => {
-                if (response == null) {
+                if (response.toString().length === 0) {
                     this.triggerSearchVideosButton();
                     return;
                 }
-                this.showMoveIssuesModalWith(JSON.stringify(response, undefined, 2));
+                this.showMoveIssuesModalWith(JSON.stringify(MoveResponseData.fromJson(response), undefined, 2));
                 LoadingHelper.hideLoading();
             });
     }
@@ -882,10 +795,11 @@ class SearchViewHandler {
         LoadingHelper.showLoading();
         this._service.requestOutputDataAsync(videoData, true)
             .then(outData => {
-                this._service.updateVideoOutList(index, outData.videos);
-                this._service.updateVideoOutOrigin(index, outData.origin);
-                this.triggerChangeOutputTextBox(outputTextBox, outData.videos[0].title);
-                this.populateOutputDropdownList(outputDropdown, outData.videos);
+                let converted = OutputResponseData.fromJson(outData);
+                this._service.updateVideoOutList(index, converted.videos);
+                this._service.updateVideoOutOrigin(index, converted.origin);
+                this.triggerChangeOutputTextBox(outputTextBox, converted.videos[0].title);
+                this.populateOutputDropdownList(outputDropdown, converted.videos);
 
                 LoadingHelper.hideLoading();
                 this.checkShowMoveVideosButton();
@@ -901,10 +815,11 @@ class SearchViewHandler {
         LoadingHelper.showLoading();
         this._service.requestOutputDataAsync(videoData, true)
             .then(outData => {
-                this._service.updateGroupVideoOutList(outData.videos);
-                this._service.updateGroupVideoOutOrigin(outData.origin);
-                this.triggerChangeOutputTextBox(outputTextBox, outData.videos[0].title);
-                this.populateOutputDropdownList(groupOutputDropdown, outData.videos);
+                let converted = OutputResponseData.fromJson(outData);
+                this._service.updateGroupVideoOutList(converted.videos);
+                this._service.updateGroupVideoOutOrigin(converted.origin);
+                this.triggerChangeOutputTextBox(outputTextBox, converted.videos[0].title);
+                this.populateOutputDropdownList(groupOutputDropdown, converted.videos);
                 LoadingHelper.hideLoading();
             });
     }
