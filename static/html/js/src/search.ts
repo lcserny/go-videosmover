@@ -751,9 +751,9 @@ class SearchViewHandler {
         // reset group UI and repo
         const groupEditModal = document.querySelector<HTMLDivElement>("#js-groupEditModal");
         const groupTypeRadios = groupEditModal.querySelectorAll<HTMLInputElement>(".js-videoGroupTypeInput");
-        for (let radio of groupTypeRadios) {
+        groupTypeRadios.forEach((radio) => {
             radio.checked = false;
-        }
+        });
 
         const groupSkipCache = groupEditModal.querySelector<HTMLInputElement>(".js-videoGroupSkipCacheInput");
         groupSkipCache.checked = false;
