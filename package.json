@@ -23,7 +23,7 @@
   "homepage": "https://github.com/lcserny/go-videosmover#readme",
   "devDependencies": {
     "typescript": "^3.9.3",
-    "jquery": "3.3.1",
+    "jquery": "3.5.1",
     "popper.js": "^1.11.0",
     "bootstrap": "^4.4.1",
     "@types/popper.js": "1.11.0",
