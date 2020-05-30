@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"path/filepath"
 	"testing"
+	"videosmover/pkg"
 	"videosmover/pkg/action"
 	"videosmover/pkg/ext/json"
-	"videosmover/pkg/ext/wastebasket"
 )
 
 func TestDeleteAction(t *testing.T) {
@@ -33,5 +33,5 @@ func TestDeleteAction(t *testing.T) {
 	}
 
 	jsonCodec := json.NewJsonCodec()
-	action.RunTestAction(t, testData, NewAction(action.GetTestActionConfig(), jsonCodec, wastebasket.NewTrashMover()), jsonCodec)
+	action.RunTestAction(t, testData, NewAction(action.GetTestActionConfig(), jsonCodec, core.NewTrashMover()), jsonCodec)
 }
