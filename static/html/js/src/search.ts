@@ -642,6 +642,9 @@ class SearchViewHandler {
 
                 LoadingHelper.hideLoading();
                 this.checkShowMoveVideosButton();
+            }).catch(reason => {
+                LoadingHelper.hideLoading();
+                this.checkShowMoveVideosButton();
             });
     }
 
@@ -666,6 +669,8 @@ class SearchViewHandler {
                 this.triggerChangeOutputTextBox(outputTextBox, converted.videos[0].title);
                 this.populateOutputDropdownList(groupOutputDropdown, converted.videos);
 
+                LoadingHelper.hideLoading();
+            }).catch(reason => {
                 LoadingHelper.hideLoading();
             });
     }
@@ -803,6 +808,9 @@ class SearchViewHandler {
 
                 LoadingHelper.hideLoading();
                 this.checkShowMoveVideosButton();
+            }).catch(reason => {
+                LoadingHelper.hideLoading();
+                this.checkShowMoveVideosButton();
             });
     }
 
@@ -820,6 +828,8 @@ class SearchViewHandler {
                 this._service.updateGroupVideoOutOrigin(converted.origin);
                 this.triggerChangeOutputTextBox(outputTextBox, converted.videos[0].title);
                 this.populateOutputDropdownList(groupOutputDropdown, converted.videos);
+                LoadingHelper.hideLoading();
+            }).catch(reason => {
                 LoadingHelper.hideLoading();
             });
     }
