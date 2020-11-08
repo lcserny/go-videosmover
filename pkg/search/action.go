@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"videosmover/pkg"
 )
@@ -96,6 +97,9 @@ func (sa searchAction) findSubtitles(rootPath, path string) []string {
 		}
 
 		if !info.IsDir() && sa.mimeChecker.IsSubtitle(path) {
+			if runtime.GOOS == "windows" && len(path) >= 255 {
+				return nil
+			}
 			subs = append(subs, path)
 		}
 
