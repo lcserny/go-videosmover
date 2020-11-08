@@ -127,7 +127,7 @@ func TestOutputAction(t *testing.T) {
 					Title:       "Game of Thrones (2011)",
 					Description: "Seven noble families fight for control of the mythical land of Westeros. Friction between the houses leads to full-scale war. All while a very ancient evil awakens in the farthest north. Amidst the war, a neglected military order of misfits, the Night's Watch, is all that stands between the realms of men and icy horrors beyond.",
 					PosterURL:   "http://image.tmdb.org/t/p/w92/u3bZgnGQ9T01sWNhyveQz0wH0Hl.jpg",
-					Cast:        []string{"Emilia Clarke", "Kit Harington", "Peter Dinklage", "Lena Headey", "Nikolaj Coster-Waldau"},
+					Cast:        []string{"Liam Cunningham", "Joe Dempsie", "Emilia Clarke", "John Bradley", "Peter Dinklage"},
 				},
 			}, ORIGIN_TMDB},
 		}, action.TestActionData{
@@ -140,7 +140,7 @@ func TestOutputAction(t *testing.T) {
 				{
 					Title:       "Fight Club (1999-10-15)",
 					Description: "A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy. Their concept catches on, with underground \"fight clubs\" forming in every town, until an eccentric gets in the way and ignites an out-of-control spiral toward oblivion.",
-					PosterURL:   "http://image.tmdb.org/t/p/w92/bptfVGEQuv6vDTIMVCHjJ9Dz8PX.jpg",
+					PosterURL:   "http://image.tmdb.org/t/p/w92/9dlcOgehxDK4QaC2QDfqwQFbk5C.jpg",
 					Cast:        []string{"Edward Norton", "Brad Pitt", "Helena Bonham Carter", "Meat Loaf", "Jared Leto"},
 				},
 			}, ORIGIN_TMDB},
