@@ -5,6 +5,7 @@
 *.cache
 bin
 !testdata/*.cache
+static/deploy/output
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Windows template
