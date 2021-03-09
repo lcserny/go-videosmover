@@ -23,7 +23,7 @@ func TestOutputAction(t *testing.T) {
 		{
 			Request: RequestData{
 				Name:             "The Big Sick 2017",
-				Type:             "movie",
+				Type:             action.MOVIE,
 				SkipOnlineSearch: true,
 				DiskPath:         tmpPath,
 			},
@@ -32,7 +32,7 @@ func TestOutputAction(t *testing.T) {
 		{
 			Request: RequestData{
 				Name:             "Bodyguard-S01-Series.1--BBC-2018-720p-w.subs-x265-HEVC",
-				Type:             "tv",
+				Type:             action.TV,
 				SkipOnlineSearch: true,
 			},
 			Response: ResponseData{[]*core.VideoWebResult{{Title: "Bodyguard"}}, ORIGIN_NAME},
@@ -40,7 +40,7 @@ func TestOutputAction(t *testing.T) {
 		{
 			Request: RequestData{
 				Name:             "1922.1080p.[2017].x264",
-				Type:             "movie",
+				Type:             action.MOVIE,
 				SkipOnlineSearch: true,
 			},
 			Response: ResponseData{[]*core.VideoWebResult{{Title: "1922"}}, ORIGIN_NAME},
@@ -48,7 +48,7 @@ func TestOutputAction(t *testing.T) {
 		{
 			Request: RequestData{
 				Name:             "Game.Of.Thrones.s0e10",
-				Type:             "tv",
+				Type:             action.TV,
 				SkipOnlineSearch: true,
 			},
 			Response: ResponseData{[]*core.VideoWebResult{{Title: "Game Of Thrones"}}, ORIGIN_NAME},
@@ -56,7 +56,7 @@ func TestOutputAction(t *testing.T) {
 		{
 			Request: RequestData{
 				Name:             "Acrimony.2018.1080p.WEB-DL.DD5.1.H264-FGT",
-				Type:             "movie",
+				Type:             action.MOVIE,
 				SkipOnlineSearch: true,
 			},
 			Response: ResponseData{[]*core.VideoWebResult{{Title: "Acrimony (2018)"}}, ORIGIN_NAME},
@@ -64,7 +64,7 @@ func TestOutputAction(t *testing.T) {
 		{
 			Request: RequestData{
 				Name:             "Criminal.Minds.s01e01",
-				Type:             "tv",
+				Type:             action.TV,
 				SkipOnlineSearch: true,
 			},
 			Response: ResponseData{[]*core.VideoWebResult{{Title: "Criminal Minds"}}, ORIGIN_NAME},
@@ -72,7 +72,7 @@ func TestOutputAction(t *testing.T) {
 		{
 			Request: RequestData{
 				Name:             "Chicago.PD.S05E21.REPACK.HDTV.x264-KILLERS[rarbg]",
-				Type:             "tv",
+				Type:             action.TV,
 				SkipOnlineSearch: true,
 			},
 			Response: ResponseData{[]*core.VideoWebResult{{Title: "Chicago PD"}}, ORIGIN_NAME},
@@ -80,7 +80,7 @@ func TestOutputAction(t *testing.T) {
 		{
 			Request: RequestData{
 				Name:             "House.of.Cards.S06.1080p.NF.WEBRip.DD5.1.x264-NTG[rartv]",
-				Type:             "tv",
+				Type:             action.TV,
 				SkipOnlineSearch: true,
 			},
 			Response: ResponseData{[]*core.VideoWebResult{{Title: "House Of Cards"}}, ORIGIN_NAME},
@@ -88,7 +88,7 @@ func TestOutputAction(t *testing.T) {
 		{
 			Request: RequestData{
 				Name:             "House of Cards s06",
-				Type:             "tv",
+				Type:             action.TV,
 				SkipOnlineSearch: true,
 			},
 			Response: ResponseData{[]*core.VideoWebResult{{Title: "House Of Cards"}}, ORIGIN_NAME},
@@ -96,7 +96,7 @@ func TestOutputAction(t *testing.T) {
 		{
 			Request: RequestData{
 				Name:             "Extras S02e01-06",
-				Type:             "tv",
+				Type:             action.TV,
 				SkipOnlineSearch: true,
 				DiskPath:         tmpPath,
 			},
@@ -105,7 +105,7 @@ func TestOutputAction(t *testing.T) {
 		{
 			Request: RequestData{
 				Name:             "Law.&.Order",
-				Type:             "tv",
+				Type:             action.TV,
 				SkipOnlineSearch: true,
 			},
 			Response: ResponseData{[]*core.VideoWebResult{{Title: "Law And Order"}}, ORIGIN_NAME},
