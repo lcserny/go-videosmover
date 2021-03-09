@@ -45,11 +45,14 @@ func main() {
 	}
 	addInternalHandlers(mux, httpCache, jsonCodec)
 
+	core.StartKeepWarmPing(c)
+
 	goutils.LogInfo(fmt.Sprintf("Started server on port %s...", c.Port))
 	goutils.LogFatal(http.ListenAndServe(fmt.Sprintf(":%s", c.Port), mux))
 }
 
 func addInternalHandlers(mux *http.ServeMux, cache core.CacheStore, codec core.Codec) {
+	core.AddWarmPingEndpoint(mux)
 	addShutdownEndpoint(mux)
 	addDownloadsHistoryEndpoint(mux, cache, codec)
 }

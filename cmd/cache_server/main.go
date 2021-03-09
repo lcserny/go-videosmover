@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	core "videosmover/pkg"
 	"videosmover/pkg/config"
 	"videosmover/pkg/ext/json"
 )
@@ -84,6 +85,9 @@ func main() {
 			cache.SaveToFile(c.CacheDBPath)
 		}()
 	})
+	core.AddWarmPingEndpoint(server)
+
+	core.StartKeepWarmPing(c)
 
 	goutils.LogInfo(fmt.Sprintf("Started server on port %s...", c.Port))
 	goutils.LogFatal(http.ListenAndServe(fmt.Sprintf(":%s", c.Port), server))

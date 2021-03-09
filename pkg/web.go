@@ -1,9 +1,14 @@
 package core
 
 import (
+	"fmt"
+	"github.com/lcserny/goutils"
 	"net/http"
 	"regexp"
+	"time"
 )
+
+const warmPingURI = "/warmPing"
 
 type WebAPIRequest struct {
 	Action  string      `json:"action"`
@@ -45,4 +50,21 @@ type VideoWebSearcher interface {
 	CanSearch() bool
 	SearchMovies(name string, year, maxResCount int, specialCharsRegex *regexp.Regexp) ([]*VideoWebResult, bool)
 	SearchTVSeries(name string, year, maxResCount int, specialCharsRegex *regexp.Regexp) ([]*VideoWebResult, bool)
+}
+
+func StartKeepWarmPing(cfgWithPort WithPort) {
+	ticker := time.NewTicker(10 * time.Second)
+	warmPingUrl := fmt.Sprintf("http://localhost:%s%s", cfgWithPort.GetPort(), warmPingURI)
+	go func() {
+		for {
+			<-ticker.C
+			if _, err := http.Get(warmPingUrl); err != nil {
+				goutils.LogWarning("Couldn't execute GET on warming ping endpoint")
+			}
+		}
+	}()
+}
+
+func AddWarmPingEndpoint(mux *http.ServeMux) {
+	mux.HandleFunc(warmPingURI, func(writer http.ResponseWriter, request *http.Request) {})
 }

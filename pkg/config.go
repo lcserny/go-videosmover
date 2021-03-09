@@ -1,5 +1,9 @@
 package core
 
+type WithPort interface {
+	GetPort() string
+}
+
 type WebviewConfig struct {
 	LogFile               string `json:"logFile"`
 	AutoDarkModeEnable    bool   `json:"autoDarkModeEnable"`
@@ -12,6 +16,10 @@ type WebviewConfig struct {
 	DownloadsPath         string `json:"downloadsPath"`
 	MoviesPath            string `json:"moviesPath"`
 	TvSeriesPath          string `json:"tvSeriesPath"`
+}
+
+func (w WebviewConfig) GetPort() string {
+	return w.Port
 }
 
 type CmdHandlerConfig struct {
@@ -27,11 +35,19 @@ type ProxyConfig struct {
 	Bin     []CmdHandlerConfig `json:"bin"`
 }
 
+func (p ProxyConfig) GetPort() string {
+	return p.Port
+}
+
 type CacheServerConfig struct {
 	LogFile      string `json:"logFile"`
 	Port         string `json:"port"`
 	CacheDBPath  string `json:"cacheDBPath"`
 	MaxSizeBytes int    `json:"maxSizeBytes"`
+}
+
+func (c CacheServerConfig) GetPort() string {
+	return c.Port
 }
 
 type ActionConfig struct {
