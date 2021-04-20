@@ -189,5 +189,5 @@ fabric.properties
 .idea/httpRequests
 /node_modules/
 /package-lock.json
-/static/html/js/dist/
-/static/html/js/src/*.js
+/static/html/js/
+/tssrc/*.js

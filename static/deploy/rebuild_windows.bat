@@ -38,6 +38,8 @@ go build -ldflags="-H windowsgui" -o ../../static/deploy/output/cache_server.exe
 cd ..
 cd ..
 
-cd static/deploy
+echo Transpiling javascript
+
+npm run build
 
 echo Done!

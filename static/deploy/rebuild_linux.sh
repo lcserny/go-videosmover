@@ -27,4 +27,8 @@ cd ../..
 cd cmd/cache_server && go build -o ../../static/deploy/output/cache_server
 cd ../..
 
+echo "Transpiling javascript"
+
+npm run build
+
 echo "Done!"
