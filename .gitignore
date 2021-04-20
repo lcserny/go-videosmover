@@ -191,3 +191,4 @@ fabric.properties
 /package-lock.json
 /static/html/js/
 /tssrc/*.js
+/tssrc/*.map

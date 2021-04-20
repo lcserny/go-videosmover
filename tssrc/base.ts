@@ -1,5 +1,5 @@
 import {RunHelper} from "./helpers";
 
-$(function() {
+document.addEventListener('DOMContentLoaded', () => {
     new RunHelper().setupPing("/running", 1000);
 });
