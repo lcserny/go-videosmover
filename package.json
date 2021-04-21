@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "VideosMover is a lightweight cross-platform desktop-webapp helper which can make it easy to play videos in Kodi media player as it can find your downloaded videos, get video descriptions from *TMDB* (https://www.themoviedb.org/), prepare folders based on type and move them accordingly. Custom http cache server based on *https://github.com/VictoriaMetrics/fastcache* is provided for caching online results (*etcd* impl also available). Future versions will have more capabilities to make your video library management even easier, for example, automatically showing you which videos were viewed already and such.",
   "scripts": {
-    "build": "npm install && tsc && webpack --config base.webpack.config.js && webpack --config search.webpack.config.js"
+    "build": "tsc && webpack"
   },
   "repository": {
     "type": "git",
