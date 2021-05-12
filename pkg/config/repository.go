@@ -15,6 +15,7 @@ func MakeProxyConfig(configFile string, codec core.Codec) *core.ProxyConfig {
 	// defaults
 	serverConfig := &core.ProxyConfig{
 		Port:    "8077",
+		UDPPort: "41234",
 		LogFile: "vm-proxyserver.log",
 	}
 

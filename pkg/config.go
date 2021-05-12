@@ -32,6 +32,7 @@ type CmdHandlerConfig struct {
 type ProxyConfig struct {
 	LogFile string             `json:"logFile"`
 	Port    string             `json:"port"`
+	UDPPort string             `json:"udp-port"`
 	Bin     []CmdHandlerConfig `json:"bin"`
 }
 
