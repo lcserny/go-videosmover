@@ -56,7 +56,7 @@ func main() {
 
 func startUDPListener(proxyConfig *core.ProxyConfig) {
 	go func() {
-		var shutdownCommand = regexp.MustCompile(`^shutdown/seconds=\\d*$`)
+		var shutdownCommand = regexp.MustCompile(`^shutdown/seconds=\d*$`)
 
 		udpAddr, err := net.ResolveUDPAddr("udp4", ":"+proxyConfig.UDPPort)
 		if err != nil {
