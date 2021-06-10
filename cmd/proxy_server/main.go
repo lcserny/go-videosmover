@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"regexp"
 	"runtime"
 	"strings"
 	"time"
@@ -56,36 +55,26 @@ func main() {
 
 func startUDPListener(proxyConfig *core.ProxyConfig) {
 	go func() {
-		var shutdownCommand = regexp.MustCompile(`^shutdown/seconds=\d*$`)
-
 		udpAddr, err := net.ResolveUDPAddr("udp4", ":"+proxyConfig.UDPPort)
 		if err != nil {
 			goutils.LogFatal(err)
 		}
-
 		udpConn, err := net.ListenUDP("udp4", udpAddr)
 		if err != nil {
 			goutils.LogFatal(err)
 		}
 
-		buffer := make([]byte, 1024)
-
 		for {
-			bytesRead, addr, err := udpConn.ReadFromUDP(buffer)
+			buffer := make([]byte, 1024)
+			_, addr, err := udpConn.ReadFromUDP(buffer)
 			if err != nil {
 				goutils.LogError(err)
 				return
 			}
-
-			_, err = udpConn.WriteToUDP([]byte("OK"), addr)
+			_, err = udpConn.WriteToUDP([]byte("connected"), addr)
 			if err != nil {
 				goutils.LogError(err)
 				return
-			}
-
-			msg := string(buffer[0:bytesRead])
-			if shutdownCommand.MatchString(msg) {
-				executeShutdown(msg[strings.LastIndex(msg, "=")+1:])
 			}
 		}
 	}()
