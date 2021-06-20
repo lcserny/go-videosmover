@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
+    "module": "es6",
     "target": "es5",
-    "module": "commonjs",
-    "rootDir": "./tssrc",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "allowJs": false,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports" : true,
+    "esModuleInterop" : true
   }
 }

@@ -3,7 +3,13 @@
   "version": "1.0.0",
   "description": "VideosMover is a lightweight cross-platform desktop-webapp helper which can make it easy to play videos in Kodi media player as it can find your downloaded videos, get video descriptions from *TMDB* (https://www.themoviedb.org/), prepare folders based on type and move them accordingly. Custom http cache server based on *https://github.com/VictoriaMetrics/fastcache* is provided for caching online results (*etcd* impl also available). Future versions will have more capabilities to make your video library management even easier, for example, automatically showing you which videos were viewed already and such.",
   "scripts": {
-    "build": "tsc && webpack"
+    "test": "mocha -r esm -r ts-node/register 'tstest/**/*.test.ts'",
+    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test",
+    "build": "webpack --mode=production",
+    "build:dev": "webpack --mode=development",
+    "build:prod": "webpack --mode=production",
+    "watch": "webpack --watch",
+    "serve": "webpack serve"
   },
   "repository": {
     "type": "git",
@@ -25,9 +31,24 @@
     "@types/bootstrap": "^4.5.0",
     "@types/jquery": "^3.5.1",
     "@types/popper.js": "^1.11.0",
+    "@types/chai": "^4.2.16",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^14.14.41",
+    "@types/uuid": "^8.3.0",
+    "@webpack-cli/generators": "^2.0.0",
+    "chai": "^4.3.4",
+    "css-loader": "^5.2.4",
+    "esm": "^3.2.25",
+    "html-webpack-plugin": "^5.3.1",
+    "mocha": "^8.3.2",
+    "nyc": "^15.1.0",
+    "style-loader": "^2.0.0",
+    "ts-loader": "^9.1.1",
+    "ts-node": "^9.1.1",
     "typescript": "^4.2.4",
-    "webpack": "^5.34.0",
-    "webpack-cli": "^4.6.0"
+    "webpack": "^5.35.1",
+    "webpack-cli": "^4.6.0",
+    "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
     "bootstrap": "^4.5.0",

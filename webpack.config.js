@@ -1,14 +1,27 @@
 const path = require('path');
 
 module.exports = {
-    mode: "production",
+    mode: "development",
     entry: {
-        base: './tssrc/base.js',
+        base: './tssrc/base.ts',
         search: {
-            import: './tssrc/search.js',
+            import: './tssrc/search.ts',
             dependOn: 'vendor'
         },
         vendor: ['jquery', 'bootstrap', 'popper.js']
+    },
+    devtool: 'inline-source-map',
+    module: {
+        rules: [
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: [/node_modules/, /tstest/],
+            },
+        ],
+    },
+    resolve: {
+        extensions: ['.tsx', '.ts', '.js'],
     },
     output: {
         filename: '[name].bundle.js',

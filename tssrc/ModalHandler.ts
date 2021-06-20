@@ -1,4 +1,4 @@
-import $ = require('jquery')
+import $ from "jquery";
 import {SearchViewHandler} from "./SearchViewHandler";
 
 export interface ModalHandler {
