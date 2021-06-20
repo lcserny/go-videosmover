@@ -192,3 +192,5 @@ fabric.properties
 /static/html/js/
 /tssrc/*.js
 /tssrc/*.map
+/tstest/*.js
+/tstest/*.map
