@@ -7,8 +7,4 @@ export class MoveResponseData {
         this.unmovedFolder = unmovedFolder;
         this.reasons = reasons;
     }
-
-    public static fromJson(json: any): MoveResponseData {
-        return new MoveResponseData(json.unmovedFolder, json.reasons);
-    }
 }

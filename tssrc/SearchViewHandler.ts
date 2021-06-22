@@ -168,7 +168,7 @@ export class SearchViewHandler {
                     this.triggerSearchVideosButton();
                     return;
                 }
-                this.showMoveIssuesModalWith(JSON.stringify(MoveResponseData.fromJson(response), undefined, 2));
+                this.showMoveIssuesModalWith(JSON.stringify(response, null, 2));
                 LoadingHelper.hideLoading();
             });
     }
