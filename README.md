@@ -116,4 +116,4 @@ JSON response should be like:
 
 #### qBittorrent required settings:    
 - enable WebUI, set its port and config it to bypass localhost credentials  
-- on torrent download completion use the following command: `/path/to/remove_from_qtorrent -port=portNumber -hash="%I"`  
+- on torrent download completion use the following command: `/path/to/remove_from_qtorrent -logFile="path/to/logFile" -port=portNumber -hash="%I"`  
