@@ -1,5 +1,6 @@
 .videoName {
     cursor: pointer;
+    word-break: break-word;
 }
 
 .groupEditButton {
