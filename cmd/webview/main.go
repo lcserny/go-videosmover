@@ -1,23 +1,22 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
-	"github.com/lcserny/goutils"
-	"github.com/pkg/browser"
 	"html/template"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
-	"videosmover/pkg"
+	core "videosmover/pkg"
 	"videosmover/pkg/config"
 	"videosmover/pkg/ext/json"
 	"videosmover/pkg/move"
 	"videosmover/pkg/output"
 	"videosmover/pkg/search"
 	"videosmover/pkg/web"
+
+	"github.com/lcserny/goutils"
 )
 
 func main() {
@@ -31,7 +30,7 @@ func main() {
 	cfgPath := flag.String("config", "", "path to webview config")
 	flag.Parse()
 
-	var pingTimestamp int64
+	// var pingTimestamp int64
 	jsonCodec := json.NewJsonCodec()
 	cfg := config.MakeWebviewConfig(*cfgPath, jsonCodec)
 	goutils.InitFileLogger(cfg.LogFile)
@@ -51,9 +50,9 @@ func main() {
 
 	// init web handler
 	mux := http.NewServeMux()
-	mux.HandleFunc("/running", func(writer http.ResponseWriter, request *http.Request) {
-		pingTimestamp = goutils.MakeTimestamp()
-	})
+	// mux.HandleFunc("/running", func(writer http.ResponseWriter, request *http.Request) {
+	// 	pingTimestamp = goutils.MakeTimestamp()
+	// })
 	htmlServer := http.FileServer(http.Dir(cfg.HtmlFilesPath))
 	mux.Handle("/static/", http.StripPrefix("/static/", htmlServer))
 	templates := template.Must(template.ParseGlob(filepath.Join(cfg.HtmlFilesPath, "*.gohtml")))
@@ -82,12 +81,12 @@ func main() {
 	goutils.LogInfo(fmt.Sprintf("Started server on port %s...", cfg.Port))
 
 	// open browser
-	go goutils.LogFatal(browser.OpenURL(fmt.Sprintf("http://%s", webPath)))
+	// go goutils.LogFatal(browser.OpenURL(fmt.Sprintf("http://%s", webPath)))
 
 	// check shutdown server
-	for range time.NewTicker(time.Second).C {
-		if (pingTimestamp != 0) && (goutils.MakeTimestamp() > pingTimestamp+cfg.ServerPingTimeoutMs) {
-			goutils.LogFatal(server.Shutdown(context.Background()))
-		}
-	}
+	// for range time.NewTicker(time.Second).C {
+	// 	if (pingTimestamp != 0) && (goutils.MakeTimestamp() > pingTimestamp+cfg.ServerPingTimeoutMs) {
+	// 		goutils.LogFatal(server.Shutdown(context.Background()))
+	// 	}
+	// }
 }

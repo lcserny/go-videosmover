@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"runtime"
 	"strings"
 	"time"
 	core "videosmover/pkg"
@@ -108,10 +107,10 @@ func addDownloadsHistoryEndpoint(mux *http.ServeMux, cache core.CacheStore, code
 }
 
 func addShutdownEndpoint(mux *http.ServeMux) {
-	if runtime.GOOS != "windows" {
-		goutils.LogInfo(fmt.Sprintf("Shutdown available for windows only, OS found: %s", runtime.GOOS))
-		return
-	}
+	// if runtime.GOOS != "windows" {
+	// 	goutils.LogInfo(fmt.Sprintf("Shutdown available for windows only, OS found: %s", runtime.GOOS))
+	// 	return
+	// }
 
 	mux.HandleFunc("/shutdown", func(writer http.ResponseWriter, request *http.Request) {
 		values := request.URL.Query()
@@ -125,7 +124,8 @@ func addShutdownEndpoint(mux *http.ServeMux) {
 
 func executeShutdown(seconds string) {
 	var cmdErr bytes.Buffer
-	cmd := exec.Command("cmd", "/C", "shutdown", "-s", "-t", seconds)
+	// cmd := exec.Command("cmd", "/C", "shutdown", "-s", "-t", seconds)
+	cmd := exec.Command("shutdown.exe", "-s", "-t", seconds)
 	cmd.Stderr = &cmdErr
 	if err := cmd.Run(); err != nil {
 		cmdErr.WriteString(err.Error())
