@@ -35,7 +35,7 @@ func main() {
 	cfg := config.MakeWebviewConfig(*cfgPath, jsonCodec)
 	goutils.InitFileLogger(cfg.LogFile)
 	apiRequester := web.NewApiRequester(jsonCodec)
-	webPath := fmt.Sprintf("localhost:%s", cfg.Port)
+	webPath := fmt.Sprintf(":%s", cfg.Port)
 
 	// define template controllers
 	tmplControllers := make(map[string]core.WebTemplateController)
