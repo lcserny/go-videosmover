@@ -72,13 +72,10 @@ func main() {
 
 	// start server
 	server := &http.Server{Addr: webPath, Handler: mux}
-	go func() {
-		if err := server.ListenAndServe(); err != http.ErrServerClosed {
-			goutils.LogFatal(err)
-		}
-		os.Exit(0)
-	}()
 	goutils.LogInfo(fmt.Sprintf("Started server on port %s...", cfg.Port))
+	if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		goutils.LogFatal(err)
+	}
 
 	// open browser
 	// go goutils.LogFatal(browser.OpenURL(fmt.Sprintf("http://%s", webPath)))
