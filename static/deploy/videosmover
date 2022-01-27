@@ -1,0 +1,28 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides: videosmover
+# Short-Description: videosmover
+# Description: This file starts and stops videosmover servers
+#
+# Path: /etc/init.d/videosmover
+# Set permissions: 755
+# Set owner: root:root
+# 
+### END INIT INFO
+
+case "$1" in
+ start)
+   /home/leonardo/bin/videosmover/startup.sh
+   ;;
+ stop)
+   echo "TODO: shutting down videosmover"
+   sleep 10
+   ;;
+ restart)
+   echo "TODO: restarting down videosmover"
+   ;;
+ *)
+   echo "Usage: tomcat {start|stop|restart}" >&2
+   exit 3
+   ;;
+esac

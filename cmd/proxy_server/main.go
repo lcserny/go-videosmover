@@ -107,25 +107,19 @@ func addDownloadsHistoryEndpoint(mux *http.ServeMux, cache core.CacheStore, code
 }
 
 func addShutdownEndpoint(mux *http.ServeMux) {
-	// if runtime.GOOS != "windows" {
-	// 	goutils.LogInfo(fmt.Sprintf("Shutdown available for windows only, OS found: %s", runtime.GOOS))
-	// 	return
-	// }
-
 	mux.HandleFunc("/shutdown", func(writer http.ResponseWriter, request *http.Request) {
 		values := request.URL.Query()
 		secondsInt := "0"
 		if seconds, exists := values["seconds"]; exists {
 			secondsInt = seconds[0]
 		}
-		executeShutdown(secondsInt)
+		executeShutdownFromWSL(secondsInt)
 	})
 }
 
-func executeShutdown(seconds string) {
+func executeShutdownFromWSL(seconds string) {
 	var cmdErr bytes.Buffer
-	// cmd := exec.Command("cmd", "/C", "shutdown", "-s", "-t", seconds)
-	cmd := exec.Command("shutdown.exe", "-s", "-t", seconds)
+	cmd := exec.Command("/mnt/c/Windows/system32/shutdown.exe", "-s", "-t", seconds)
 	cmd.Stderr = &cmdErr
 	if err := cmd.Run(); err != nil {
 		cmdErr.WriteString(err.Error())

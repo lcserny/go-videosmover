@@ -1,19 +1,14 @@
-#!/bin/bash
-
-if ! pgrep -x "cache_server" 
+if ! pgrep -x "cache_server" >/dev/null
 then
-    $(pwd)/cache_server -config=configs/cache_config.json &
-    disown
+    /home/leonardo/bin/videosmover/cache_server -config=/home/leonardo/bin/videosmover/configs/cache_config.json &
 fi
 
-if ! pgrep -x "proxy_server" 
+if ! pgrep -x "proxy_server" >/dev/null
 then
-    $(pwd)/proxy_server -config=configs/proxy_config.json &
-    disown
+    /home/leonardo/bin/videosmover/proxy_server -config=/home/leonardo/bin/videosmover/configs/proxy_config.json &
 fi
 
-if ! pgrep -x "webview" 
+if ! pgrep -x "webview" >/dev/null
 then
-    $(pwd)/webview -config=configs/webview_config.json &
-    disown
+    /home/leonardo/bin/videosmover/webview -config=/home/leonardo/bin/videosmover/configs/webview_config.json &
 fi
