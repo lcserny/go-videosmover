@@ -50,9 +50,6 @@ func main() {
 
 	// init web handler
 	mux := http.NewServeMux()
-	// mux.HandleFunc("/running", func(writer http.ResponseWriter, request *http.Request) {
-	// 	pingTimestamp = goutils.MakeTimestamp()
-	// })
 	htmlServer := http.FileServer(http.Dir(cfg.HtmlFilesPath))
 	mux.Handle("/static/", http.StripPrefix("/static/", htmlServer))
 	templates := template.Must(template.ParseGlob(filepath.Join(cfg.HtmlFilesPath, "*.gohtml")))
@@ -76,14 +73,4 @@ func main() {
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		goutils.LogFatal(err)
 	}
-
-	// open browser
-	// go goutils.LogFatal(browser.OpenURL(fmt.Sprintf("http://%s", webPath)))
-
-	// check shutdown server
-	// for range time.NewTicker(time.Second).C {
-	// 	if (pingTimestamp != 0) && (goutils.MakeTimestamp() > pingTimestamp+cfg.ServerPingTimeoutMs) {
-	// 		goutils.LogFatal(server.Shutdown(context.Background()))
-	// 	}
-	// }
 }
