@@ -21,10 +21,11 @@ cd ../..
 cd cmd/webview && go build -o ../../static/deploy/output/webview
 cd ../..
 
-cd cmd/remove_from_qtorrent && go build -o ../../static/deploy/output/remove_from_qtorrent
+cd cmd/cache_server && go build -o ../../static/deploy/output/cache_server
 cd ../..
 
-cd cmd/cache_server && go build -o ../../static/deploy/output/cache_server
+cd cmd/remove_from_qtorrent 
+env GOOS=windows GOARCH=amd64 go build -o ../../static/deploy/output/qtorrent_remove.exe .
 cd ../..
 
 echo "Transpiling javascript"

@@ -63,16 +63,13 @@ func updateCache(hash string, config *core.RemoveTorrentConfig, codec core.Codec
 	if err = codec.Decode(getFilesBytes, &torrentFilesList); err != nil {
 		goutils.LogFatal(err)
 	}
-
+	
 	dateDownloaded := time.Now().Format(time.RFC1123Z)
-	for _, torrent := range torrentFilesList {
-		torrent.DateDownloaded = dateDownloaded
-	}
 	bsons := make([]interface{}, len(torrentFilesList))
-	for _, t := range torrentFilesList {
-		bsons = append(bsons, t)
+	for i, t := range torrentFilesList {
+		t.DateDownloaded = dateDownloaded
+		bsons[i] = t
 	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.MongoDB.Url))
 	if err != nil {
