@@ -2,10 +2,11 @@ package config
 
 import (
 	"errors"
-	"github.com/lcserny/goutils"
 	"io/ioutil"
 	"strings"
-	"videosmover/pkg"
+	core "videosmover/pkg"
+
+	"github.com/lcserny/goutils"
 )
 
 func MakeProxyConfig(configFile string, codec core.Codec) *core.ProxyConfig {
@@ -153,4 +154,34 @@ func MakeActionConfig(cfgPath string, codec core.Codec) *core.ActionConfig {
 	}
 
 	return &ac
+}
+
+func MakeRemoveTorrentConfig(configFile string, codec core.Codec) *core.RemoveTorrentConfig {
+	content, err := ioutil.ReadFile(configFile)
+	goutils.LogFatal(err)
+
+	// defaults
+	rtc := core.RemoveTorrentConfig{
+		LogFile: "vm-remove-torrents.log",
+		MongoDB: core.MongoDBConfig{
+			Database:   "videosmover",
+			Collection: "download_cache",
+		},
+	}
+
+	err = codec.Decode(content, &rtc)
+	goutils.LogFatal(err)	
+
+	// validate
+	if len(rtc.LogFile) < 1 {
+		goutils.LogFatal(errors.New("log file path not provided"))
+	}
+	if len(rtc.QTorrent.TorrentsUrl) < 1 {
+		goutils.LogFatal(errors.New("qTorrent url not provided"))
+	}
+	if len(rtc.MongoDB.Url) < 1 {
+		goutils.LogFatal(errors.New("MongoDB connection url not provided"))
+	}
+
+	return &rtc
 }

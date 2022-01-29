@@ -68,3 +68,18 @@ type ActionConfig struct {
 	AllowedSubtitleExtensions []string `json:"allowedSubtitleExtensions"`
 	TmdbApiKey                string   `json:"tmdbApiKey"`
 }
+type QTorrentConfig struct {
+	TorrentsUrl string `json:"torrentsUrl"`
+}
+
+type MongoDBConfig struct {
+	Url        string `json:"url"`
+	Database   string `json:"database"`
+	Collection string `json:"collection"`
+}
+
+type RemoveTorrentConfig struct {
+	LogFile  string         `json:"logFile"`
+	QTorrent QTorrentConfig `json:"qtorrent"`
+	MongoDB  MongoDBConfig  `json:"mongodb"`
+}

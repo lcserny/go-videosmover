@@ -14,8 +14,9 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
-	github.com/pkg/errors v0.8.1
+	github.com/pkg/errors v0.9.1
 	github.com/ramya-rao-a/go-outline v0.0.0-20181122025142-7182a932836a // indirect
 	github.com/ryanbradynd05/go-tmdb v0.0.0-20181220020137-291a20d25ffd
+	go.mongodb.org/mongo-driver v1.8.2 // indirect
 	golang.org/x/tools v0.0.0-20190614205625-5aca471b1d59 // indirect
 )
