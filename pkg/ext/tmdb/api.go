@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/lcserny/goutils"
 	"github.com/ryanbradynd05/go-tmdb"
-	"os"
 	"regexp"
 	"strings"
 	"videosmover/pkg"
@@ -16,13 +15,13 @@ type videoWebSearcher struct {
 	fallbackPosterUrl string
 }
 
-func NewVideoWebSearcher() core.VideoWebSearcher {
+func NewVideoWebSearcher(cfg *core.ActionConfig) core.VideoWebSearcher {
 	vws := videoWebSearcher{
 		posterPattern:     "http://image.tmdb.org/t/p/w92%s",
 		fallbackPosterUrl: "/static/img/no-poster.jpg",
 	}
-	if key, exists := os.LookupEnv("TMDB_API_KEY"); exists {
-		vws.tmdbAPI = tmdb.Init(tmdb.Config{key, false, nil})
+	if cfg.TmdbApiKey != "" {
+		vws.tmdbAPI = tmdb.Init(tmdb.Config{cfg.TmdbApiKey, false, nil})
 	}
 	return &vws
 }

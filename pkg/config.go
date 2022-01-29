@@ -66,4 +66,5 @@ type ActionConfig struct {
 	SearchExcludePaths        []string `json:"searchExcludePaths"`
 	AllowedMIMETypes          []string `json:"allowedMIMETypes"`
 	AllowedSubtitleExtensions []string `json:"allowedSubtitleExtensions"`
+	TmdbApiKey                string   `json:"tmdbApiKey"`
 }

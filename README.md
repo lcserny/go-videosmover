@@ -96,7 +96,7 @@ JSON response should be like:
     * `allowedMIMETypes` list of MIME types considered proper videos
     * `allowedSubtitleExtensions` list of subtitle extensions used when deciding what subs to move with the videos
 2. from root of project `cd cmd/commander && go install` NOTE (windows): add `-ldflags="-H windowsgui"`  
-3. *OPTIONAL*: for the TMDB online API search to work you need to set `TMDB_API_KEY` environment variable  
+3. *OPTIONAL*: for the TMDB online API search to work you need to set `tmdbApiKey` config property to your API key  
 4. execute actions on built app  
 
 ### Cache Server
