@@ -15,6 +15,7 @@ const (
 	COULDNT_CREATE_FOLDER_REASON = "Couldn't create folder '%s'"
 	INPUT_VIDEO_PROBLEM_REASON   = "Video '%s' has problems"
 	MOVING_PROBLEM_REASON        = "Problem occurred trying to move '%s'"
+	MAX_PATH_LENGTH_EXCEED       = "Max path length exceeded for '%s'"
 	COULDNT_REMOVE_FOLDER_REASON = "Couldn't remove video dir '%s'"
 )
 
@@ -101,8 +102,15 @@ func (me *moveExecutor) moveSubs() bool {
 		subFolder := filepath.Dir(subDest)
 
 		// move sub
-		_ = os.MkdirAll(subFolder, os.ModePerm)
-		err := os.Rename(sub, subDest)
+		err := os.MkdirAll(subFolder, os.ModePerm)
+		if err != nil {
+			unmovedSubs = true
+			goutils.LogError(err)
+			unmovedSubsReasons = append(unmovedSubsReasons, fmt.Sprintf(MAX_PATH_LENGTH_EXCEED, subFolder))
+			continue
+		}
+
+		err = os.Rename(sub, subDest)
 		if err != nil {
 			unmovedSubs = true
 			goutils.LogError(err)
