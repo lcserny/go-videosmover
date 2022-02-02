@@ -1,20 +1,18 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
-	"github.com/lcserny/goutils"
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
 	"strings"
-	"time"
 	core "videosmover/pkg"
 	"videosmover/pkg/config"
 	"videosmover/pkg/ext/json"
 	"videosmover/pkg/web"
+
+	"github.com/lcserny/goutils"
 )
 
 func main() {
@@ -30,8 +28,6 @@ func main() {
 	jsonCodec := json.NewJsonCodec()
 	apiRequester := web.NewApiRequester(jsonCodec)
 	c := config.MakeProxyConfig(*cfgPath, jsonCodec)
-	cacheAddress := "http://localhost:8076"
-	httpCache := core.NewHttpCacheStore(cacheAddress, "/get", "/set", "/close", jsonCodec)
 	goutils.InitFileLogger(c.LogFile)
 
 	mux := http.NewServeMux()
@@ -43,7 +39,7 @@ func main() {
 			mux.Handle(fmt.Sprintf("/exec-java/%s", binCmd.Uri), web.NewJavaExecutor(&binCmd, jsonCodec))
 		}
 	}
-	addInternalHandlers(mux, httpCache, jsonCodec)
+	// addInternalHandlers(mux, httpCache, jsonCodec)
 	startUDPListener(c)
 
 	core.StartKeepWarmPing(c)
@@ -79,49 +75,28 @@ func startUDPListener(proxyConfig *core.ProxyConfig) {
 	}()
 }
 
-func addInternalHandlers(mux *http.ServeMux, cache core.CacheStore, codec core.Codec) {
-	core.AddWarmPingEndpoint(mux)
-	addShutdownEndpoint(mux)
-	addDownloadsHistoryEndpoint(mux, cache, codec)
-}
+// func addInternalHandlers(mux *http.ServeMux, cache core.CacheStore, codec core.Codec) {
+// 	core.AddWarmPingEndpoint(mux)
+// 	addDownloadsHistoryEndpoint(mux, cache, codec)
+// }
 
-func addDownloadsHistoryEndpoint(mux *http.ServeMux, cache core.CacheStore, codec core.Codec) {
-	now := time.Now().Format(core.CacheKeyDatePattern)
-	key := core.CacheKeyPrefix + now
+// func addDownloadsHistoryEndpoint(mux *http.ServeMux, cache core.CacheStore, codec core.Codec) {
+// 	now := time.Now().Format(core.CacheKeyDatePattern)
+// 	key := core.CacheKeyPrefix + now
 
-	mux.HandleFunc("/downloadsCompleted", func(writer http.ResponseWriter, request *http.Request) {
-		completed := make([]*core.TorrentData, 0)
-		if err := cache.Get(key, &completed); err != nil {
-			goutils.LogError(err)
-		}
+// 	mux.HandleFunc("/downloadsCompleted", func(writer http.ResponseWriter, request *http.Request) {
+// 		completed := make([]*core.TorrentData, 0)
+// 		if err := cache.Get(key, &completed); err != nil {
+// 			goutils.LogError(err)
+// 		}
 
-		jsonCompleted, err := codec.EncodeString(completed)
-		if err != nil {
-			goutils.LogError(err)
-		}
+// 		jsonCompleted, err := codec.EncodeString(completed)
+// 		if err != nil {
+// 			goutils.LogError(err)
+// 		}
 
-		writer.Header().Set("Content-Type", codec.ContentType())
-		writer.WriteHeader(http.StatusOK)
-		fmt.Fprint(writer, jsonCompleted)
-	})
-}
-
-func addShutdownEndpoint(mux *http.ServeMux) {
-	mux.HandleFunc("/shutdown", func(writer http.ResponseWriter, request *http.Request) {
-		values := request.URL.Query()
-		secondsInt := "0"
-		if seconds, exists := values["seconds"]; exists {
-			secondsInt = seconds[0]
-		}
-		executeShutdownFromWSL(secondsInt)
-	})
-}
-
-func executeShutdownFromWSL(seconds string) {
-	var cmdErr bytes.Buffer
-	cmd := exec.Command("/mnt/c/Windows/system32/shutdown.exe", "-s", "-t", seconds)
-	cmd.Stderr = &cmdErr
-	if err := cmd.Run(); err != nil {
-		cmdErr.WriteString(err.Error())
-	}
-}
+// 		writer.Header().Set("Content-Type", codec.ContentType())
+// 		writer.WriteHeader(http.StatusOK)
+// 		fmt.Fprint(writer, jsonCompleted)
+// 	})
+// }
