@@ -13,8 +13,9 @@ var (
 	TypeBmp      = newType("bmp", "image/bmp")
 	TypeJxr      = newType("jxr", "image/vnd.ms-photo")
 	TypePsd      = newType("psd", "image/vnd.adobe.photoshop")
-	TypeIco      = newType("ico", "image/x-icon")
+	TypeIco      = newType("ico", "image/vnd.microsoft.icon")
 	TypeHeif     = newType("heif", "image/heif")
+	TypeDwg      = newType("dwg", "image/vnd.dwg")
 )
 
 var Image = Map{
@@ -30,6 +31,7 @@ var Image = Map{
 	TypePsd:      Psd,
 	TypeIco:      Ico,
 	TypeHeif:     Heif,
+	TypeDwg:      Dwg,
 }
 
 func Jpeg(buf []byte) bool {
@@ -74,16 +76,18 @@ func Webp(buf []byte) bool {
 }
 
 func CR2(buf []byte) bool {
-	return len(buf) > 9 &&
-		((buf[0] == 0x49 && buf[1] == 0x49 && buf[2] == 0x2A && buf[3] == 0x0) ||
-			(buf[0] == 0x4D && buf[1] == 0x4D && buf[2] == 0x0 && buf[3] == 0x2A)) &&
-		buf[8] == 0x43 && buf[9] == 0x52
+	return len(buf) > 10 &&
+		((buf[0] == 0x49 && buf[1] == 0x49 && buf[2] == 0x2A && buf[3] == 0x0) || // Little Endian
+			(buf[0] == 0x4D && buf[1] == 0x4D && buf[2] == 0x0 && buf[3] == 0x2A)) && // Big Endian
+		buf[8] == 0x43 && buf[9] == 0x52 && // CR2 magic word
+		buf[10] == 0x02 // CR2 major version
 }
 
 func Tiff(buf []byte) bool {
-	return len(buf) > 3 &&
-		((buf[0] == 0x49 && buf[1] == 0x49 && buf[2] == 0x2A && buf[3] == 0x0) ||
-			(buf[0] == 0x4D && buf[1] == 0x4D && buf[2] == 0x0 && buf[3] == 0x2A))
+	return len(buf) > 10 &&
+		((buf[0] == 0x49 && buf[1] == 0x49 && buf[2] == 0x2A && buf[3] == 0x0) || // Little Endian
+			(buf[0] == 0x4D && buf[1] == 0x4D && buf[2] == 0x0 && buf[3] == 0x2A)) && // Big Endian
+		!CR2(buf) // To avoid conflicts differentiate Tiff from CR2
 }
 
 func Bmp(buf []byte) bool {
@@ -130,4 +134,10 @@ func Heif(buf []byte) bool {
 	}
 
 	return false
+}
+
+func Dwg(buf []byte) bool {
+	return len(buf) > 3 &&
+		buf[0] == 0x41 && buf[1] == 0x43 &&
+		buf[2] == 0x31 && buf[3] == 0x30
 }

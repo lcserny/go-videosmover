@@ -17,6 +17,10 @@ const chunkSize = 64 * 1024
 
 const bucketSizeBits = 40
 
+const genSizeBits = 64 - bucketSizeBits
+
+const maxGen = 1<<genSizeBits - 1
+
 const maxBucketSize uint64 = 1 << bucketSizeBits
 
 // Stats represents cache stats.
@@ -48,6 +52,9 @@ type Stats struct {
 
 	// BytesSize is the current size of the cache in bytes.
 	BytesSize uint64
+
+	// MaxBytesSize is the maximum allowed size of the cache in bytes (aka capacity).
+	MaxBytesSize uint64
 
 	// BigStats contains stats for GetBig/SetBig methods.
 	BigStats
@@ -158,6 +165,15 @@ func (c *Cache) Get(dst, k []byte) []byte {
 	return dst
 }
 
+// HasGet works identically to Get, but also returns whether the given key
+// exists in the cache. This method makes it possible to differentiate between a
+// stored nil/empty value versus and non-existing value.
+func (c *Cache) HasGet(dst, k []byte) ([]byte, bool) {
+	h := xxhash.Sum64(k)
+	idx := h % bucketsCount
+	return c.buckets[idx].Get(dst, k, h, true)
+}
+
 // Has returns true if entry for the given key k exists in the cache.
 func (c *Cache) Has(k []byte) bool {
 	h := xxhash.Sum64(k)
@@ -222,6 +238,9 @@ type bucket struct {
 }
 
 func (b *bucket) Init(maxBytes uint64) {
+	if maxBytes == 0 {
+		panic(fmt.Errorf("maxBytes cannot be zero"))
+	}
 	if maxBytes >= maxBucketSize {
 		panic(fmt.Errorf("too big maxBytes=%d; should be smaller than %d", maxBytes, maxBucketSize))
 	}
@@ -252,20 +271,18 @@ func (b *bucket) Reset() {
 	b.mu.Unlock()
 }
 
-func (b *bucket) Clean() {
-	b.mu.Lock()
-	bGen := b.gen
+func (b *bucket) cleanLocked() {
+	bGen := b.gen & ((1 << genSizeBits) - 1)
 	bIdx := b.idx
 	bm := b.m
 	for k, v := range bm {
 		gen := v >> bucketSizeBits
 		idx := v & ((1 << bucketSizeBits) - 1)
-		if gen == bGen && idx < bIdx || gen+1 == bGen && idx >= bIdx {
+		if (gen+1 == bGen || gen == maxGen && bGen == 1) && idx >= bIdx || gen == bGen && idx < bIdx {
 			continue
 		}
 		delete(bm, k)
 	}
-	b.mu.Unlock()
 }
 
 func (b *bucket) UpdateStats(s *Stats) {
@@ -277,18 +294,17 @@ func (b *bucket) UpdateStats(s *Stats) {
 
 	b.mu.RLock()
 	s.EntriesCount += uint64(len(b.m))
+	bytesSize := uint64(0)
 	for _, chunk := range b.chunks {
-		s.BytesSize += uint64(cap(chunk))
+		bytesSize += uint64(cap(chunk))
 	}
+	s.BytesSize += bytesSize
+	s.MaxBytesSize += uint64(len(b.chunks)) * chunkSize
 	b.mu.RUnlock()
 }
 
 func (b *bucket) Set(k, v []byte, h uint64) {
-	setCalls := atomic.AddUint64(&b.setCalls, 1)
-	if setCalls%(1<<14) == 0 {
-		b.Clean()
-	}
-
+	atomic.AddUint64(&b.setCalls, 1)
 	if len(k) >= (1<<16) || len(v) >= (1<<16) {
 		// Too big key or value - its length cannot be encoded
 		// with 2 bytes (see below). Skip the entry.
@@ -306,28 +322,31 @@ func (b *bucket) Set(k, v []byte, h uint64) {
 		return
 	}
 
+	chunks := b.chunks
+	needClean := false
 	b.mu.Lock()
 	idx := b.idx
 	idxNew := idx + kvLen
 	chunkIdx := idx / chunkSize
 	chunkIdxNew := idxNew / chunkSize
 	if chunkIdxNew > chunkIdx {
-		if chunkIdxNew >= uint64(len(b.chunks)) {
+		if chunkIdxNew >= uint64(len(chunks)) {
 			idx = 0
 			idxNew = kvLen
 			chunkIdx = 0
 			b.gen++
-			if b.gen == 0 {
-				b.gen = 1
+			if b.gen&((1<<genSizeBits)-1) == 0 {
+				b.gen++
 			}
+			needClean = true
 		} else {
 			idx = chunkIdxNew * chunkSize
 			idxNew = idx + kvLen
 			chunkIdx = chunkIdxNew
 		}
-		b.chunks[chunkIdx] = b.chunks[chunkIdx][:0]
+		chunks[chunkIdx] = chunks[chunkIdx][:0]
 	}
-	chunk := b.chunks[chunkIdx]
+	chunk := chunks[chunkIdx]
 	if chunk == nil {
 		chunk = getChunk()
 		chunk = chunk[:0]
@@ -335,28 +354,33 @@ func (b *bucket) Set(k, v []byte, h uint64) {
 	chunk = append(chunk, kvLenBuf[:]...)
 	chunk = append(chunk, k...)
 	chunk = append(chunk, v...)
-	b.chunks[chunkIdx] = chunk
+	chunks[chunkIdx] = chunk
 	b.m[h] = idx | (b.gen << bucketSizeBits)
 	b.idx = idxNew
+	if needClean {
+		b.cleanLocked()
+	}
 	b.mu.Unlock()
 }
 
 func (b *bucket) Get(dst, k []byte, h uint64, returnDst bool) ([]byte, bool) {
 	atomic.AddUint64(&b.getCalls, 1)
 	found := false
+	chunks := b.chunks
 	b.mu.RLock()
 	v := b.m[h]
+	bGen := b.gen & ((1 << genSizeBits) - 1)
 	if v > 0 {
 		gen := v >> bucketSizeBits
 		idx := v & ((1 << bucketSizeBits) - 1)
-		if gen == b.gen && idx < b.idx || gen+1 == b.gen && idx >= b.idx {
+		if gen == bGen && idx < b.idx || gen+1 == bGen && idx >= b.idx || gen == maxGen && bGen == 1 && idx >= b.idx {
 			chunkIdx := idx / chunkSize
-			if chunkIdx >= uint64(len(b.chunks)) {
+			if chunkIdx >= uint64(len(chunks)) {
 				// Corrupted data during the load from file. Just skip it.
 				atomic.AddUint64(&b.corruptions, 1)
 				goto end
 			}
-			chunk := b.chunks[chunkIdx]
+			chunk := chunks[chunkIdx]
 			idx %= chunkSize
 			if idx+4 >= chunkSize {
 				// Corrupted data during the load from file. Just skip it.

@@ -24,8 +24,10 @@ type Movie struct {
 	Popularity          float32
 	PosterPath          string `json:"poster_path"`
 	ProductionCompanies []struct {
-		ID   int
-		Name string
+		ID        int
+		Name      string
+		LogoPath  string `json:"logo_path"`
+		Iso3166_1 string `json:"origin_country"`
 	} `json:"production_companies"`
 	ProductionCountries []struct {
 		Iso3166_1 string `json:"iso_3166_1"`
@@ -56,6 +58,7 @@ type Movie struct {
 	Lists             *MovieLists             `json:",omitempty"`
 	Changes           *MovieChanges           `json:",omitempty"`
 	Rating            *MovieRating            `json:",omitempty"`
+	ExternalIDs       *MovieExternalIds       `json:"external_ids,omitempty"`
 }
 
 // MovieShort struct
@@ -160,12 +163,14 @@ type MovieCredits struct {
 		CreditID    string `json:"credit_id"`
 		ID          int
 		Name        string
+		Gender      int `json:"gender"`
 		Order       int
 		ProfilePath string `json:"profile_path"`
 	}
 	Crew []struct {
 		CreditID    string `json:"credit_id"`
 		Department  string
+		Gender      int `json:"gender"`
 		ID          int
 		Job         string
 		Name        string
@@ -182,6 +187,15 @@ type MovieCredits struct {
 	Lists             *MovieLists             `json:",omitempty"`
 	Changes           *MovieChanges           `json:",omitempty"`
 	Rating            *MovieRating            `json:",omitempty"`
+}
+
+// MovieExternalIds struct
+type MovieExternalIds struct {
+	ID          int
+	ImdbID      string `json:"imdb_id"`
+	FacebookID  string `json:"facebook_id"`
+	InstagramID string `json:"instagram_id"`
+	TwitterID   string `json:"twitter_id"`
 }
 
 // MovieImage struct
@@ -317,6 +331,7 @@ type MovieReviews struct {
 type MovieTranslations struct {
 	ID           int
 	Translations []struct {
+		Iso3166_1   string `json:"iso_3166_1"`
 		Iso639_1    string `json:"iso_639_1"`
 		Name        string `json:"name"`
 		EnglishName string `json:"english_name"`
@@ -388,7 +403,7 @@ type MovieVideos struct {
 }
 
 // GetMovieInfo for a specific movie id
-// http://docs.themoviedb.apiary.io/#reference/movies/movieid/get
+// https://developers.themoviedb.org/3/movies/get-movie-details
 func (tmdb *TMDb) GetMovieInfo(id int, options map[string]string) (*Movie, error) {
 	var availableOptions = map[string]struct{}{
 		"language":           {},
@@ -401,7 +416,7 @@ func (tmdb *TMDb) GetMovieInfo(id int, options map[string]string) (*Movie, error
 }
 
 // GetMovieAccountStates gets the status of whether or not the movie has been rated or added to their favourite or movie watch list
-// http://docs.themoviedb.apiary.io/#reference/movies/movieidaccountstates/get
+// https://developers.themoviedb.org/3/movies/get-movie-account-states
 func (tmdb *TMDb) GetMovieAccountStates(id int, sessionID string) (*MovieAccountState, error) {
 	var state MovieAccountState
 	uri := fmt.Sprintf("%s/movie/%v/account_states?api_key=%s&session_id=%s", baseURL, id, tmdb.apiKey, sessionID)
@@ -410,7 +425,7 @@ func (tmdb *TMDb) GetMovieAccountStates(id int, sessionID string) (*MovieAccount
 }
 
 // GetMovieAlternativeTitles for a specific movie id
-// http://docs.themoviedb.apiary.io/#reference/movies/movieidalternativetitles/get
+// https://developers.themoviedb.org/3/movies/get-movie-alternative-titles
 func (tmdb *TMDb) GetMovieAlternativeTitles(id int, options map[string]string) (*MovieAlternativeTitles, error) {
 	var availableOptions = map[string]struct{}{
 		"country":            {},
@@ -423,7 +438,7 @@ func (tmdb *TMDb) GetMovieAlternativeTitles(id int, options map[string]string) (
 }
 
 // GetMovieChanges for a specific movie id
-// http://docs.themoviedb.apiary.io/#reference/movies/movieidchanges/get
+// https://developers.themoviedb.org/3/movies/get-movie-changes
 func (tmdb *TMDb) GetMovieChanges(id int, options map[string]string) (*MovieChanges, error) {
 	var availableOptions = map[string]struct{}{
 		"start_date": {},
@@ -436,7 +451,7 @@ func (tmdb *TMDb) GetMovieChanges(id int, options map[string]string) (*MovieChan
 }
 
 // GetMovieCredits for a specific movie id
-// http://docs.themoviedb.apiary.io/#reference/movies/movieidcredits/get
+// https://developers.themoviedb.org/3/movies/get-movie-credits
 func (tmdb *TMDb) GetMovieCredits(id int, options map[string]string) (*MovieCredits, error) {
 	var availableOptions = map[string]struct{}{
 		"append_to_response": {}}
@@ -448,7 +463,7 @@ func (tmdb *TMDb) GetMovieCredits(id int, options map[string]string) (*MovieCred
 }
 
 // GetMovieImages for a specific movie id
-// http://docs.themoviedb.apiary.io/#reference/movies/movieidimages/get
+// https://developers.themoviedb.org/3/movies/get-movie-images
 func (tmdb *TMDb) GetMovieImages(id int, options map[string]string) (*MovieImages, error) {
 	var availableOptions = map[string]struct{}{
 		"language":               {},
@@ -462,7 +477,7 @@ func (tmdb *TMDb) GetMovieImages(id int, options map[string]string) (*MovieImage
 }
 
 // GetMovieKeywords for a specific movie id
-// http://docs.themoviedb.apiary.io/#reference/movies/movieidkeywords/get
+// https://developers.themoviedb.org/3/movies/get-movie-keywords
 func (tmdb *TMDb) GetMovieKeywords(id int, options map[string]string) (*MovieKeywords, error) {
 	var availableOptions = map[string]struct{}{
 		"append_to_response": {}}
@@ -474,7 +489,7 @@ func (tmdb *TMDb) GetMovieKeywords(id int, options map[string]string) (*MovieKey
 }
 
 // GetMovieLatest gets the latest movie
-// http://docs.themoviedb.apiary.io/#reference/movies/movielatest/get
+// https://developers.themoviedb.org/3/movies/get-latest-movie
 func (tmdb *TMDb) GetMovieLatest() (*Movie, error) {
 	var movie Movie
 	uri := fmt.Sprintf("%s/movie/latest?api_key=%s", baseURL, tmdb.apiKey)
@@ -483,7 +498,7 @@ func (tmdb *TMDb) GetMovieLatest() (*Movie, error) {
 }
 
 // GetMovieLists that the movie belongs to
-// http://docs.themoviedb.apiary.io/#reference/movies/movieidlists/get
+// https://developers.themoviedb.org/3/movies/get-movie-lists
 func (tmdb *TMDb) GetMovieLists(id int, options map[string]string) (*MovieLists, error) {
 	var availableOptions = map[string]struct{}{
 		"page":               {},
@@ -497,7 +512,7 @@ func (tmdb *TMDb) GetMovieLists(id int, options map[string]string) (*MovieLists,
 }
 
 // GetMovieNowPlaying that have been, or are being released this week
-// http://docs.themoviedb.apiary.io/#reference/movies/movienowplaying/get
+// https://developers.themoviedb.org/3/movies/get-now-playing
 func (tmdb *TMDb) GetMovieNowPlaying(options map[string]string) (*MovieDatedResults, error) {
 	var availableOptions = map[string]struct{}{
 		"page":     {},
@@ -510,7 +525,7 @@ func (tmdb *TMDb) GetMovieNowPlaying(options map[string]string) (*MovieDatedResu
 }
 
 // GetMoviePopular gets the list of popular movies on The Movie Database
-// http://docs.themoviedb.apiary.io/#reference/movies/moviepopular/get
+// https://developers.themoviedb.org/3/movies/get-popular-movies
 func (tmdb *TMDb) GetMoviePopular(options map[string]string) (*MoviePagedResults, error) {
 	var availableOptions = map[string]struct{}{
 		"page":     {},
@@ -523,7 +538,7 @@ func (tmdb *TMDb) GetMoviePopular(options map[string]string) (*MoviePagedResults
 }
 
 // GetMovieReleases for a specific movie id
-// http://docs.themoviedb.apiary.io/#reference/movies/movieidreleases/get
+// https://developers.themoviedb.org/3/movies/get-movie-release-dates
 func (tmdb *TMDb) GetMovieReleases(id int, options map[string]string) (*MovieReleases, error) {
 	var availableOptions = map[string]struct{}{
 		"append_to_response": {}}
@@ -535,7 +550,7 @@ func (tmdb *TMDb) GetMovieReleases(id int, options map[string]string) (*MovieRel
 }
 
 // GetMovieReviews for a specific movie id
-// http://docs.themoviedb.apiary.io/#reference/movies/movieidreviews/get
+// https://developers.themoviedb.org/3/movies/get-movie-reviews
 func (tmdb *TMDb) GetMovieReviews(id int, options map[string]string) (*MovieReviews, error) {
 	var availableOptions = map[string]struct{}{
 		"page":               {},
@@ -549,7 +564,7 @@ func (tmdb *TMDb) GetMovieReviews(id int, options map[string]string) (*MovieRevi
 }
 
 // GetMovieSimilar for a specific movie id
-// http://docs.themoviedb.apiary.io/#reference/movies/movieidsimilar/get
+// https://developers.themoviedb.org/3/movies/get-similar-movies
 func (tmdb *TMDb) GetMovieSimilar(id int, options map[string]string) (*MoviePagedResults, error) {
 	var availableOptions = map[string]struct{}{
 		"page":               {},
@@ -563,7 +578,7 @@ func (tmdb *TMDb) GetMovieSimilar(id int, options map[string]string) (*MoviePage
 }
 
 // GetMovieTopRated gets the list of top rated movies
-// http://docs.themoviedb.apiary.io/#reference/movies/movietoprated/get
+// https://developers.themoviedb.org/3/movies/get-top-rated-movies
 func (tmdb *TMDb) GetMovieTopRated(options map[string]string) (*MoviePagedResults, error) {
 	var availableOptions = map[string]struct{}{
 		"page":     {},
@@ -576,7 +591,7 @@ func (tmdb *TMDb) GetMovieTopRated(options map[string]string) (*MoviePagedResult
 }
 
 // GetMovieTranslations for a specific movie id
-// http://docs.themoviedb.apiary.io/#reference/movies/movieidtranslations/get
+// https://developers.themoviedb.org/3/movies/get-movie-translations
 func (tmdb *TMDb) GetMovieTranslations(id int, options map[string]string) (*MovieTranslations, error) {
 	var availableOptions = map[string]struct{}{
 		"append_to_response": {}}
@@ -601,7 +616,7 @@ func (tmdb *TMDb) GetMovieRecommendations(id int, options map[string]string) (*M
 }
 
 // GetMovieVideos for a specific movie id
-// http://docs.themoviedb.apiary.io/#reference/movies/movieidvideos/get
+// https://developers.themoviedb.org/3/movies/get-movie-recommendations
 func (tmdb *TMDb) GetMovieVideos(id int, options map[string]string) (*MovieVideos, error) {
 	var availableOptions = map[string]struct{}{
 		"language":           {},
@@ -614,7 +629,7 @@ func (tmdb *TMDb) GetMovieVideos(id int, options map[string]string) (*MovieVideo
 }
 
 // GetMovieUpcoming by release date
-// http://docs.themoviedb.apiary.io/#reference/movies/movieupcoming/get
+// https://developers.themoviedb.org/3/movies/get-upcoming
 func (tmdb *TMDb) GetMovieUpcoming(options map[string]string) (*MovieDatedResults, error) {
 	var availableOptions = map[string]struct{}{
 		"page":     {},
@@ -626,8 +641,18 @@ func (tmdb *TMDb) GetMovieUpcoming(options map[string]string) (*MovieDatedResult
 	return result.(*MovieDatedResults), err
 }
 
+// GetMovieExternalIds gets the external ids for a movie
+// https://developers.themoviedb.org/3/movies/get-movie-external-ids
+func (tmdb *TMDb) GetMovieExternalIds(movieID int, options map[string]string) (*MovieExternalIds, error) {
+	// currently there are not options, left it so it may be updated in the future without breaking existing code
+	var ids MovieExternalIds
+	uri := fmt.Sprintf("%s/movie/%v/external_ids?api_key=%s", baseURL, movieID, tmdb.apiKey)
+	result, err := getTmdb(uri, &ids)
+	return result.(*MovieExternalIds), err
+}
+
 // // SetMovieRating lets users rate a movie
-// // http://docs.themoviedb.apiary.io/#reference/movies/movieidrating/post
+// // https://developers.themoviedb.org/3/movies/rate-movie
 // func (tmdb *TMDb) SetMovieRating(id int) (*MovieRating, error) {
 // 	// TODO
 // 	var rating MovieRating

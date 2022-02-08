@@ -124,6 +124,7 @@ func (vws videoWebSearcher) generateMovieCastNames(cast []struct {
 	CreditID    string `json:"credit_id"`
 	ID          int
 	Name        string
+	Gender      int `json:"gender"`
 	Order       int
 	ProfilePath string `json:"profile_path"`
 }) []string {
@@ -139,6 +140,7 @@ func (vws videoWebSearcher) generateTvShowCastNames(cast []struct {
 	CreditID    string `json:"credit_id"`
 	ID          int
 	Name        string
+	Gender      int `json:"gender"`
 	Order       int
 	ProfilePath string `json:"profile_path"`
 }) []string {

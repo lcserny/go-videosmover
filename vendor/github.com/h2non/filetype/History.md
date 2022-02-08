@@ -1,4 +1,58 @@
 
+v1.0.3 / 2021-11-21
+===================
+
+  * fix(#108): add application file matchers
+  * Merge pull request #106 from hannesbraun/aiff-support
+  * Add AIFF support
+  * fix(archive): format issue indentation
+  * feat(version): bump patch
+  * Merge pull request #100 from da2018/master
+  * Enhance Zstd support
+  * Merge pull request #98 from cfergeau/zstd
+  * Add zstd support
+  * Merge pull request #99 from cfergeau/byteprefixmatcher
+  * Introduce bytePrefixMatcher helper
+
+v1.1.0 / 2020-06-06
+===================
+
+  * feat: version bump v1.10
+  * feat(ci): add go 1.14
+  * Merge pull request #82 from andrewstucki/sqlite-update
+  * Merge pull request #84 from evanoberholster/master
+  * Better differentiation: between image/x-canon-cr2 and image/tiff
+  * Merge pull request #1 from h2non/master
+  * Update ico filetype per https://www.iana.org/assignments/media-types/image/vnd.microsoft.icon
+  * Update rar filetype per https://www.iana.org/assignments/media-types/application/vnd.rar
+  * Update exe filetype per https://www.iana.org/assignments/media-types/application/vnd.microsoft.portable-executable
+  * Update deb filetype per https://www.iana.org/assignments/media-types/application/vnd.debian.binary-package
+  * Update sqlite filetype per https://www.iana.org/assignments/media-types/application/vnd.sqlite3
+  * Merge pull request #72 from turn88/master
+  * Update document.go
+  * Update document.go
+  * Update document.go
+  * add matchers for office 2003
+
+v1.0.10 / 2019-08-06
+====================
+
+  * Merge pull request #76 from lex-r/fix-matroska-detection
+  * fix: mkv and webm types detection
+
+v1.0.9 / 2019-07-25
+===================
+
+  * Merge pull request #75 from Trane9991/master
+  * add video/3gpp support
+  * fix: use proper iso file mime type
+  * feat: add iso image format
+  * Merge pull request #65 from Fentonz/master
+  * Merge pull request #70 from fanpei91/master
+  * add image/vnd.dwg to README
+  * add image/vnd.dwg support
+  * Added support for .iso files
+
 v1.0.8 / 2019-02-10
 ===================
 
