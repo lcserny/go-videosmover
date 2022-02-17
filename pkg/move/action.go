@@ -2,12 +2,13 @@ package move
 
 import (
 	"fmt"
-	"github.com/lcserny/goutils"
 	"os"
 	"path/filepath"
 	"strings"
 	"videosmover/pkg"
 	"videosmover/pkg/action"
+
+	"github.com/lcserny/goutils"
 )
 
 const (
@@ -107,6 +108,14 @@ func (me *moveExecutor) moveSubs() bool {
 			unmovedSubs = true
 			goutils.LogError(err)
 			unmovedSubsReasons = append(unmovedSubsReasons, fmt.Sprintf(MAX_PATH_LENGTH_EXCEED, subFolder))
+			continue
+		}
+
+		// fix for Windows path length
+		if len(sub) >= 255 || len(subDest) >= 255 {
+			unmovedSubs = true
+			goutils.LogError(fmt.Errorf(fmt.Sprintf(MOVING_PROBLEM_REASON, sub)))
+			unmovedSubsReasons = append(unmovedSubsReasons, fmt.Sprintf(MOVING_PROBLEM_REASON, sub))
 			continue
 		}
 
