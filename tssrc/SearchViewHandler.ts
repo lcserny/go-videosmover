@@ -38,11 +38,7 @@ export class SearchViewHandler {
     }
 
     findIndex(rowChild: HTMLElement): number {
-        try {
-            return JSON.parse(this.findRow(rowChild).dataset.init).Index;
-        } catch (e) {
-            throw "Couldn't find parent video row of element " + rowChild;
-        }
+        return JSON.parse(this.findRow(rowChild).dataset.init).Index;
     }
 
     toggleClassOnElement(element: HTMLElement, show: boolean, className: string): void {
@@ -70,64 +66,65 @@ export class SearchViewHandler {
         textBox.dispatchEvent(new Event("keyup"));
     }
 
-    handleVideoTypeChange(radio: HTMLInputElement): void {
-        const index = this.findIndex(radio);
-        const videoData = this._service.updateVideoType(index, radio.value);
+    async handleVideoTypeChange(radio: HTMLInputElement) {
+        try {
+            const index = this.findIndex(radio);
+            const videoData = this._service.updateVideoType(index, radio.value);
 
-        const row = this.findRow(radio);
-        const outputTextBox = row.querySelector<HTMLInputElement>(".js-videoOutputInput");
-        const outputDropdown = row.querySelector<HTMLDivElement>("#js-videoOutputDropdown" + index);
+            const row = this.findRow(radio);
+            const outputTextBox = row.querySelector<HTMLInputElement>(".js-videoOutputInput");
+            const outputDropdown = row.querySelector<HTMLDivElement>("#js-videoOutputDropdown" + index);
 
-        if (radio.value === "unknown") {
-            this.toggleClassOnElement(row, false, "highlight-row");
-            this.checkShowMoveVideosButton();
-            this.triggerChangeOutputTextBox(outputTextBox, "");
-            return;
+            if (radio.value === "unknown") {
+                this.toggleClassOnElement(row, false, "highlight-row");
+                this.checkShowMoveVideosButton();
+                this.triggerChangeOutputTextBox(outputTextBox, "");
+                return;
+            }
+
+            this.toggleClassOnElement(row, true, "highlight-row");
+            LoadingHelper.showLoading();
+
+            let outData = await this._service.requestOutputDataAsync(videoData, false);
+            let converted = OutputResponseData.fromJson(outData);
+            this._service.updateVideoOutList(index, converted.videos);
+            this._service.updateVideoOutOrigin(index, converted.origin);
+            this.triggerChangeOutputTextBox(outputTextBox, converted.videos[0].title);
+            this.populateOutputDropdownList(outputDropdown, converted.videos);
+        } catch (err) {
+            this.showMoveIssuesModalWith(err);
         }
 
-        this.toggleClassOnElement(row, true, "highlight-row");
-        LoadingHelper.showLoading();
-        this._service.requestOutputDataAsync(videoData, false)
-            .then(outData => {
-                let converted = OutputResponseData.fromJson(outData);
-                this._service.updateVideoOutList(index, converted.videos);
-                this._service.updateVideoOutOrigin(index, converted.origin);
-                this.triggerChangeOutputTextBox(outputTextBox, converted.videos[0].title);
-                this.populateOutputDropdownList(outputDropdown, converted.videos);
-
-                LoadingHelper.hideLoading();
-                this.checkShowMoveVideosButton();
-            }).catch(reason => {
-            LoadingHelper.hideLoading();
-            this.checkShowMoveVideosButton();
-        });
+        LoadingHelper.hideLoading();
+        this.checkShowMoveVideosButton();
     }
 
-    handleVideoGroupTypeChange(radio: HTMLInputElement): void {
-        const videoData = this._service.updateGroupVideoType(radio.value);
+    async handleVideoGroupTypeChange(radio: HTMLInputElement) {
+        try {
+            const videoData = this._service.updateGroupVideoType(radio.value);
 
-        const groupEditModal = document.querySelector<HTMLDivElement>("#js-groupEditModal");
-        const outputTextBox = groupEditModal.querySelector<HTMLInputElement>(".js-videoOutputInput");
-        const groupOutputDropdown = groupEditModal.querySelector<HTMLDivElement>("#js-videoGroupOutputDropdown");
+            const groupEditModal = document.querySelector<HTMLDivElement>("#js-groupEditModal");
+            const outputTextBox = groupEditModal.querySelector<HTMLInputElement>(".js-videoOutputInput");
+            const groupOutputDropdown = groupEditModal.querySelector<HTMLDivElement>("#js-videoGroupOutputDropdown");
 
-        if (radio.value === "unknown") {
-            this.triggerChangeOutputTextBox(outputTextBox, "");
-            return;
+            if (radio.value === "unknown") {
+                this.triggerChangeOutputTextBox(outputTextBox, "");
+                return;
+            }
+
+            LoadingHelper.showLoading();
+            let outData = await this._service.requestOutputDataAsync(videoData, false);
+
+            let converted = OutputResponseData.fromJson(outData);
+            this._service.updateGroupVideoOutList(converted.videos);
+            this._service.updateGroupVideoOutOrigin(converted.origin);
+            this.triggerChangeOutputTextBox(outputTextBox, converted.videos[0].title);
+            this.populateOutputDropdownList(groupOutputDropdown, converted.videos);
+        } catch (err) {
+            this.showMoveIssuesModalWith(err);
         }
 
-        LoadingHelper.showLoading();
-        this._service.requestOutputDataAsync(videoData, false)
-            .then(outData => {
-                let converted = OutputResponseData.fromJson(outData);
-                this._service.updateGroupVideoOutList(converted.videos);
-                this._service.updateGroupVideoOutOrigin(converted.origin);
-                this.triggerChangeOutputTextBox(outputTextBox, converted.videos[0].title);
-                this.populateOutputDropdownList(groupOutputDropdown, converted.videos);
-
-                LoadingHelper.hideLoading();
-            }).catch(reason => {
-            LoadingHelper.hideLoading();
-        });
+        LoadingHelper.hideLoading();
     }
 
     populateOutputDropdownList(dropdown: HTMLDivElement, outList: Array<VideoWebResult>): void {
@@ -160,17 +157,19 @@ export class SearchViewHandler {
         this._modalHandler.showGroupEditModal();
     }
 
-    handleMoveVideosButtonClick(): void {
+    async handleMoveVideosButtonClick() {
         LoadingHelper.showLoading();
-        this._service.requestMoveVideosAsync()
-            .then(response => {
-                if (response.toString().length === 0) {
-                    this.triggerSearchVideosButton();
-                    return;
-                }
-                this.showMoveIssuesModalWith(JSON.stringify(response, null, 2));
-                LoadingHelper.hideLoading();
-            });
+        try {
+            let response = await this._service.requestMoveVideosAsync();
+            if (response.toString().length === 0) {
+                this.triggerSearchVideosButton();
+                return;
+            }
+            this.showMoveIssuesModalWith(JSON.stringify(response, null, 2));
+        } catch (err) {
+            this.showMoveIssuesModalWith(err);
+        }
+        LoadingHelper.hideLoading();
     }
 
     handleGroupEditCheckBoxChange(row: HTMLTableRowElement, index: number, checked: boolean): void {
@@ -247,46 +246,46 @@ export class SearchViewHandler {
         this._service.updateGroupVideoOutput(textbox.value);
     }
 
-    handleOnlineReSearchButtonClick(row: HTMLTableRowElement, index: number): void {
+    async handleOnlineReSearchButtonClick(row: HTMLTableRowElement, index: number) {
         const videoData = this._service.retrieve(index);
         const outputTextBox = row.querySelector<HTMLInputElement>(".js-videoOutputInput");
         const outputDropdown = row.querySelector<HTMLDivElement>("#js-videoOutputDropdown" + index);
 
         LoadingHelper.showLoading();
-        this._service.requestOutputDataAsync(videoData, true)
-            .then(outData => {
-                let converted = OutputResponseData.fromJson(outData);
-                this._service.updateVideoOutList(index, converted.videos);
-                this._service.updateVideoOutOrigin(index, converted.origin);
-                this.triggerChangeOutputTextBox(outputTextBox, converted.videos[0].title);
-                this.populateOutputDropdownList(outputDropdown, converted.videos);
+        try {
+            let outData = await this._service.requestOutputDataAsync(videoData, true);
+            let converted = OutputResponseData.fromJson(outData);
+            this._service.updateVideoOutList(index, converted.videos);
+            this._service.updateVideoOutOrigin(index, converted.origin);
+            this.triggerChangeOutputTextBox(outputTextBox, converted.videos[0].title);
+            this.populateOutputDropdownList(outputDropdown, converted.videos);
+        } catch (err) {
+            this.showMoveIssuesModalWith(err);
+        }
 
-                LoadingHelper.hideLoading();
-                this.checkShowMoveVideosButton();
-            }).catch(reason => {
-            LoadingHelper.hideLoading();
-            this.checkShowMoveVideosButton();
-        });
+        this.checkShowMoveVideosButton();
+        LoadingHelper.hideLoading();
     }
 
-    handleGroupOnlineReSearchButtonClick(): void {
+    async handleGroupOnlineReSearchButtonClick() {
         const videoData = this._service.retrieveGroupVideoData();
         const groupEditModal = document.querySelector<HTMLDivElement>("#js-groupEditModal");
         const outputTextBox = groupEditModal.querySelector<HTMLInputElement>(".js-videoOutputInput");
         const groupOutputDropdown = groupEditModal.querySelector<HTMLDivElement>("#js-videoGroupOutputDropdown");
 
         LoadingHelper.showLoading();
-        this._service.requestOutputDataAsync(videoData, true)
-            .then(outData => {
-                let converted = OutputResponseData.fromJson(outData);
-                this._service.updateGroupVideoOutList(converted.videos);
-                this._service.updateGroupVideoOutOrigin(converted.origin);
-                this.triggerChangeOutputTextBox(outputTextBox, converted.videos[0].title);
-                this.populateOutputDropdownList(groupOutputDropdown, converted.videos);
-                LoadingHelper.hideLoading();
-            }).catch(reason => {
-            LoadingHelper.hideLoading();
-        });
+        try {
+            let outData = await this._service.requestOutputDataAsync(videoData, true);
+            let converted = OutputResponseData.fromJson(outData);
+            this._service.updateGroupVideoOutList(converted.videos);
+            this._service.updateGroupVideoOutOrigin(converted.origin);
+            this.triggerChangeOutputTextBox(outputTextBox, converted.videos[0].title);
+            this.populateOutputDropdownList(groupOutputDropdown, converted.videos);
+        } catch (err) {
+            this.showMoveIssuesModalWith(err);
+        }
+
+        LoadingHelper.hideLoading();
     }
 
     register(): void {
