@@ -19,6 +19,28 @@ import (
 	"videosmover/pkg/search"
 )
 
+
+/* TODO: fix subtitles
+If TV Show
+	var countNrOfEpisodes
+	If Subs|subs folder inside current folder
+		Go inside folder
+		var countOfSubfolders
+		If there are same nr of subfolders here as nr of episodes
+			Loop over each folder
+				var nameOfFolder
+				Go inside folder
+				Find English subtitle file
+				Rename it to nameOfFolder
+				Move it up one level
+				Go back one level
+				Delete folder
+			Move subtitle files one level up, to root of TV Show
+			Go back one level
+			Delete Subs|subs folder
+*/
+
+
 func main() {
 	args := os.Args[1:]
 	if len(args) != 3 {

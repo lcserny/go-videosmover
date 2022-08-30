@@ -14,6 +14,7 @@ func TestSearchAction(t *testing.T) {
 	path, cleanup := action.SetupTestTmpDir(t, "videosmover_search_test-")
 	defer cleanup()
 	video1 := action.AddTestVideo(t, path, filepath.Join("Video1 Folder", "video.mp4"))
+	// TODO: add test case for Subs/FolderOfEpisode/English.srt
 	video1Subs := action.AddTestSubtitles(t, video1, []string{filepath.Join("Sub", "subtitle.srt")})
 	video2 := action.AddTestVideo(t, path, "video2.mp4")
 	_ = action.AddTestSubtitles(t, video2, []string{"subtitle.srt"})
