@@ -114,7 +114,7 @@ func TestOutputAction(t *testing.T) {
 
 	cfg := action.GetTestActionConfig()
 	jsonCodec := json.NewJsonCodec()
-	videoWebSearcher := tmdb.NewVideoWebSearcher()
+	videoWebSearcher := tmdb.NewVideoWebSearcher(&core.ActionConfig{})
 	/*if videoWebSearcher.CanSearch() {
 		testData = append(testData,
 			action.TestActionData{

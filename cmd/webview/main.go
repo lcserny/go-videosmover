@@ -1,23 +1,22 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
-	"github.com/lcserny/goutils"
-	"github.com/pkg/browser"
 	"html/template"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
-	"videosmover/pkg"
+	core "videosmover/pkg"
 	"videosmover/pkg/config"
 	"videosmover/pkg/ext/json"
 	"videosmover/pkg/move"
 	"videosmover/pkg/output"
 	"videosmover/pkg/search"
 	"videosmover/pkg/web"
+
+	"github.com/lcserny/goutils"
 )
 
 func main() {
@@ -31,12 +30,12 @@ func main() {
 	cfgPath := flag.String("config", "", "path to webview config")
 	flag.Parse()
 
-	var pingTimestamp int64
+	// var pingTimestamp int64
 	jsonCodec := json.NewJsonCodec()
 	cfg := config.MakeWebviewConfig(*cfgPath, jsonCodec)
 	goutils.InitFileLogger(cfg.LogFile)
 	apiRequester := web.NewApiRequester(jsonCodec)
-	webPath := fmt.Sprintf("localhost:%s", cfg.Port)
+	webPath := fmt.Sprintf(":%s", cfg.Port)
 
 	// define template controllers
 	tmplControllers := make(map[string]core.WebTemplateController)
@@ -51,9 +50,6 @@ func main() {
 
 	// init web handler
 	mux := http.NewServeMux()
-	mux.HandleFunc("/running", func(writer http.ResponseWriter, request *http.Request) {
-		pingTimestamp = goutils.MakeTimestamp()
-	})
 	htmlServer := http.FileServer(http.Dir(cfg.HtmlFilesPath))
 	mux.Handle("/static/", http.StripPrefix("/static/", htmlServer))
 	templates := template.Must(template.ParseGlob(filepath.Join(cfg.HtmlFilesPath, "*.gohtml")))
@@ -72,22 +68,8 @@ func main() {
 	}
 
 	// start server
-	server := &http.Server{Addr: webPath, Handler: mux}
-	go func() {
-		if err := server.ListenAndServe(); err != http.ErrServerClosed {
-			goutils.LogFatal(err)
-		}
-		os.Exit(0)
-	}()
 	goutils.LogInfo(fmt.Sprintf("Started server on port %s...", cfg.Port))
-
-	// open browser
-	go goutils.LogFatal(browser.OpenURL(fmt.Sprintf("http://%s", webPath)))
-
-	// check shutdown server
-	for range time.NewTicker(time.Second).C {
-		if (pingTimestamp != 0) && (goutils.MakeTimestamp() > pingTimestamp+cfg.ServerPingTimeoutMs) {
-			goutils.LogFatal(server.Shutdown(context.Background()))
-		}
+	if err := http.ListenAndServe(webPath, mux); err != http.ErrServerClosed {
+		goutils.LogFatal(err)
 	}
 }

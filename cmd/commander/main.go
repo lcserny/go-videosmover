@@ -59,7 +59,7 @@ func main() {
 	trashMover := core.NewTrashMover()
 	mimeChecker := h2non.NewVideoChecker(cfg)
 	videoPathWalker := godirwalk.NewVideoPathWalker(cfg)
-	videoWebSearcher := tmdb.NewVideoWebSearcher()
+	videoWebSearcher := tmdb.NewVideoWebSearcher(cfg)
 	httpCache := core.NewHttpCacheStore(cfg.CacheAddress, "/get", "/set", "/close", codec)
 	defer httpCache.Close()
 

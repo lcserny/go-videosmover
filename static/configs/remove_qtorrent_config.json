@@ -1,0 +1,11 @@
+{
+    "logFile": "/path/to/logFile",
+    "qtorrent": {
+        "torrentsUrl": "http://localhost:8088/api/v2/torrents"
+    },
+    "mongodb": {
+        "url": "mongo/connection/url",
+        "database": "videosmover",
+        "collection": "download_cache"
+    }
+}
