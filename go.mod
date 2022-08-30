@@ -1,21 +1,48 @@
 module videosmover
 
-go 1.12
+go 1.19
 
 require (
-	github.com/Bios-Marcel/wastebasket v0.0.0-20190304193457-ba788b19da79
-	github.com/VictoriaMetrics/fastcache v1.5.0
-	github.com/coreos/etcd v3.3.13+incompatible
-	github.com/coreos/go-semver v0.3.0 // indirect
-	github.com/h2non/filetype v1.0.8
-	github.com/json-iterator/go v1.1.6 // indirect
-	github.com/karrick/godirwalk v1.8.0
+	github.com/Bios-Marcel/wastebasket v0.0.0-20220303211447-66c8977d7e8c
+	github.com/VictoriaMetrics/fastcache v1.10.0
+	github.com/coreos/etcd v3.3.27+incompatible
+	github.com/h2non/filetype v1.1.3
+	github.com/karrick/godirwalk v1.17.0
 	github.com/lcserny/goutils v1.0.8
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.1 // indirect
-	github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
-	github.com/pkg/errors v0.8.1
-	github.com/ramya-rao-a/go-outline v0.0.0-20181122025142-7182a932836a // indirect
+	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
+	github.com/pkg/errors v0.9.1
 	github.com/ryanbradynd05/go-tmdb v0.0.0-20181220020137-291a20d25ffd
-	golang.org/x/tools v0.0.0-20190614205625-5aca471b1d59 // indirect
+)
+
+require (
+	cloud.google.com/go v0.100.2 // indirect
+	cloud.google.com/go/compute v1.5.0 // indirect
+	cloud.google.com/go/firestore v1.6.1 // indirect
+	cloud.google.com/go/iam v0.1.1 // indirect
+	cloud.google.com/go/storage v1.21.0 // indirect
+	firebase.google.com/go/v4 v4.8.0 // indirect
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/coreos/go-semver v0.3.0 // indirect
+	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/golang/snappy v0.0.4 // indirect
+	github.com/google/go-cmp v0.5.7 // indirect
+	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
+	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/ramya-rao-a/go-outline v0.0.0-20181122025142-7182a932836a // indirect
+	go.opencensus.io v0.23.0 // indirect
+	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
+	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a // indirect
+	golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24 // indirect
+	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/tools v0.1.5 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
+	google.golang.org/api v0.73.0 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/appengine/v2 v2.0.1 // indirect
+	google.golang.org/genproto v0.0.0-20220310185008-1973136f34c6 // indirect
+	google.golang.org/grpc v1.45.0 // indirect
+	google.golang.org/protobuf v1.27.1 // indirect
 )

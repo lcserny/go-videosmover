@@ -1,4 +1,7 @@
 {
+  "serverName": "someName",
+  "cloudDbURL": "TODO",
+  "cloudDbKeyfile": "TODO",
   "bin": [
     {
       "uri": "videos-mover",

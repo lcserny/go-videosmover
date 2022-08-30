@@ -1,21 +1,22 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
-	"github.com/lcserny/goutils"
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
 	"runtime"
 	"strings"
 	"time"
 	core "videosmover/pkg"
 	"videosmover/pkg/config"
+	"videosmover/pkg/ext/firebase"
 	"videosmover/pkg/ext/json"
+	"videosmover/pkg/shutdown"
 	"videosmover/pkg/web"
+
+	"github.com/lcserny/goutils"
 )
 
 func main() {
@@ -31,6 +32,7 @@ func main() {
 	jsonCodec := json.NewJsonCodec()
 	apiRequester := web.NewApiRequester(jsonCodec)
 	c := config.MakeProxyConfig(*cfgPath, jsonCodec)
+	cloudDatabase := firebase.NewCloudDatabase(c)
 	cacheAddress := "http://localhost:8076"
 	httpCache := core.NewHttpCacheStore(cacheAddress, "/get", "/set", "/close", jsonCodec)
 	goutils.InitFileLogger(c.LogFile)
@@ -45,9 +47,11 @@ func main() {
 		}
 	}
 	addInternalHandlers(mux, httpCache, jsonCodec)
-	startUDPListener(c)
+	// startUDPListener(c)
 
 	core.StartKeepWarmPing(c)
+
+	cloudDatabase.Init()
 
 	goutils.LogInfo(fmt.Sprintf("Started server on port %s...", c.Port))
 	goutils.LogFatal(http.ListenAndServe(fmt.Sprintf(":%s", c.Port), mux))
@@ -82,7 +86,7 @@ func startUDPListener(proxyConfig *core.ProxyConfig) {
 
 func addInternalHandlers(mux *http.ServeMux, cache core.CacheStore, codec core.Codec) {
 	core.AddWarmPingEndpoint(mux)
-	addShutdownEndpoint(mux)
+	// addShutdownEndpoint(mux)
 	addDownloadsHistoryEndpoint(mux, cache, codec)
 }
 
@@ -119,15 +123,6 @@ func addShutdownEndpoint(mux *http.ServeMux) {
 		if seconds, exists := values["seconds"]; exists {
 			secondsInt = seconds[0]
 		}
-		executeShutdown(secondsInt)
+		shutdown.Shutdown(secondsInt)
 	})
-}
-
-func executeShutdown(seconds string) {
-	var cmdErr bytes.Buffer
-	cmd := exec.Command("cmd", "/C", "shutdown", "-s", "-t", seconds)
-	cmd.Stderr = &cmdErr
-	if err := cmd.Run(); err != nil {
-		cmdErr.WriteString(err.Error())
-	}
 }

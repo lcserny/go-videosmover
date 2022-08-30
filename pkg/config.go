@@ -1,5 +1,11 @@
 package core
 
+import "videosmover/pkg/shutdown"
+
+var AvailableCommands = map[string]func(){
+	"shutdown": func() { shutdown.Shutdown("0") }, // TODO: use/impl seconds
+}
+
 type WithPort interface {
 	GetPort() string
 }
@@ -30,10 +36,13 @@ type CmdHandlerConfig struct {
 }
 
 type ProxyConfig struct {
-	LogFile string             `json:"logFile"`
-	Port    string             `json:"port"`
-	UDPPort string             `json:"udp-port"`
-	Bin     []CmdHandlerConfig `json:"bin"`
+	ServerName            string             `json:"serverName"`
+	LogFile               string             `json:"logFile"`
+	Port                  string             `json:"port"`
+	UDPPort               string             `json:"udp-port"`
+	CloudDBUrl            string             `json:"cloudDbURL"`
+	CloudDBAccountKeyfile string             `json:"cloudDbKeyfile"`
+	Bin                   []CmdHandlerConfig `json:"bin"`
 }
 
 func (p ProxyConfig) GetPort() string {

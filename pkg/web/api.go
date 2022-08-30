@@ -11,6 +11,10 @@ import (
 	"videosmover/pkg"
 )
 
+type CloudDatabase interface {
+	Init()
+}
+
 type apiRequester struct {
 	timeFormat string
 	codec      core.Codec

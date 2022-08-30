@@ -26,6 +26,15 @@ func MakeProxyConfig(configFile string, codec core.Codec) *core.ProxyConfig {
 	if len(serverConfig.Port) < 4 {
 		goutils.LogFatal(errors.New("port not valid"))
 	}
+	if len(serverConfig.ServerName) < 1 {
+		goutils.LogFatal(errors.New("server name not provided"))
+	}
+	if len(serverConfig.CloudDBUrl) < 1 {
+		goutils.LogFatal(errors.New("cloud database url not provided"))
+	}
+	if len(serverConfig.CloudDBAccountKeyfile) < 1 {
+		goutils.LogFatal(errors.New("cloud database account keyfile not provided"))
+	}
 	if len(serverConfig.LogFile) < 1 {
 		goutils.LogFatal(errors.New("log file path not provided"))
 	}
