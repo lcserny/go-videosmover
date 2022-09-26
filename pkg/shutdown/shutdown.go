@@ -16,7 +16,7 @@ func Shutdown(seconds string) {
 	case "windows":
 		cmd = exec.Command("cmd", "/C", "shutdown", "-s", "-t", seconds)
 	case "linux":
-		cmd = exec.Command("poweroff")
+		cmd = exec.Command("shutdown", seconds)
 	default:
 		goutils.LogWarning("Unknown OS detected, cannot shutdown.")
 	}
