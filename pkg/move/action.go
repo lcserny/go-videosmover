@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"videosmover/pkg"
 	"videosmover/pkg/action"
@@ -112,7 +113,7 @@ func (me *moveExecutor) moveSubs() bool {
 		}
 
 		// fix for Windows path length
-		if len(sub) >= 255 || len(subDest) >= 255 {
+		if runtime.GOOS == "windows" && len(sub) >= 255 || len(subDest) >= 255 {
 			unmovedSubs = true
 			goutils.LogError(fmt.Errorf(fmt.Sprintf(MOVING_PROBLEM_REASON, sub)))
 			unmovedSubsReasons = append(unmovedSubsReasons, fmt.Sprintf(MOVING_PROBLEM_REASON, sub))
