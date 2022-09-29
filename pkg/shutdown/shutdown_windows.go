@@ -1,4 +1,3 @@
-//go:build linux
 package shutdown
 
 import (
@@ -10,7 +9,7 @@ import (
 
 func Shutdown(seconds string) {
 	var cmdErr bytes.Buffer
-	cmd := exec.Command("shutdown", seconds)
+	cmd := exec.Command("cmd", "/C", "shutdown", "-s", "-t", seconds)
 	cmd.Stderr = &cmdErr
 	if err := cmd.Run(); err != nil {
 		goutils.LogError(err)
