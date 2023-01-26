@@ -1,0 +1,14 @@
+[Unit]
+Description=Custom Services
+After=network.target
+
+[Service]
+ExecStart=/bin/sh -c "cd /home/leonardo/bin && ./start_services.sh"
+#User=leonardo
+#Group=leonardo
+TimeoutSec=0
+RemainAfterExit=yes
+GuessMainPID=no
+
+[Install]
+WantedBy=multi-user.target
