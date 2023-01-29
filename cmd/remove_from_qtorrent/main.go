@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 	core "videosmover/pkg"
@@ -37,8 +38,12 @@ func main() {
 }
 
 func removeTorrent(hash string, config *core.RemoveTorrentConfig) {
-	deleteUrl := fmt.Sprintf("%s/delete?hashes=%s&deleteFiles=false", config.QTorrent.TorrentsUrl, hash)
-	if _, err := http.Get(deleteUrl); err != nil {
+	deleteUrl := fmt.Sprintf("%s/delete", config.QTorrent.TorrentsUrl)
+	data := url.Values{
+		"hashes":      {hash},
+		"deleteFiles": {"false"},
+	}
+	if _, err := http.PostForm(deleteUrl, data); err != nil {
 		goutils.LogFatal(err)
 	}
 }
@@ -50,8 +55,11 @@ type TorrentFile struct {
 }
 
 func updateCache(hash string, config *core.RemoveTorrentConfig, codec core.Codec) {
-	getFilesUrl := fmt.Sprintf("%s/files?hash=%s", config.QTorrent.TorrentsUrl, hash)
-	getFilesResp, err := http.Get(getFilesUrl)
+	getFilesUrl := fmt.Sprintf("%s/files", config.QTorrent.TorrentsUrl)
+	data := url.Values{
+		"hash": {hash},
+	}
+	getFilesResp, err := http.PostForm(getFilesUrl, data)
 	if err != nil {
 		goutils.LogFatal(err)
 	}
@@ -63,7 +71,7 @@ func updateCache(hash string, config *core.RemoveTorrentConfig, codec core.Codec
 	if err = codec.Decode(getFilesBytes, &torrentFilesList); err != nil {
 		goutils.LogFatal(err)
 	}
-	
+
 	dateDownloaded := time.Now().Format(time.RFC1123Z)
 	bsons := make([]interface{}, len(torrentFilesList))
 	for i, t := range torrentFilesList {
