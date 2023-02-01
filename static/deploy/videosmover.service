@@ -1,0 +1,12 @@
+[Unit]
+Description=VideosMover Services
+After=network.target
+
+[Service]
+ExecStart=/bin/sh -c "~/bin/videosmover/start_videosmover.sh"
+TimeoutSec=0
+RemainAfterExit=yes
+GuessMainPID=no
+
+[Install]
+WantedBy=default.target
